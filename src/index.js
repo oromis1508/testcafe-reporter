@@ -22,7 +22,7 @@ module.exports = function () {
         fs: require('fs'),
 
         reportUtil: require('./jsonToHtml'),
-        
+      
         reportSomething (data, field) {
             var content = '{"fixtures": []}';
 
@@ -50,9 +50,10 @@ module.exports = function () {
             this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
         },
 
-        reportTaskStart ( startTime, userAgents, testCount) {
+        reportTaskStart (startTime, userAgents, testCount) {
             const time = this.moment(startTime).format('M/D/YYYY h:mm:ss a');
 
+            this.fs.unlinkSync(this.reportUtil.getResultFileName());
             this.testCount = testCount;
             console.log(`Tests run: ${testCount} on ${userAgents}`);
             console.log(`Start time: ${time}`);
@@ -77,7 +78,7 @@ module.exports = function () {
         reportTestDone (name, testRunInfo) {
             const hasErr = !!testRunInfo.errs.length;
 
-            let result = hasErr ? 'passed' : 'failed';
+            let result = hasErr ? 'failed' : 'passed';
 
             if (testRunInfo.skipped)
                 result = 'skipped';                
