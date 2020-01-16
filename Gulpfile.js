@@ -24,8 +24,8 @@ function build () {
     gulp.src('src/**/*.js')
         .pipe(babel())
         .pipe(gulp.dest('lib'));
-    return gulp.src('src/report/*')
-        .pipe(gulp.dest('lib'));
+    return gulp.src('src/report/**')
+        .pipe(gulp.dest('lib/report'));
 }
 
 function test () {
