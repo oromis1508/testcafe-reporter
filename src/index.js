@@ -1,0 +1,107 @@
+module.exports = function () {
+    return {
+        noColors: true,
+        
+        createErrorDecorator () {
+            return {
+                'span category':       () => '',
+                'span step-name':      str => `"${str}"`,
+                'span user-agent':     str => this.chalk.gray(str),
+                'div screenshot-info': str => str,
+                'a screenshot-path':   str => this.chalk.underline(str),
+                'code':                str => this.chalk.yellow(str),
+                'code step-source':    str => this.chalk.magenta(this.indentString(str, 4)),
+                'span code-line':      str => `${str}\n`,
+                'span last-code-line': str => str,
+                'code api':            str => this.chalk.yellow(str),
+                'strong':              str => this.chalk.cyan(str),
+                'a':                   str => this.chalk.yellow(`"${str}"`)
+            };
+        },
+        
+        fs: require('fs'),
+
+        reportUtil: require('./jsonToHtml'),
+        
+        reportSomething (data, field) {
+            var content = '{"fixtures": []}';
+
+            if (this.fs.existsSync(this.reportUtil.getResultFileName()))
+                content = this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString();
+
+            const json = JSON.parse(content);
+
+            if (field === 'fixture') 
+                json.fixtures.push(data);
+            else if (field === 'test') 
+                json.fixtures[json.fixtures.length - 1].tests.push(data);
+            else if (field) 
+                json[field] = data;
+
+            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+        },
+
+        setTestStatus (status) {
+            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const fixtures = json.fixtures;
+            const tests = json.fixtures[fixtures.length - 1].tests;
+
+            json.fixtures[fixtures.length - 1].tests[tests.length - 1].status = status;
+            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+        },
+
+        reportTaskStart ( startTime, userAgents, testCount) {
+            const time = this.moment(startTime).format('M/D/YYYY h:mm:ss a');
+
+            this.testCount = testCount;
+            console.log(`Tests run: ${testCount} on ${userAgents}`);
+            console.log(`Start time: ${time}`);
+            this.reportSomething(time, 'startTime');
+        },
+
+        reportFixtureStart (name) {
+            const fixtureContent = { name: name, tests: [] };
+
+            this.currentFixtureName = name;
+            console.log(`Fixture started: ${name}`);
+            this.reportSomething(fixtureContent, 'fixture');
+        },
+
+        reportTestStart (name) {
+            const testContent = { name: name, steps: [] };
+
+            console.log(`Test started: ${this.currentFixtureName} - ${name}`);
+            this.reportSomething(testContent, 'test');
+        },
+
+        reportTestDone (name, testRunInfo) {
+            const hasErr = !!testRunInfo.errs.length;
+
+            let result = hasErr ? 'passed' : 'failed';
+
+            if (testRunInfo.skipped)
+                result = 'skipped';                
+
+            console.log(`Test finished: ${this.currentFixtureName} - ${name}`);
+            console.log(`Test result: ${result}`);
+            this.setTestStatus(result);
+        },
+
+        reportTaskDone (endTime, passed, warnings) {
+            const time = this.moment(endTime).format('M/D/YYYY h:mm:ss a');
+            const durationMs = endTime - this.startTime;
+            const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
+      
+            let summary = `${passed}/${this.testCount} passed`;
+      
+            if (passed !== this.testCount)
+                summary += `\n${this.testCount - passed}/${this.testCount} failed`;
+      
+            console.log(`Test run finished: ${time}`);
+            console.log(`Duration: ${durationStr}`);
+            console.log(`Run results: ${summary}`);
+            console.log(warnings);
+            this.reportUtil.generateReport();
+        }
+    };
+};

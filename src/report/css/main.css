@@ -1,0 +1,75 @@
+.fixtures {
+    height: 25vw;
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+}
+
+.fixtureName {
+    background-image: radial-gradient(#aaaaff, #5555ff);
+    text-align: center;
+    margin: 1%;
+    width: 30vw;
+    height: 5vw;
+    border-radius: 1vw;
+}
+
+.selected .fixtureName {
+    background-image: radial-gradient(#bbbbff, #775577);
+    cursor: auto;
+}
+
+.fixtureName:hover {
+    background-image: radial-gradient(#aaaaff, #5555aa);
+    cursor: pointer;
+    height: 5vw;
+}
+
+.test {
+    padding-top: 0.6vw;
+    visibility: hidden;
+    margin: 0;
+    text-align: center;
+    height: 2vw;
+    border-radius: 1.5vw;
+}
+
+.test:hover {
+    cursor: pointer;
+}
+
+.test[status='passed']{
+    background-image: radial-gradient(#558855, #00dd00);
+}
+
+.test[status='failed']{
+    background-image: radial-gradient(#885555, #dd0000);
+}
+
+.test[status='passed']:hover{
+    background-image: radial-gradient(#558855, #00dd00, #558855);
+}
+
+.test[status='failed']:hover{
+    background-image: radial-gradient(#885555, #dd0000, #885555);
+}
+
+.selected .test{
+    visibility: visible;
+    margin: 0.5%;
+}
+
+.visible {
+    visibility: visible;
+    margin: 1%;
+}
+
+steps {
+    /* background-image: radial-gradient(#885555, #dd0000, #885555); */
+
+    background: url('../img/back.jpg');
+    background-repeat: no-repeat;
+    background-size: auto;
+}
