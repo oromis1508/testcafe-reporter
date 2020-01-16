@@ -22,8 +22,10 @@ function lint () {
 
 function build () {
     return gulp
-        .src(['src/**/*.js', 'src/report/*'])
+        .src('src/**/*.js')
         .pipe(babel())
+        .pipe(gulp.dest('lib'))
+        .src('src/report/*')
         .pipe(gulp.dest('lib'));
 }
 
