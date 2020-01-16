@@ -10,20 +10,23 @@ module.exports = {
 
     generateReport: function () {
         const fs = require('fs');
+        const copydir = require('copy-dir');
         const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
         const html = fs.readFileSync('src/report/index.html').toLocaleString();
         const generatedReport = html.replace('<div class="content"></div>', `<div class="content">${this.getJsonAsHtml(json)}</div>`);
         const curDate = new Date();
         const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
         const newReportDir = `report_${curDate.getDate()}.${month}`;
+
+        let originalReportPath = 'src/report';
         
-        var copydir = require('copy-dir');
- 
-        copydir.sync('src/report', newReportDir, {
+        if (!fs.existsSync(originalReportPath))
+            originalReportPath = 'node_modules/testcafe-reporter-acd-html-reporter/lib/report';
+        copydir.sync(originalReportPath, newReportDir, {
             utimes: true,
 
             mode: true,
-            
+
             cover: true
         });
 

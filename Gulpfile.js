@@ -22,7 +22,7 @@ function lint () {
 
 function build () {
     return gulp
-        .src('src/**/*.js')
+        .src(['src/**/*.js', 'src/report/*'])
         .pipe(babel())
         .pipe(gulp.dest('lib'));
 }
