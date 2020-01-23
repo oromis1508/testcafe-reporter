@@ -1,20 +1,29 @@
 var stepsArray = [];
 
 module.exports = {
-    getResultFileName: function () {
+    getFormattedDate: function () {
         const curDate = new Date();
         const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
-        
-        return `testResults_${curDate.getDate()}.${month}.json`;
+        return `${curDate.getDate()}.${month}`;
+    },
+
+    getResultFileName: function () {       
+        return `test-results/report_${this.getFormattedDate()}.json`;
+    },
+
+    getScreensPath: function () {        
+        return `${this.getReportPath()}/img`;
+    },
+
+    getReportPath: function () {        
+        return `test-results/report_${this.getFormattedDate()}`;
     },
 
     generateReport: function () {
         const fs = require('fs');
         const copydir = require('copy-dir');
         const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
-        const curDate = new Date();
-        const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
-        const newReportDir = `report_${curDate.getDate()}.${month}`;
+        const newReportDir = this.getReportPath();
 
         let originalReportPath = 'src/report';
 
@@ -41,7 +50,7 @@ module.exports = {
         generatedReport += '<div class="fixtures"><table><tbody>';
         json.fixtures.forEach(fixture => {
             generatedReport += `<tr class="fixture"><td class="fixtureName" onmouseover="onFixtureHover(this)" onmouseleave="onFixtureLeave(this)" onclick="onFixtureClick(this)">${fixture.name}</td>`;
-            generatedReport += '<td>';
+            generatedReport += '<td class="tests">';
             fixture.tests.forEach(test => {
                 generatedReport += `<div class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}</div>`;
                 stepsArray.push({
@@ -49,14 +58,15 @@ module.exports = {
 
                     test: test.name,
 
-                    steps: this.stepsToString(test.steps)
+                    steps: this.stepsToString(test.steps),
+                    screenshot: test.screenshot ? `../../${this.getScreensPath()}/${test.screenshot}` : ''
                 });
             });
             generatedReport += '</td></tr>';
         }); 
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<tr>', 
-                `<tr fixture="${stepsData.fixture}" test="${stepsData.test}">`);
+                `<tr fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}">`);
         });
         return generatedReport + '</tbody></table></div>';
     },

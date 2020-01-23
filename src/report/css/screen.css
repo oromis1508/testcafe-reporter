@@ -1,0 +1,18 @@
+
+#screenshot {
+    width: 20vw;
+    position: absolute;
+    left:64.4vw;
+    bottom: 33vw;
+}
+
+#screenshot img {
+    width: inherit;
+    position: inherit;
+}
+
+#screenshot img:hover, #screenshot img.selected {
+    width: 80vw;
+    left: -55vw;
+    bottom: -30vw;
+}

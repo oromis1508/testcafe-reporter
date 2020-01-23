@@ -1,0 +1,38 @@
+.steps:not(:empty) {
+    width: 36.6vw;
+    height: 33.3vw;
+    overflow: auto;
+}
+
+.stepsContent {
+    left: 6.7vw;
+    margin-top: 5vw;
+    padding: 0 0.4vw;
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    overflow: inherit;
+}
+
+.stepsContent::-webkit-scrollbar {
+    width: 0;
+}
+
+.steps:not(:empty)::after {
+    content: "";
+    background: url('../img/back.jpg');
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    opacity: 0.5;
+    height: 43.79vw;
+    width: 50vw;
+    position: absolute;
+    z-index: -1;
+}
+
+.stepName {
+    border-style: double;
+}
