@@ -1,0 +1,171 @@
+{
+    "datetime": "2020-01-09T09:35",
+    "fixtures": 
+    [
+        {
+            "name": "Records edit",
+            "tests":
+            [
+                {
+                    "name": "RE. Adding records. 1. Adding IRM Record. Recordset ${testData.recordset}", 
+                    "status": "passed",
+                    "steps": 
+                    [
+                        {
+                            "name": "Step 1. Open ${testData.recordset}. Check it opened and add/delete control(-s) exist",
+                            "actions": ["Do something", "Do something else", "And last do something"]
+                        }, 
+                        {
+                            "name": "Step 2. Click 'Create New Record'. Check the dialog opens",
+                            "actions": ["Move", "Click", "Set", "Check"]
+                        }, 
+                        {
+                            "name": "Step 3. To do many various actions",
+                            "actions": ["Action 1", 
+                                "Too long action Too long action Too long action Too long action Too long action Too long action Too long action Too long action Too long action Too long action ", 
+                                "Action 3", 
+                                "Action 4", 
+                                "Action 5", 
+                                "Action 6", 
+                                "Action 7", 
+                                "Action 8", 
+                                "Action 9", 
+                                "Action 10", 
+                                "Action 11", 
+                                "Action 12", 
+                                "Action 13", 
+                                "Action 14", 
+                                "Action 15", 
+                                "Action 16", 
+                                "Action 17", 
+                                "Action 18", 
+                                "Action 19", 
+                                "Action 20", 
+                                "Action 21", 
+                                "Action 22", 
+                                "Action 23", 
+                                "Action 24", 
+                                "Action 25", 
+                                "Action 26", 
+                                "Action 27", 
+                                "Action 28", 
+                                "Action 29", 
+                                "Action 31", 
+                                "Action 32", 
+                                "Action 33", 
+                                "Action 34", 
+                                "Action 35", 
+                                "Action 36", 
+                                "Action 37"]
+                        }
+                    ]
+                },
+                {
+                    "name": "RE. Deleting records. Batch Library Records", 
+                    "status": "failed",
+                    "screenshot": "Screenshot_1.png",
+                    "steps": 
+                    [
+                        {
+                            "name": "Step 1. Select last record. Click Delete Record(s). Check the dialog appears",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 2. Select Current Record and click OK. Check the record deleted",
+                            "actions": []
+                        },
+                        {
+                            "name": "Step 3. Go to 5 record. Delete Current. Check it deleted",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 4. Go to first record. Delete Current. Check it deleted",
+                            "actions": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Admin User Features Test - Work With Layouts",
+            "tests": 
+            [
+                {
+                    "name": "AUFTWWL. Edit existing Layout - 3. Load Default Layout option check for custom layouts (Batch Genealogy Layout) veryveryveryveryveryveryveryveryveryveryveryverylong",
+                    "status": "passed",
+                    "steps": 
+                    [
+                        {
+                            "name": "Step 1. Open tab menu",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 2. Save layout",
+                            "actions": []
+                        },
+                        {
+                            "name": "Step 3. Create new widget panel and add widget BG_IMPURITIES_TABLE. Check it",
+                            "actions": []
+                        },
+                        {
+                            "name": "Step 4. Create new widget panel and add widget BATCH_DATA. Check it",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 5. Create new widget panel and add widget CARRYOVER_OF_IMPURITIES. Check it",
+                            "actions": []
+                        },
+                        {
+                            "name": "Step 6. Click on Load Default Layout option. Check dialog appears",
+                            "actions": []
+                        },
+                        {
+                            "name": "Step 7. Cancel Load Default Layout dialog. Check layout hasn't changed",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 8.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 9.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 10.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 11.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 12.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 13.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 14.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 15.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 16.",
+                            "actions": []
+                        }, 
+                        {
+                            "name": "Step 17.",
+                            "actions": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
