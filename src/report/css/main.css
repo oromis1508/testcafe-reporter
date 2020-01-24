@@ -3,53 +3,6 @@ body {
     background-color: #dbcfc3;
 }
 
-.summary {
-    position: absolute;
-    padding: 0.7vw;
-    left: 20vw;
-}
-
-.summary div {
-    display: inline;
-    margin: 0.5vw;
-    padding: 0.4vw;
-    border-radius: 4vw;
-    font-weight: bold;
-    color: #333388;
-}
-
-.summary div.selected {
-    border: 2px ridge grey;
-}
-
-.summary div:hover {
-    cursor: pointer;
-    border: 2px dotted grey;
-}
-
-.summary .passed {
-    background-image: radial-gradient(#00dd00, #00ff00);
-}
-
-.summary .failed {
-    background-image: radial-gradient(#ff0000, #dd0000);
-}
-
-.summary .skipped {
-    background-image: radial-gradient(#dddd00, #ffff00);
-}
-
-.summary .passed:hover {
-    background-image: radial-gradient(#00ff00, #00dd00);
-}
-
-.summary .failed:hover {
-    background-image: radial-gradient(#dd0000, #ff0000);
-}
-
-.summary .skipped:hover {
-    background-image: radial-gradient(#ffff00, #dddd00);
-}
 .content {
     padding: 0.7vw;
     padding-bottom: 0;
@@ -131,13 +84,19 @@ table {
     position: initial;
 }
 
-.visible {
+.test.visible {
     visibility: visible;
     margin: 1%;
     position: initial;
 }
 
-.hidden {
+.test.hidden, .fixture.hidden {
     visibility: hidden;
     position: absolute;
+}
+
+.test.selected {
+    border: slateblue ridge 0.2vw;
+    font-size: 1.35vw;
+    padding-top: 0.45vw;
 }

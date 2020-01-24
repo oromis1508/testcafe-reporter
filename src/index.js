@@ -23,7 +23,7 @@ module.exports = function () {
 
         reportUtil: require('./jsonToHtml'),
       
-        reportSomething (data, field) {
+        writeToReportSomething (data, field) {
             var content = '{"fixtures": []}';
 
             if (this.fs.existsSync(this.reportUtil.getResultFileName()))
@@ -50,29 +50,36 @@ module.exports = function () {
             this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
         },
 
+        logBorder(info) {
+            console.log(`-------------------------------------------${info ? info : ''}-------------------------------------------`);
+        },
+
         reportTaskStart (startTime, userAgents, testCount) {
             const time = this.moment(startTime).format('M/D/YYYY h:mm:ss a');
 
             this.fs.unlinkSync(this.reportUtil.getResultFileName());
             this.testCount = testCount;
+            this.logBorder('Task start');
             console.log(`Tests run: ${testCount} on ${userAgents}`);
             console.log(`Start time: ${time}`);
-            this.reportSomething(time, 'startTime');
+            this.logBorder();
+            this.writeToReportSomething(time, 'startTime');
         },
 
         reportFixtureStart (name) {
             const fixtureContent = { name: name, tests: [] };
 
             this.currentFixtureName = name;
+            this.logBorder('Fixture start');
             console.log(`Fixture started: ${name}`);
-            this.reportSomething(fixtureContent, 'fixture');
+            this.writeToReportSomething(fixtureContent, 'fixture');
         },
 
         reportTestStart (name) {
             const testContent = { name: name, steps: [] };
-
+            this.logBorder('Test start');
             console.log(`Test started: ${this.currentFixtureName} - ${name}`);
-            this.reportSomething(testContent, 'test');
+            this.writeToReportSomething(testContent, 'test');
         },
 
         reportTestDone (name, testRunInfo) {
@@ -82,9 +89,10 @@ module.exports = function () {
 
             if (testRunInfo.skipped)
                 result = 'skipped';                
-
+            this.logBorder('Test done');
             console.log(`Test finished: ${this.currentFixtureName} - ${name}`);
             console.log(`Test result: ${result}`);
+            this.logBorder();
             this.setTestStatus(result);
         },
 
@@ -98,6 +106,7 @@ module.exports = function () {
             if (passed !== this.testCount)
                 summary += `\n${this.testCount - passed}/${this.testCount} failed`;
       
+            this.logBorder('Task done');
             console.log(`Test run finished: ${time}`);
             console.log(`Duration: ${durationStr}`);
             console.log(`Run results: ${summary}`);

@@ -26,6 +26,11 @@ function testOnClick (element) {
     const testName = element.textContent.trim();
     const fixtureName = element.parentElement.parentElement.querySelector('.fixtureName').textContent.trim();
 
+    this.document.querySelectorAll('.test.selected').forEach(el => {
+        el.classList.remove('selected');
+    });
+    element.classList.add('selected');
+
     this.document.querySelectorAll('div.stepsContent, #screenshot img').forEach(el => {
         el.remove();
     });
@@ -50,16 +55,17 @@ function testOnClick (element) {
 
 function filterTests(event) {
     const status = event.target.classList[0];
-    const methodName = event.target.classList.contains('selected') ? 'remove' : 'add';
+    const methodName = event.target.classList.contains('filtered') ? 'remove' : 'add';
 
-    event.target.classList[methodName]('selected');
+    event.target.classList[methodName]('filtered');
+    
     document.querySelectorAll('.fixture').forEach(fixture => {
-        if(fixture.querySelectorAll(`.test[status='${status}']`).length === 0) {
+        fixture.querySelectorAll(`.test[status='${status}']`).forEach(test => {
+            test.classList[methodName]('hidden');
+        });
+
+        if(fixture.querySelectorAll(`.test:not([status='${status}'])`).length === 0 || fixture.querySelectorAll('.test:not(.hidden)').length === 0 === event.target.classList.contains('filtered')) {
             fixture.classList[methodName]('hidden');
-        } else {
-            fixture.querySelectorAll(`.test:not([status='${status}'])`).forEach(test => {
-                test.classList[methodName]('hidden');
-            })
         }
     })
 }
