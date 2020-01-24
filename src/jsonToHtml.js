@@ -1,5 +1,5 @@
 var stepsArray = [];
-
+// var ad = {
 module.exports = {
     getFormattedDate: function () {
         const curDate = new Date();
@@ -86,3 +86,5 @@ module.exports = {
         return stepsString + '</td></tr>';
     }
 };
+
+// ad.generateReport();

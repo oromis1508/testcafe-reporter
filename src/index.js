@@ -44,8 +44,8 @@ module.exports = function () {
         setTestStatus (status) {
             const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
             const fixtures = json.fixtures;
-            const tests = json.fixtures[fixtures.length - 1].tests;
-            const currentStatus = json.fixtures[fixtures.length - 1].tests[tests.length - 1].status;
+            const tests = fixtures[fixtures.length - 1].tests;
+            const currentStatus = tests[tests.length - 1].status;
 
             json.fixtures[fixtures.length - 1].tests[tests.length - 1].status = currentStatus === 'broken' ? currentStatus : status;
             this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
