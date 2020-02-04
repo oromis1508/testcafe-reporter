@@ -66,6 +66,7 @@ module.exports = function () {
 
         reportTaskStart (startTime, userAgents, testCount) {
             const time = this.moment(startTime).format('M/D/YYYY h:mm:ss a');
+            const reportPath = this.reportUtil.getResultFileName().split('/');
 
             try {
                 this.fs.unlinkSync(this.reportUtil.getResultFileName());
@@ -73,6 +74,10 @@ module.exports = function () {
             catch (e) {
                 //file doesn't exist
             }
+
+            reportPath.pop();
+            if (!this.fs.existsSync(reportPath.join('/')))
+                this.fs.mkdirSync(reportPath.join('/'), { recursive: true });
             
             this.testCount = testCount;
             this.logBorder('Task start');
