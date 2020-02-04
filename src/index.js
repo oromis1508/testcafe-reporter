@@ -119,7 +119,7 @@ module.exports = function () {
             this.logBorder();
             this.setTestStatus(result);
             if (hasErr)
-                this.addSreenshotPath(testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1] : '');
+                this.addSreenshotPath(testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : '');
         },
 
         reportTaskDone (endTime, passed, warnings) {
