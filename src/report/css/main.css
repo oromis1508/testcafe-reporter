@@ -41,6 +41,8 @@ table {
 
 .tests {
     position: absolute;
+    height: 25vw;
+    overflow: auto;
 }
 
 .test {

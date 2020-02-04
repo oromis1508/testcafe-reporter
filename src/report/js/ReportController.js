@@ -61,7 +61,7 @@ function filterTests (event) {
 
     event.target.classList[methodName]('filtered');
     
-    this.document.querySelectorAll('.fixture').forEach(fixture => {
+    document.querySelectorAll('.fixture').forEach(fixture => {
         fixture.querySelectorAll(`.test[status='${status}']`).forEach(test => {
             test.classList[methodName]('hidden');
         });
@@ -85,7 +85,7 @@ function addSummary () {
     });
     for (const status of testStatuses) {
         const statusEl = this.document.createElement('div');
-        
+
         statusEl.classList.add(status.name);
         statusEl.onclick = filterTests;
         statusEl.textContent = `${status.name.charAt(0).toUpperCase() + status.name.slice(1)}: ${status.count}`;
