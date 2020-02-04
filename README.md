@@ -35,3 +35,7 @@ testCafe
 
 ## Author
  (http://-)
+
+## Links
+https://github.com/chalk/chalk
+https://devexpress.github.io/testcafe/documentation/extending-testcafe/reporter-plugin/helpers.html
