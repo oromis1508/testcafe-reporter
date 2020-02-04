@@ -88,7 +88,7 @@ module.exports = function () {
         },
 
         reportFixtureStart (name) {
-            if(this.currentFixtureName !== name) {
+            if (this.currentFixtureName !== name) {
                 const fixtureContent = { name: name, tests: [] };
 
                 this.currentFixtureName = name;
