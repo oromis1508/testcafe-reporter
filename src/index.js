@@ -88,12 +88,14 @@ module.exports = function () {
         },
 
         reportFixtureStart (name) {
-            const fixtureContent = { name: name, tests: [] };
+            if(this.currentFixtureName !== name) {
+                const fixtureContent = { name: name, tests: [] };
 
-            this.currentFixtureName = name;
-            this.logBorder('Fixture start');
-            console.log(`Fixture started: ${name}`);
-            this.writeToReportSomething(fixtureContent, 'fixture');
+                this.currentFixtureName = name;
+                this.logBorder('Fixture start');
+                console.log(`Fixture started: ${name}`);
+                this.writeToReportSomething(fixtureContent, 'fixture');    
+            }
         },
 
         reportTestStart (name) {
