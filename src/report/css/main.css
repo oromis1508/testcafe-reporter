@@ -43,6 +43,7 @@ table {
     position: absolute;
     height: 25vw;
     overflow: auto;
+    margin-top: -0.4vw;
 }
 
 .test {
