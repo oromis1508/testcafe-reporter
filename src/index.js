@@ -55,10 +55,25 @@ module.exports = function () {
             console.log(`-------------------------------------------${info ? info : ''}-------------------------------------------`);
         },
 
+        addSreenshotPath (path) {
+            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const fixtures = json.fixtures;
+            const tests = fixtures[fixtures.length - 1].tests;
+
+            json.fixtures[fixtures.length - 1].tests[tests.length - 1].screenshot = path;
+            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+        },
+
         reportTaskStart (startTime, userAgents, testCount) {
             const time = this.moment(startTime).format('M/D/YYYY h:mm:ss a');
 
-            this.fs.unlinkSync(this.reportUtil.getResultFileName());
+            try {
+                this.fs.unlinkSync(this.reportUtil.getResultFileName());
+            }
+            catch (e) {
+                //file doesn't exist
+            }
+            
             this.testCount = testCount;
             this.logBorder('Task start');
             console.log(`Tests run: ${testCount} on ${userAgents}`);
@@ -78,7 +93,7 @@ module.exports = function () {
 
         reportTestStart (name) {
             const testContent = { name: name, steps: [] };
-            
+
             this.logBorder('Test start');
             console.log(`Test started: ${this.currentFixtureName} - ${name}`);
             this.writeToReportSomething(testContent, 'test');
@@ -96,6 +111,8 @@ module.exports = function () {
             console.log(`Test result: ${result}`);
             this.logBorder();
             this.setTestStatus(result);
+            if (hasErr)
+                this.addSreenshotPath(testRunInfo.screenshotPath);
         },
 
         reportTaskDone (endTime, passed, warnings) {
