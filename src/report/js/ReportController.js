@@ -55,6 +55,8 @@ function testOnClick (element) {
     });
 }
 
+/* eslint-disable no-unused-vars */
+
 function filterTests (event) {
     const status = event.target.classList[0];
     const methodName = event.target.classList.contains('filtered') ? 'remove' : 'add';
@@ -70,6 +72,8 @@ function filterTests (event) {
             fixture.classList[methodName]('hidden');
     });
 }
+
+/* eslint-enable no-undef */
 
 function addSummary () {
     const testStatuses = [];

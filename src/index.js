@@ -116,7 +116,7 @@ module.exports = function () {
             console.log(`Test result: ${result}`);
             this.logBorder();
             this.setTestStatus(result);
-            console.log(JSON.stringify(testRunInfo))
+            console.log(JSON.stringify(testRunInfo));
             if (hasErr)
                 this.addSreenshotPath(testRunInfo.screenshotPath);
         },
