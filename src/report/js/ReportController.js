@@ -55,7 +55,7 @@ function testOnClick (element) {
     });
 }
 
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 
 function filterTests (event) {
     const status = event.target.classList[0];
