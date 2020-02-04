@@ -13,10 +13,6 @@ module.exports = {
         return `test-results/report_${this.getFormattedDate()}.json`;
     },
 
-    getScreensPath: function () {        
-        return `${this.getReportPath()}/img`;
-    },
-
     getReportPath: function () {        
         return `test-results/report_${this.getFormattedDate()}`;
     },
@@ -62,7 +58,7 @@ module.exports = {
 
                     steps: this.stepsToString(test.steps),
 
-                    screenshot: test.screenshot ? `../../${this.getScreensPath()}/${test.screenshot}` : ''
+                    screenshot: test.screenshot ? test.screenshot : ''
                 });
             });
             generatedReport += '</td></tr>';

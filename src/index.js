@@ -118,7 +118,7 @@ module.exports = function () {
             this.setTestStatus(result);
             console.log(JSON.stringify(testRunInfo));
             if (hasErr)
-                this.addSreenshotPath(testRunInfo.screenshotPath);
+                this.addSreenshotPath(testRunInfo.screenshots[testRunInfo.screenshots.length - 1]);
         },
 
         reportTaskDone (endTime, passed, warnings) {
