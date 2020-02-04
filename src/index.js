@@ -51,7 +51,7 @@ module.exports = function () {
             this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
         },
 
-        logBorder(info) {
+        logBorder (info) {
             console.log(`-------------------------------------------${info ? info : ''}-------------------------------------------`);
         },
 
@@ -78,6 +78,7 @@ module.exports = function () {
 
         reportTestStart (name) {
             const testContent = { name: name, steps: [] };
+            
             this.logBorder('Test start');
             console.log(`Test started: ${this.currentFixtureName} - ${name}`);
             this.writeToReportSomething(testContent, 'test');

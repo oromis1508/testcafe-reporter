@@ -1,9 +1,11 @@
 var stepsArray = [];
+
 // var ad = {
 module.exports = {
     getFormattedDate: function () {
         const curDate = new Date();
         const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
+        
         return `${curDate.getDate()}.${month}`;
     },
 
@@ -59,6 +61,7 @@ module.exports = {
                     test: test.name,
 
                     steps: this.stepsToString(test.steps),
+
                     screenshot: test.screenshot ? `../../${this.getScreensPath()}/${test.screenshot}` : ''
                 });
             });

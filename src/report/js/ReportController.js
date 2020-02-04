@@ -38,14 +38,16 @@ function testOnClick (element) {
     stepsData.forEach(data => {
         if (data.fixture === fixtureName && data.test === testName) {
             var child = this.document.createElement('div');
+
             child.classList.add('stepsContent');
             child.innerHTML = data.steps;
             this.document.querySelector('.steps').appendChild(child);
 
-            if(data.screenshot) {
+            if (data.screenshot) {
                 var screen = this.document.createElement('img');
+
                 screen.src = data.screenshot;
-                screen.onclick = screenOnClick;
+                screen.onclick = this.screenOnClick;
                 this.document.querySelector('#screenshot').appendChild(screen);    
             }
             return;
@@ -53,36 +55,37 @@ function testOnClick (element) {
     });
 }
 
-function filterTests(event) {
+function filterTests (event) {
     const status = event.target.classList[0];
     const methodName = event.target.classList.contains('filtered') ? 'remove' : 'add';
 
     event.target.classList[methodName]('filtered');
     
-    document.querySelectorAll('.fixture').forEach(fixture => {
+    this.document.querySelectorAll('.fixture').forEach(fixture => {
         fixture.querySelectorAll(`.test[status='${status}']`).forEach(test => {
             test.classList[methodName]('hidden');
         });
 
-        if(fixture.querySelectorAll(`.test:not([status='${status}'])`).length === 0 || fixture.querySelectorAll('.test:not(.hidden)').length === 0 === event.target.classList.contains('filtered')) {
+        if (fixture.querySelectorAll(`.test:not([status='${status}'])`).length === 0 || fixture.querySelectorAll('.test:not(.hidden)').length === 0 === event.target.classList.contains('filtered'))
             fixture.classList[methodName]('hidden');
-        }
-    })
+    });
 }
 
-function addSummary() {
-    const testStatuses = Array();
+function addSummary () {
+    const testStatuses = [];
+
     this.document.querySelectorAll('.test').forEach(test => {
         const currentStatus = test.getAttribute('status');
         const statusIndex = testStatuses.findIndex(status => status.name === currentStatus);
-        if(statusIndex === -1) {
+
+        if (statusIndex === -1)
             testStatuses.push({ name: currentStatus, count: 1 });
-        } else {
+        else
             testStatuses[statusIndex].count++;
-        }
     });
     for (const status of testStatuses) {
         const statusEl = this.document.createElement('div');
+        
         statusEl.classList.add(status.name);
         statusEl.onclick = filterTests;
         statusEl.textContent = `${status.name.charAt(0).toUpperCase() + status.name.slice(1)}: ${status.count}`;
