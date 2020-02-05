@@ -1,16 +1,17 @@
 .steps:not(:empty) {
-    width: 36.6vw;
-    height: 33.3vw;
+    top: 3.8%;
+    position: absolute;
+    width: 48.5vw;
+    height: 68.75vw;
     overflow: auto;
+    left: 51vw;
 }
 
 .stepsContent {
-    left: 6.7vw;
-    margin-top: 5vw;
-    padding: 0 0.4vw;
+    margin-top: 7vw;
+    padding: 0 5vw;
     position: absolute;
-    width: inherit;
-    height: inherit;
+    width: 38.5vw;
     overflow: inherit;
 }
 
@@ -20,15 +21,15 @@
 
 .steps:not(:empty)::after {
     content: "";
-    background: url('../img/back.jpg');
+    background: url(../img/back.jpg);
     background-repeat: no-repeat;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
-    background-size: cover;
+    background-size: 100% 100%;
     opacity: 0.5;
-    height: 43.79vw;
-    width: 50vw;
+    height: 100%;
+    width: inherit;
     position: absolute;
     z-index: -1;
 }

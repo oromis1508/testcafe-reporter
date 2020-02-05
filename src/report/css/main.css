@@ -3,29 +3,50 @@ body {
     background-color: #dbcfc3;
 }
 
-.content {
+.testsTree {
+    width: 50vw;
     padding: 0.7vw;
     padding-bottom: 0;
+    height: 68.75vw;
 }
 
 .fixtures {
-    height: 25vw;
     overflow: auto;
-}
-
-table {
-    width: 100%;
+    height: inherit;
 }
 
 .fixtureName {
     background-image: radial-gradient(#aaaaff, #5555ff);
     text-align: center;
     margin: 1%;
-    width: 30vw;
-    height: 5vw;
     border-radius: 1vw;
     font-weight: bold;
     font-size: 1.5vw;
+}
+
+.fixtureName::after {
+    content: "";
+    background: url(../img/expand.png);
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: 100% 100%;
+    opacity: 0.5;
+    height: 1.4vw;
+    width: 1.4vw;
+    position: absolute;
+    margin-top: 0.1vw;
+    left: 2vw;
+}
+
+.selected .fixtureName::after {
+    background: url(../img/collapse.png);
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: 100% 100%;
 }
 
 .selected .fixtureName {
@@ -36,12 +57,9 @@ table {
 .fixtureName:hover {
     background-image: radial-gradient(#aaaaff, #5555aa);
     cursor: pointer;
-    height: 5vw;
 }
 
 .tests {
-    position: absolute;
-    height: 25vw;
     overflow: auto;
     margin-top: -0.4vw;
 }
@@ -53,10 +71,9 @@ table {
     padding-left: 1vw;
     padding-right: 2vw;
     text-align: center;
-    height: 2vw;
     border-radius: 1.5vw;
     font-weight: bold;
-    white-space: nowrap;
+    white-space: pre-line;
     font-size: 1.2vw;
     position: fixed;
 }
@@ -96,6 +113,7 @@ table {
 .test.hidden, .fixture.hidden {
     visibility: hidden;
     position: absolute;
+    top: 0;
 }
 
 .test.selected {

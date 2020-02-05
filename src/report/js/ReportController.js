@@ -16,10 +16,16 @@ function onFixtureLeave (element) {
 }
 
 function onFixtureClick (element) {
+    const isCurrentFixtureSelected = element.parentElement.classList.contains('selected');
+
     this.document.querySelectorAll('.fixture').forEach(el => {
         el.classList.remove('selected');
     });
-    element.parentElement.classList.add('selected');
+
+    if(!isCurrentFixtureSelected) {
+        element.parentElement.classList.add('selected');
+        
+    }
 }
 
 function testOnClick (element) {
@@ -99,7 +105,7 @@ function addSummary () {
 
 function onLoad () {
     if (stepsData.length === 0) {
-        this.document.querySelectorAll('tr[fixture]').forEach(el => {
+        this.document.querySelectorAll('div[fixture]').forEach(el => {
             stepsData.push({
                 fixture: el.getAttribute('fixture'),
 
