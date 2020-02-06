@@ -52,7 +52,7 @@ module.exports = function () {
         },
 
         logBorder (info) {
-            console.log(`-------------------------------------------${info ? info : ''}-------------------------------------------`);
+            console.log(this.chalk.gray(`-------------------------------------------${info ? this.chalk.bold(info) : ''}-------------------------------------------`));
         },
 
         addSreenshotPath (path) {
@@ -65,7 +65,7 @@ module.exports = function () {
         },
 
         reportTaskStart (startTime, userAgents, testCount) {
-            const time = this.moment(startTime).format('M/D/YYYY h:mm:ss a');
+            const time = this.moment(startTime).format('yyyy-MM-ddThh:mm:ss');
             const reportPath = this.reportUtil.getResultFileName().split('/');
 
             try {
@@ -108,18 +108,32 @@ module.exports = function () {
 
         reportTestDone (name, testRunInfo) {
             const hasErr = !!testRunInfo.errs.length;
-
+           
             let result = hasErr ? 'failed' : 'passed';
 
             if (testRunInfo.skipped)
                 result = 'skipped';                
             this.logBorder('Test done');
-            console.log(`Test finished: ${this.currentFixtureName} - ${name}`);
-            console.log(`Test result: ${result}`);
+
+            let chalkColor;
+
+            switch (result) {
+            case 'skipped':
+                chalkColor = 'gray'; break;
+            case 'passed':
+                chalkColor = 'green'; break;
+            case 'failed':
+                chalkColor = 'red'; break;
+            case 'broken':
+                chalkColor = 'yellow'; break;
+            }
+            
+            console.log(this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}`));
+            console.log(JSON.stringify(testRunInfo));
             this.logBorder();
             this.setTestStatus(result);
-            if (hasErr)
-                this.addSreenshotPath(testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : '');
+            if (hasErr && testRunInfo.screenshots)
+                this.addSreenshotPath(testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath);
         },
 
         reportTaskDone (endTime, passed, warnings) {

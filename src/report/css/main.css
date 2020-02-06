@@ -65,7 +65,7 @@ body {
 }
 
 .test {
-    padding-top: 0.6vw;
+    padding: 0.2vw;
     visibility: hidden;
     margin: 0;
     padding-left: 1vw;
@@ -83,11 +83,19 @@ body {
 }
 
 .test[status='passed']{
-    background-image: radial-gradient(#558855, #00dd00);
+    background-image: radial-gradient(rgba(85,126,85,0.5), rgba(0,221,0,0.75));
 }
 
 .test[status='failed']{
-    background-image: radial-gradient(#885555, #dd0000);
+    background-image: radial-gradient(rgb(136,85,85, 0.4), rgba(251, 0, 0, 0.8));
+}
+
+.test[status='broken']{
+    background-image: radial-gradient(rgba(221,221,0,0.5), rgba(126,126,0,0.8));
+}
+
+.test[status='skipped']{
+    background-image: radial-gradient(rgba(221,221,221), rgba(126,126,126));
 }
 
 .test[status='passed']:hover{
@@ -95,7 +103,15 @@ body {
 }
 
 .test[status='failed']:hover{
-    background-image: radial-gradient(#885555, #dd0000, #885555);
+    background-image: radial-gradient(#885555, rgba(221,0,0, 0.7), #885555);
+}
+
+.test[status='broken']:hover{
+    background-image: radial-gradient(#555500, #dddd00, #888800);
+}
+
+.test[status='skipped']:hover{
+    background-image: radial-gradient(#555555, #dddddd, #888888);
 }
 
 .selected .test{

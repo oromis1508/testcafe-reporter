@@ -36,8 +36,12 @@
     background-image: radial-gradient(#ff0000, #dd0000);
 }
 
-.summary .skipped {
+.summary .broken {
     background-image: radial-gradient(#dddd00, #ffff00);
+}
+
+.summary .skipped {
+    background-image: radial-gradient(#dddddd, #ffffff);
 }
 
 .summary .passed.filtered {
@@ -48,8 +52,12 @@
     color: #770000;
 }
 
-.summary .skipped.filtered {
+.summary .broken.filtered {
     color: #777700;
+}
+
+.summary .skipped.filtered {
+    color: #777777;
 }
 
 .summary .passed:hover {
@@ -60,6 +68,10 @@
     background-image: radial-gradient(#dd0000, #ff0000);
 }
 
-.summary .skipped:hover {
+.summary .broken:hover {
     background-image: radial-gradient(#ffff00, #dddd00);
+}
+
+.summary .skipped:hover {
+    background-image: radial-gradient(#ffffff, #dddddd);
 }

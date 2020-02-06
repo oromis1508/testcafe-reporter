@@ -2,19 +2,6 @@ var stepsData = [];
 
 /* eslint-disable no-unused-vars */
 
-function onFixtureHover (element) {
-    if (this.document.querySelectorAll('.selected').length > 0) return;
-    element.parentElement.querySelectorAll('.test').forEach(el => {
-        el.classList.add('visible');
-    });
-}
-
-function onFixtureLeave (element) {
-    element.parentElement.querySelectorAll('.test').forEach(el => {
-        el.classList.remove('visible');
-    });
-}
-
 function onFixtureClick (element) {
     const isCurrentFixtureSelected = element.parentElement.classList.contains('selected');
 
@@ -22,13 +9,11 @@ function onFixtureClick (element) {
         el.classList.remove('selected');
     });
 
-    if(!isCurrentFixtureSelected) {
+    if (!isCurrentFixtureSelected)
         element.parentElement.classList.add('selected');
-        
-    }
 }
 
-function testOnClick (element) {
+function testOnClick (element) {   
     const testName = element.textContent.trim();
     const fixtureName = element.parentElement.parentElement.querySelector('.fixtureName').textContent.trim();
 
@@ -40,6 +25,8 @@ function testOnClick (element) {
     this.document.querySelectorAll('div.stepsContent, #screenshot img').forEach(el => {
         el.remove();
     });
+
+    if (element.getAttribute('status') === 'skipped') return;
 
     stepsData.forEach(data => {
         if (data.fixture === fixtureName && data.test === testName) {

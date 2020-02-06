@@ -1,7 +1,7 @@
 var stepsArray = [];
 
-var ad = {
-// module.exports = {
+// var ad = {
+module.exports = {
     getFormattedDate: function () {
         const curDate = new Date();
         const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
@@ -47,7 +47,7 @@ var ad = {
         
         generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
-            generatedReport += `<div class="fixture"><div class="fixtureName" onmouseover="onFixtureHover(this)" onmouseleave="onFixtureLeave(this)" onclick="onFixtureClick(this)">${fixture.name}</div>`;
+            generatedReport += `<div class="fixture"><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
                 generatedReport += `<div class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}</div>`;
@@ -86,4 +86,4 @@ var ad = {
     }
 };
 
-ad.generateReport();
+// ad.generateReport();
