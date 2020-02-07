@@ -44,7 +44,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
-    "chalk": "^3.0.0",
     "copy-dir": "^1.2.0"
   }
 }

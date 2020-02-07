@@ -1,6 +1,6 @@
 module.exports = function () {
     return {
-        noColors: true,
+        noColors: false,
 
         createErrorDecorator () {
             return {
@@ -20,8 +20,6 @@ module.exports = function () {
         },
         
         fs: require('fs'),
-        
-        chalk: require('chalk'),
 
         reportUtil: require('./jsonToHtml'),
       
@@ -84,7 +82,7 @@ module.exports = function () {
             ]);
         },
 
-        reportTaskStart (startTime, userAgents, testCount) {
+        reportTaskStart (startTime, userAgents, testsCount) {
             const time = this.moment(startTime).format('YYYY-MM-dTh:mm:ss');
             const reportPath = this.reportUtil.getResultFileName().split('/');
 
@@ -99,10 +97,10 @@ module.exports = function () {
             if (!this.fs.existsSync(reportPath.join('/')))
                 this.fs.mkdirSync(reportPath.join('/'), { recursive: true });
             
-            this.testCount = testCount;
-            console.log(JSON.stringify(this));
+            this.testCount = testsCount;
+            this.startTime = startTime;
             this.logBorder('Task start');
-            console.log(`Tests run: ${testCount} on ${userAgents}`);
+            console.log(`Tests run: ${testsCount} on ${userAgents}`);
             console.log(`Start time: ${time}`);
             this.logBorder();
             this.writeToReportSomething(time, 'startTime');
@@ -150,7 +148,7 @@ module.exports = function () {
             case 'broken':
                 chalkColor = 'yellow'; break;
             }
-            
+            //this.symbols
             console.log(this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}`));
             // var info = {
             //     "errs":[
@@ -186,7 +184,7 @@ module.exports = function () {
             //     "quarantine":null,
             //     "skipped":false
             // }
-            if (hasErr) console.log(testRunInfo.errs[0].toString());
+            
             this.logBorder();
             this.addTestInfo(result, 
                 hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
@@ -200,10 +198,10 @@ module.exports = function () {
             const durationMs = endTime - this.startTime;
             const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
       
-            let summary = `${passed}/${this.testCount} passed`;
+            let summary = `${passed}/${this.testsCount} passed, `;
       
-            if (passed !== this.testCount)
-                summary += `\n${this.testCount - passed}/${this.testCount} failed, ${this.skippedCount ? this.skippedCount : 0} skipped`;
+            if (passed !== this.testsCount)
+                summary += `${this.testsCount - passed}/${this.testsCount} failed, ${this.skippedCount ? this.skippedCount : 0} skipped`;
       
             this.logBorder('Task done');
             console.log(`Test run finished: ${time}`);
