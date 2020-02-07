@@ -2,3 +2,5 @@ lib
 node_modules
 media
 test-results/*
+report/*
+utils/*

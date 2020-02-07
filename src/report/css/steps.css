@@ -1,10 +1,10 @@
-.steps:not(:empty) {
-    top: 3.8%;
+.test-info.selected {
+    top: 3.6%;
     position: absolute;
     width: 48.5vw;
     height: 68.75vw;
     overflow: auto;
-    left: 51vw;
+    left: 50vw;
 }
 
 .stepsContent {
@@ -19,7 +19,7 @@
     width: 0;
 }
 
-.steps:not(:empty)::after {
+.test-info.selected::after {
     content: "";
     background: url(../img/back.jpg);
     background-repeat: no-repeat;

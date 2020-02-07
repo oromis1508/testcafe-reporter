@@ -2,7 +2,7 @@
 #screenshot {
     width: 20vw;
     position: absolute;
-    left:64.4vw;
+    left:14.4vw;
     bottom: 33vw;
 }
 
@@ -13,6 +13,9 @@
 
 #screenshot img:hover, #screenshot img.selected {
     width: 80vw;
-    left: -55vw;
+    top: 1vw;
+    left: 10vw;
     bottom: -30vw;
+    z-index: 1;
+    position: fixed;
 }

@@ -3,8 +3,8 @@ body {
     background-color: #dbcfc3;
 }
 
-.testsTree {
-    width: 50vw;
+.tests-tree {
+    width: 49vw;
     padding: 0.7vw;
     padding-bottom: 0;
     height: 68.75vw;
@@ -17,14 +17,14 @@ body {
 
 .fixtureName {
     background-image: radial-gradient(#aaaaff, #5555ff);
-    text-align: center;
     margin: 1%;
     border-radius: 1vw;
     font-weight: bold;
     font-size: 1.5vw;
+    padding-right: 5.3vw;
 }
 
-.fixtureName::after {
+.fixtureName::before {
     content: "";
     background: url(../img/expand.png);
     background-repeat: no-repeat;
@@ -33,14 +33,13 @@ body {
     -o-background-size: cover;
     background-size: 100% 100%;
     opacity: 0.5;
-    height: 1.4vw;
-    width: 1.4vw;
-    position: absolute;
-    margin-top: 0.1vw;
-    left: 2vw;
+    height: 1.2vw;
+    width: 1.2vw;
+    display: inline-block;
+    margin: 0.3vw 1vw 0 0.75vw;
 }
 
-.selected .fixtureName::after {
+.selected .fixtureName::before {
     background: url(../img/collapse.png);
     background-repeat: no-repeat;
     -webkit-background-size: cover;
@@ -75,7 +74,8 @@ body {
     font-weight: bold;
     white-space: pre-line;
     font-size: 1.2vw;
-    position: fixed;
+    position: absolute;
+    top: 0;
 }
 
 .test:hover {
@@ -107,7 +107,7 @@ body {
 }
 
 .test[status='broken']:hover{
-    background-image: radial-gradient(#555500, #dddd00, #888800);
+    background-image: radial-gradient(#aabb11, #dddd00, #888800);
 }
 
 .test[status='skipped']:hover{

@@ -41,7 +41,7 @@
 }
 
 .summary .skipped {
-    background-image: radial-gradient(#dddddd, #ffffff);
+    background-image: radial-gradient(#dddddd, #aaaaaa);
 }
 
 .summary .passed.filtered {
@@ -74,4 +74,23 @@
 
 .summary .skipped:hover {
     background-image: radial-gradient(#ffffff, #dddddd);
+}
+
+.fixture .summary {
+    position: relative;
+    padding: 0.7vw;
+    left: -1.6vw;
+    top: 0.9vw;
+    margin: -1.4vw;
+    float: right;
+    width: fit-content;
+}
+
+.fixture .summary div {
+    display: inline;
+    margin: 0.1vw;
+    padding: 0vw;
+    border-radius: 4vw;
+    font-weight: bold;
+    color: black;
 }

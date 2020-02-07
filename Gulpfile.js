@@ -25,9 +25,9 @@ function build () {
         .pipe(babel())
         .pipe(gulp.dest('lib'));
     gulp.src('src/report/**')
-        .pipe(gulp.dest('lib/report'));
+        .pipe(gulp.dest('report'));
     return gulp.src('src/Logger.ts')
-        .pipe(gulp.dest('lib'));
+        .pipe(gulp.dest('utils'));
 }
 
 function test () {

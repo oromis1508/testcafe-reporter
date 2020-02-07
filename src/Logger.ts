@@ -52,3 +52,5 @@ export class Logger {
         require('./index')().setTestStatus('broken');
     }
 }
+
+module.exports;

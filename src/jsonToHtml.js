@@ -26,7 +26,7 @@ module.exports = {
         let originalReportPath = 'src/report';
 
         if (!fs.existsSync(originalReportPath))
-            originalReportPath = 'node_modules/testcafe-reporter-acd-html-reporter/lib/report';
+            originalReportPath = 'node_modules/testcafe-reporter-acd-html-reporter/report';
         
         copydir.sync(originalReportPath, newReportDir, {
             utimes: true,
@@ -37,7 +37,7 @@ module.exports = {
         });
         
         const html = fs.readFileSync(`${newReportDir}/index.html`).toLocaleString();
-        const generatedReport = html.replace('<div class="testsTree"></div>', `<div class="testsTree">${this.getJsonAsHtml(json)}</div>`);
+        const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`);
 
         fs.writeFileSync(`${newReportDir}/index.html`, generatedReport);
     },
@@ -47,7 +47,7 @@ module.exports = {
         
         generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
-            generatedReport += `<div class="fixture"><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
+            generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
                 generatedReport += `<div class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}</div>`;
@@ -61,8 +61,9 @@ module.exports = {
                     screenshot: test.screenshot ? test.screenshot : ''
                 });
             });
-            generatedReport += '</div></div></div>';
+            generatedReport += '</div></div>';
         }); 
+        generatedReport += '</div>';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
                 `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}">`);

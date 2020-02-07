@@ -41,31 +41,49 @@ module.exports = function () {
             this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
         },
 
+        /**
+         * @param {{name: string, value: any} | {name: string, value: any}[]} properties 
+         */
+        setLastTestProperties (properties) {
+            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const fixtures = json.fixtures;
+            const tests = fixtures[fixtures.length - 1].tests;
+
+            if (!properties.length) 
+                properties = [properties];
+            
+            for (const { name, value } of properties) {
+                json.fixtures[fixtures.length - 1].tests[tests.length - 1][name] = value;
+                this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));    
+            }
+        },
+
         setTestStatus (status) {
             const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
             const fixtures = json.fixtures;
             const tests = fixtures[fixtures.length - 1].tests;
             const currentStatus = tests[tests.length - 1].status;
 
-            json.fixtures[fixtures.length - 1].tests[tests.length - 1].status = currentStatus === 'broken' ? currentStatus : status;
-            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+            if (currentStatus !== 'broken') 
+                this.setLastTestProperties({ name: 'status', value: status });
         },
 
         logBorder (info) {
             console.log(this.chalk.gray(`-------------------------------------------${info ? this.chalk.bold(info) : ''}-------------------------------------------`));
         },
 
-        addSreenshotPath (path) {
-            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
-            const fixtures = json.fixtures;
-            const tests = fixtures[fixtures.length - 1].tests;
-
-            json.fixtures[fixtures.length - 1].tests[tests.length - 1].screenshot = path;
-            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+        addTestInfo (testStatus, screenPath, userAgent, durationMs, stackTrace) {
+            this.setTestStatus(testStatus);
+            this.setLastTestProperties([
+                { name: 'screenshot', value: screenPath },
+                { name: 'userAgent', value: userAgent },
+                { name: 'durationMs', value: durationMs },
+                { name: 'stackTrace', value: stackTrace }
+            ]);
         },
 
         reportTaskStart (startTime, userAgents, testCount) {
-            const time = this.moment(startTime).format('yyyy-MM-ddThh:mm:ss');
+            const time = this.moment(startTime).format('YYYY-MM-dTh:mm:ss');
             const reportPath = this.reportUtil.getResultFileName().split('/');
 
             try {
@@ -80,6 +98,7 @@ module.exports = function () {
                 this.fs.mkdirSync(reportPath.join('/'), { recursive: true });
             
             this.testCount = testCount;
+            console.log(JSON.stringify(this));
             this.logBorder('Task start');
             console.log(`Tests run: ${testCount} on ${userAgents}`);
             console.log(`Start time: ${time}`);
@@ -111,8 +130,10 @@ module.exports = function () {
            
             let result = hasErr ? 'failed' : 'passed';
 
-            if (testRunInfo.skipped)
+            if (testRunInfo.skipped) {
                 result = 'skipped';                
+                this.skippedCount = this.skippedCount ? this.skippedCount + 1 : 1;
+            }
             this.logBorder('Test done');
 
             let chalkColor;
@@ -129,11 +150,47 @@ module.exports = function () {
             }
             
             console.log(this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}`));
-            console.log(JSON.stringify(testRunInfo));
+            // var info = {
+            //     "errs":[
+            //         {
+            //             "userAgent":"Chrome 79.0.3945 / Windows 10.0.0",
+            //             "screenshotPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\1.png",
+            //             "testRunPhase":"inFixtureBeforeEachHook",
+            //             "code":"E24",
+            //             "isTestCafeError":true,
+            //             "callsite":{
+            //                 "filename":"d:\\autotests\\luminata-test\\page-objects\\panels\\header.ts",
+            //                 "lineNum":106,
+            //                 "callsiteFrameIdx":6,
+            //                 "stackFrames":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],
+            //                 "isV8Frames":true
+            //             },
+            //             "apiFnChain":["Selector('.com-acdlabs-luminata-client-mvp-main-recordsetpicker-RecordSetPickerView_BinderImpl_GenCss_style-recordSetPickerLabel')"],
+            //             "apiFnIndex":0
+            //         }
+            //     ],
+            //     "warnings":[],
+            //     "durationMs":18947,
+            //     "screenshotPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\1.png",
+            //     "screenshots":[
+            //         {
+            //             "screenshotPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\1.png",
+            //             "thumbnailPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\thumbnails\\1.png",
+            //             "userAgent":"Chrome_79.0.3945_Windows_10.0.0",
+            //             "quarantineAttempt":null,
+            //             "takenOnFail":true
+            //         }
+            //     ],
+            //     "quarantine":null,
+            //     "skipped":false
+            // }
+            if (hasErr) console.log(testRunInfo.errs[0].toString());
             this.logBorder();
-            this.setTestStatus(result);
-            if (hasErr && testRunInfo.screenshots)
-                this.addSreenshotPath(testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath);
+            this.addTestInfo(result, 
+                hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
+                testRunInfo.userAgent,
+                testRunInfo.durationMs,
+                hasErr ? 'StackTrace'/** TODO */ : null);
         },
 
         reportTaskDone (endTime, passed, warnings) {
@@ -144,13 +201,13 @@ module.exports = function () {
             let summary = `${passed}/${this.testCount} passed`;
       
             if (passed !== this.testCount)
-                summary += `\n${this.testCount - passed}/${this.testCount} failed`;
+                summary += `\n${this.testCount - passed}/${this.testCount} failed, ${this.skippedCount ? this.skippedCount : 0} skipped`;
       
             this.logBorder('Task done');
             console.log(`Test run finished: ${time}`);
             console.log(`Duration: ${durationStr}`);
             console.log(`Run results: ${summary}`);
-            console.log(warnings);
+            if (warnings.length) console.log(warnings);
             this.reportUtil.generateReport();
         }
     };
