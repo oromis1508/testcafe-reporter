@@ -1,7 +1,7 @@
 module.exports = function () {
     return {
         noColors: true,
-        
+
         createErrorDecorator () {
             return {
                 'span category':       () => '',
@@ -20,6 +20,8 @@ module.exports = function () {
         },
         
         fs: require('fs'),
+        
+        chalk: require('chalk'),
 
         reportUtil: require('./jsonToHtml'),
       
