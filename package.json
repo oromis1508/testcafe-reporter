@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "acd-html-reporter TestCafe reporter plugin.",
   "repository": "https://github.com/Arg/testcafe-reporter-acd-html-reporter",
   "author": {
@@ -10,7 +10,9 @@
   },
   "main": "lib/index",
   "files": [
-    "lib"
+    "lib",
+    "utils",
+    "report"
   ],
   "scripts": {
     "test": "gulp test",
