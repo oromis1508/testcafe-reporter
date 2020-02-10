@@ -186,8 +186,9 @@ module.exports = function () {
             //     "skipped":false
             // }
             if (testRunInfo.errs[0]) {
-                console.log(Object.keys(testRunInfo.errs[0]));
-                console.log(Object.values(testRunInfo.errs[0]));
+                testRunInfo.errs[0].callsite.stackFrames.forEach(st => {
+                    console.log(JSON.stringify(st))
+                });
             }
 
             this.logBorder();

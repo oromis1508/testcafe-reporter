@@ -23,8 +23,11 @@ function addTestInfo (testData) {
         trace.id = 'error-info';
         testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
     } 
-    else
-        this.document.querySelector('#error-info').remove();
+    else {
+        const el = this.document.querySelector('#error-info');
+        if (el) el.remove();
+    }
+        
 
     const duration = this.document.createElement('div');
     const userAgent = this.document.createElement('div');
