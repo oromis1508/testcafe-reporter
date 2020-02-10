@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "1.1.14",
+  "version": "1.1.15",
   "description": "HTML TestCafe reporter plugin",
   "repository": "https://dev.azure.com/oromis15080811/CafeReporter/_git/CafeReporter",
   "author": {
