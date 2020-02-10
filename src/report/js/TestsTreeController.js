@@ -25,6 +25,7 @@ function addTestInfo (testData) {
     } 
     else {
         const el = this.document.querySelector('#error-info');
+        
         if (el) el.remove();
     }
         

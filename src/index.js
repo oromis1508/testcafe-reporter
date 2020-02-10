@@ -187,7 +187,7 @@ module.exports = function () {
             // }
             if (testRunInfo.errs[0]) {
                 testRunInfo.errs[0].callsite.stackFrames.forEach(st => {
-                    console.log(JSON.stringify(st))
+                    console.log(JSON.stringify(st));
                 });
             }
 
