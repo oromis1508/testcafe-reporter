@@ -1,8 +1,8 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "description": "HTML TestCafe reporter plugin",
-  "repository": "https://umyn33pjst44hxayjj7lvvokw4esomy5jnnpzma4dodmw63xdzka@dev.azure.com/oromis15080811/CafeReporter/_git/CafeReporter",
+  "repository": "https://dev.azure.com/oromis15080811/CafeReporter/_git/CafeReporter",
   "author": {
     "name": "Alex Chernik",
     "email": "",

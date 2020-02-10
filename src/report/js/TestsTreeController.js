@@ -17,9 +17,10 @@ function addTestInfo (testData) {
 
     if (testData.stackTrace) {
         const trace = this.document.createElement('div');
+        const testInfoNode = this.document.querySelector('.test-info');
 
         trace.textContent = testData.stackTrace;
-        this.document.querySelector('#error-info').appendChild(trace);
+        testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
     } 
     else
         this.document.querySelector('#error-info').remove();
