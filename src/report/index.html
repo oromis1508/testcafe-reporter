@@ -11,11 +11,17 @@
     <script src="js/DocumentController.js" ></script>
   </head>
   <body>
-    <div class="summary"></div>
+    <div class="summary">
+      <div id="time">
+        Start time: 
+        <input type="datetime-local" value="startTime" disabled="true">
+      </div>
+      <input id="search" type="text" placeholder="Search..." oninput="onSearch(this.value)">
+    </div>
     <div class="tests-tree"></div>
     <div class="test-info">
-      <div id="run-info"></div>
       <div id="error-info"></div>
+      <div id="run-info"></div>
       <div id="screenshot"></div>
     </div>
   </body>

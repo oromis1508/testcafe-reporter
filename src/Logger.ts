@@ -1,5 +1,5 @@
 export class Logger {
-    private static testsResultsFile = require('./jsonToHtml').getResultFileName();
+    private static testsResultsFile = require('../lib/jsonToHtml').getResultFileName();
     private static fs = require('fs');
 
     private static getCurrentDateTime(dateSeparator: string = '/', timeSeparator: string = ':', dateTimeSeparator: string = '|--|'): string {
@@ -49,7 +49,7 @@ export class Logger {
 
     static warn(message: string) {
         this.log(`WARN --- : ${message}`, false);
-        require('./index')().setTestStatus('broken');
+        require('../lib/index')().setTestStatus('broken');
     }
 }
 

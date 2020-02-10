@@ -1,18 +1,24 @@
 .test-info.selected {
     top: 3.6%;
     position: absolute;
-    width: 48.5vw;
+    width: 50vw;
     height: 68.75vw;
     overflow: auto;
     left: 50vw;
 }
 
 .stepsContent {
-    margin-top: 7vw;
-    padding: 0 5vw;
+    margin: 24.5vw 4.5vw 0;
     position: absolute;
-    width: 38.5vw;
+    width: 40vw;
     overflow: inherit;
+    height: 20vw;
+    border: silver double thick;
+}
+
+.stepsContent:nth-child(3) {
+    margin-top: 15vw;
+    height: 49vw;
 }
 
 .stepsContent::-webkit-scrollbar {
@@ -34,6 +40,34 @@
     z-index: -1;
 }
 
-.stepName {
-    border-style: double;
+.step div {
+    border-style: inset thin;
+}
+
+.subStep {
+    padding-left: 5vw;
+}
+
+#run-info {
+    position: inherit;
+    top: 19vw;
+    left: 5vw;
+    font-size: 1.75vw;
+    font-family: cursive;
+    color: cornsilk;
+}
+
+#run-info:nth-child(1) {
+    top: 8vw;
+}
+
+#error-info {
+    position: inherit;
+    top: 8vw;
+    left: 10vw
+}
+
+#error-info:empty {
+    position: absolute;
+    top: 0;
 }

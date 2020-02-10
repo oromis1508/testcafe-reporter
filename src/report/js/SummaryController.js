@@ -38,4 +38,18 @@ function addFixtureSummary () {
     });
 }
 
+function onSearch (searchValue) {
+    this.document.querySelectorAll('.fixture').forEach(fixture => {
+        fixture.querySelectorAll('.test').forEach(test => {
+            const isTestExactSearch = test.textContent.toLowerCase().includes(searchValue.toLowerCase());
+            
+            test.classList[isTestExactSearch ? 'remove' : 'add']('search-hidden');
+        });
+
+        const isFixtureTestsHidden = fixture.querySelectorAll('.test:not(.hidden):not(.search-hidden)').length === 0;
+        
+        fixture.classList[isFixtureTestsHidden ? 'add' : 'remove']('search-hidden');
+    });
+}
+
 /* eslint-enable no-unused-vars */

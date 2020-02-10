@@ -2,17 +2,42 @@
 
 function onFixtureClick (element) {
     const isCurrentFixtureSelected = element.parentElement.classList.contains('selected');
-    const fixtureWidth = element.getBoundingClientRect().width;
 
     element.parentElement.classList[isCurrentFixtureSelected ? 'remove' : 'add']('selected');
+}
 
-    const widthOffset = element.getBoundingClientRect().width - fixtureWidth;
-    
-    this.document.querySelectorAll('.fixture .summary').forEach(summary => {
-        const currentLeft = summary.computedStyleMap().get('left');
+function addTestInfo (testData) {
+    if (testData.screenshot) {
+        const screen = this.document.createElement('img');
 
-        summary.style.left = widthOffset < 0 ? `${currentLeft.substr(0, currentLeft.length - 2) + widthOffset}px` : '';
-    });
+        screen.src = testData.screenshot;
+        screen.onclick = this.screenOnClick;
+        this.document.querySelector('#screenshot').appendChild(screen);
+    }
+
+    if (testData.stackTrace) {
+        const trace = this.document.createElement('div');
+
+        trace.textContent = testData.stackTrace;
+        this.document.querySelector('#error-info').appendChild(trace);
+    } 
+    else
+        this.document.querySelector('#error-info').remove();
+
+    const duration = this.document.createElement('div');
+    const userAgent = this.document.createElement('div');
+    const durationMs = parseInt(testData.durationMs, 10);
+    const min = Math.floor(durationMs / (1000 * 60));
+    const sec = Math.floor(durationMs / 1000) - min * 60;
+    const msec = durationMs % 1000;
+
+    duration.textContent = `Test duration: ${min ? `min: ${min}, ` : ''}sec: ${sec}, msec: ${msec}`;
+    duration.classList.add('duration');
+    userAgent.textContent = `Completed on: ${testData.userAgent}`;
+    userAgent.classList.add('userAgent');
+
+    this.document.querySelector('#run-info').appendChild(duration);
+    this.document.querySelector('#run-info').appendChild(userAgent);    
 }
 
 function testOnClick (element) {   
@@ -25,7 +50,7 @@ function testOnClick (element) {
     });
     element.classList.add('selected');
 
-    this.document.querySelectorAll('div.stepsContent, #screenshot img').forEach(el => {
+    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *').forEach(el => {
         el.remove();
     });
     testInfo.classList.remove('selected');
@@ -42,13 +67,7 @@ function testOnClick (element) {
             testInfo.appendChild(child);
             testInfo.classList.add('selected');
 
-            if (data.screenshot) {
-                var screen = this.document.createElement('img');
-
-                screen.src = data.screenshot;
-                screen.onclick = this.screenOnClick;
-                this.document.querySelector('#screenshot').appendChild(screen);    
-            }
+            this.addTestInfo(data);
             return;
         }
     });
@@ -65,8 +84,7 @@ function filterTests (event) {
             test.classList[methodName]('hidden');
         });
 
-        // if (fixture.querySelectorAll(`.test:not([status='${status}'])`).length === 0 || fixture.querySelectorAll('.test:not(.hidden)').length === 0 === event.target.classList.contains('filtered'))
-        //     fixture.classList[methodName]('hidden');
+        fixture.classList[fixture.querySelectorAll('.test:not(.hidden)').length === 0 ? 'add' : 'remove']('hidden');
     };
 
     if (isFixture) {

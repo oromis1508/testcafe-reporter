@@ -99,6 +99,7 @@ module.exports = function () {
             
             this.testCount = testsCount;
             this.startTime = startTime;
+            this.userAgent = userAgents;
             this.logBorder('Task start');
             console.log(`Tests run: ${testsCount} on ${userAgents}`);
             console.log(`Start time: ${time}`);
@@ -188,13 +189,13 @@ module.exports = function () {
             this.logBorder();
             this.addTestInfo(result, 
                 hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
-                testRunInfo.userAgent,
+                this.userAgent,
                 testRunInfo.durationMs,
-                hasErr ? 'StackTrace'/** TODO */ : null);
+                hasErr ? this.formatError(testRunInfo.errs[0]) : '');
         },
 
         reportTaskDone (endTime, passed, warnings) {
-            const time = this.moment(endTime).format('M/D/YYYY h:mm:ss a');
+            const time = this.moment(endTime).format('M/DD/YYYY HH:mm:ss');
             const durationMs = endTime - this.startTime;
             const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
       

@@ -37,13 +37,13 @@ module.exports = {
         });
         
         const html = fs.readFileSync(`${newReportDir}/index.html`).toLocaleString();
-        const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`);
+        const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`).replace('startTime', json.startTime);
 
         fs.writeFileSync(`${newReportDir}/index.html`, generatedReport);
     },
 
     getJsonAsHtml: function (json) {
-        let generatedReport = `<input type="datetime-local" value="${json.startTime}" disabled="true">`;
+        let generatedReport = '';
         
         generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
@@ -58,7 +58,13 @@ module.exports = {
 
                     steps: this.stepsToString(test.steps),
 
-                    screenshot: test.screenshot ? test.screenshot : ''
+                    screenshot: test.screenshot ? test.screenshot : '',
+
+                    durationMs: test.durationMs,
+
+                    userAgent: test.userAgent,
+
+                    stackTrace: test.stackTrace
                 });
             });
             generatedReport += '</div></div>';
@@ -66,7 +72,7 @@ module.exports = {
         generatedReport += '</div>';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}">`);
+                `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" stackTrace="${stepsData.stackTrace}">`);
         });
         return generatedReport;
     },

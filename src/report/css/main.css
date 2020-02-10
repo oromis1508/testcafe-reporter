@@ -5,9 +5,9 @@ body {
 
 .tests-tree {
     width: 49vw;
-    padding: 0.7vw;
-    padding-bottom: 0;
-    height: 68.75vw;
+    padding: 0 0.7vw;
+    margin-top: 1.4vw;
+    height: 68vw;
 }
 
 .fixtures {
@@ -126,7 +126,7 @@ body {
     position: initial;
 }
 
-.test.hidden, .fixture.hidden {
+.test.hidden, .fixture.hidden, .test.search-hidden, .fixture.search-hidden {
     visibility: hidden;
     position: absolute;
     top: 0;

@@ -2,13 +2,14 @@
 #screenshot {
     width: 20vw;
     position: absolute;
-    left:14.4vw;
-    bottom: 33vw;
+    left: 14.4vw;
+    bottom: 24vw;
 }
 
 #screenshot img {
     width: inherit;
     position: inherit;
+    border-radius: 5vw;
 }
 
 #screenshot img:hover, #screenshot img.selected {
@@ -18,4 +19,5 @@
     bottom: -30vw;
     z-index: 1;
     position: fixed;
+    border-radius: 0;
 }

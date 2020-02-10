@@ -12,7 +12,13 @@ function onLoad () {
 
                 steps: el.outerHTML,
 
-                screenshot: el.getAttribute('screenshot')
+                screenshot: el.getAttribute('screenshot'),
+
+                durationMs: el.getAttribute('durationMs'),
+
+                userAgent: el.getAttribute('userAgent'),
+
+                stackTrace: el.getAttribute('stackTrace')
             });
             el.remove();
         });    

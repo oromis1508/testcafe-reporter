@@ -10,8 +10,14 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 ## About
 Reporter in .html format, for seeing it, you don't need to start any server, 
 the report generates in folder {project}/test-results/report_{current date}.
+If you need to run some times a day, save report, because old version with same date will be rewrited.
 
-On current stage report don't realize fully, there is you can see fixtures, tests (groupping by fixtures), screenshot if a test failed and bad-formatted steps (by Logger.steps method).
+**On current stage report don't realize fully.**
+There is you can see:
+- fixtures, tests (groupping by fixtures);
+- filters, search by tests / fixtures;
+- class Logger for adding more information while a test runs;
+- test information: steps, actions in the steps, screenshot if a test failed, test duration and browser/OS running on;
 
 Method Logger.warn automatically sets status of a test: 'broken'.
 

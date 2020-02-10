@@ -1,10 +1,10 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "1.1.11",
-  "description": "acd-html-reporter TestCafe reporter plugin.",
-  "repository": "https://github.com/Arg/testcafe-reporter-acd-html-reporter",
+  "version": "1.1.12",
+  "description": "HTML TestCafe reporter plugin",
+  "repository": "https://umyn33pjst44hxayjj7lvvokw4esomy5jnnpzma4dodmw63xdzka@dev.azure.com/oromis15080811/CafeReporter/_git/CafeReporter",
   "author": {
-    "name": "Alex",
+    "name": "Alex Chernik",
     "email": "",
     "url": "http://-"
   },
@@ -22,6 +22,7 @@
   },
   "keywords": [
     "testcafe",
+    "html",
     "reporter",
     "plugin"
   ],
