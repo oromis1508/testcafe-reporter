@@ -83,7 +83,7 @@ module.exports = function () {
         },
 
         reportTaskStart (startTime, userAgents, testsCount) {
-            const time = this.moment(startTime).format('YYYY-MM-dTh:mm:ss');
+            const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
             const reportPath = this.reportUtil.getResultFileName().split('/');
 
             try {
@@ -185,13 +185,17 @@ module.exports = function () {
             //     "quarantine":null,
             //     "skipped":false
             // }
-            
+            if(testRunInfo.errs[0]) {
+                console.log(Object.keys(testRunInfo.errs[0]));
+                console.log(Object.values(testRunInfo.errs[0]));
+            }
+
             this.logBorder();
             this.addTestInfo(result, 
                 hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
                 this.userAgent,
                 testRunInfo.durationMs,
-                hasErr ? testRunInfo.errs[0] : '');
+                hasErr ? JSON.stringify(testRunInfo.errs[0]) : '');
         },
 
         reportTaskDone (endTime, passed, warnings) {

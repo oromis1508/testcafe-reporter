@@ -20,6 +20,7 @@ function addTestInfo (testData) {
         const testInfoNode = this.document.querySelector('.test-info');
 
         trace.textContent = testData.stackTrace;
+        trace.id = "error-info";
         testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
     } 
     else
