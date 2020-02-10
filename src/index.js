@@ -185,7 +185,7 @@ module.exports = function () {
             //     "quarantine":null,
             //     "skipped":false
             // }
-            if(testRunInfo.errs[0]) {
+            if (testRunInfo.errs[0]) {
                 console.log(Object.keys(testRunInfo.errs[0]));
                 console.log(Object.values(testRunInfo.errs[0]));
             }
