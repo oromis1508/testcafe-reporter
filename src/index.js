@@ -191,7 +191,7 @@ module.exports = function () {
                 hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
                 this.userAgent,
                 testRunInfo.durationMs,
-                hasErr ? this.formatError(testRunInfo.errs[0]) : '');
+                hasErr ? testRunInfo.errs[0] : '');
         },
 
         reportTaskDone (endTime, passed, warnings) {
