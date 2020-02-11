@@ -1,0 +1,32 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+
+function screenOnHover () {
+    this.document.querySelector('#screenshot img').classList.add('hover');
+}
+
+function screenOnClick () {
+
+}
+
+function screenOnLeave () {
+    this.document.querySelector('#screenshot img').classList.remove('hover');
+}
+
+function errorOnClick () {
+    const body = document.querySelector('body');
+    const testInfo = document.querySelector('.test-info');
+    const errorInfo = document.querySelector('#error-info');
+    const errorHeight = errorInfo.getBoundingClientRect().height;
+    const isExpanded = testInfo.classList.contains('error-expanded');
+
+    testInfo.classList[isExpanded ? 'remove' : 'add']('error-expanded');
+
+    const errorOffset = errorInfo.getBoundingClientRect().height - errorHeight;
+
+    body.style.height = errorOffset > 0 ? `${errorOffset + body.getBoundingClientRect().height}px` : '';
+    testInfo.style.height = errorOffset > 0 ? `${errorOffset + testInfo.getBoundingClientRect().height}px` : '';
+}
+
+/* eslint-enable no-undef */
+/* eslint-enable no-unused-vars */

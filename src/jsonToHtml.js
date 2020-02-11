@@ -2,6 +2,34 @@ var stepsArray = [];
 
 // var ad = {
 module.exports = {
+    jsonNames: {
+        baseJsonContent: '{"fixtures": []}',
+
+        test: 'test',
+
+        baseTestContent: (name) => {
+            return { name: name, steps: [] };
+        },
+
+        fixture: 'fixture',
+
+        baseFixtureContent: (name) => { 
+            return { name: name, tests: [] };
+        },
+
+        startTime: 'startTime',
+
+        screenshotOnFail: 'screenshot',
+
+        testUserAgents: 'userAgent',
+
+        testDuration: 'durationMs',
+
+        testStackTrace: 'stackTrace',
+
+        testStatus: 'status'
+    },
+
     getFormattedDate: function () {
         const curDate = new Date();
         const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
@@ -58,13 +86,13 @@ module.exports = {
 
                     steps: this.stepsToString(test.steps),
 
-                    screenshot: test.screenshot ? test.screenshot : '',
+                    screenshot: test[this.jsonNames.screenshotOnFail] ? test[this.jsonNames.screenshotOnFail] : '',
 
-                    durationMs: test.durationMs,
+                    durationMs: test[this.jsonNames.testDuration],
 
-                    userAgent: test.userAgent,
+                    userAgent: test[this.jsonNames.testUserAgents],
 
-                    stackTrace: test.stackTrace
+                    stackTrace: test[this.jsonNames.testStackTrace]
                 });
             });
             generatedReport += '</div></div>';
@@ -72,8 +100,11 @@ module.exports = {
         generatedReport += '</div>';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" stackTrace="${stepsData.stackTrace}">`);
+                `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
+            if (stepsData.stackTrace.length)
+                generatedReport += `<div traceFixture="${stepsData.fixture}" traceTest="${stepsData.test}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });
+
         return generatedReport;
     },
 

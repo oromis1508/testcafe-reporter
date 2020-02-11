@@ -2,13 +2,14 @@
     top: 3.6%;
     position: absolute;
     width: 50vw;
-    height: 68.75vw;
+    height: 96.4%;
     overflow: auto;
     left: 50vw;
 }
 
 .stepsContent {
-    margin: 24.5vw 4.5vw 0;
+    margin: 0 4.5vw;
+    bottom: 23.5vw;
     position: absolute;
     width: 40vw;
     overflow: inherit;
@@ -17,7 +18,7 @@
 }
 
 .stepsContent:nth-child(3) {
-    margin-top: 14vw;
+    bottom: 8vw;
     height: 47vw;
 }
 
@@ -41,17 +42,17 @@
 }
 
 .step div {
-    border-style: inset thin;
+    border-style: inset outset;
 }
 
 .subStep {
-    padding-left: 5vw;
+    padding-left: 4vw;
 }
 
 #run-info {
     position: inherit;
-    top: 19vw;
-    left: 5vw;
+    bottom: 46vw;
+    left: 4vw;
     font-size: 1.75vw;
     font-family: cursive;
     color: cornsilk;
@@ -63,11 +64,89 @@
 
 #error-info {
     position: inherit;
-    top: 8vw;
-    left: 10vw
+    top: 4vw;
+    margin: 5vw;
 }
 
 #error-info:empty {
     position: absolute;
     top: 0;
 }
+
+.stack-line {
+    display: none;
+}
+
+.error-expanded .stack-line {
+    display: block;
+}
+
+#error-info:hover {
+    cursor: pointer;
+}
+
+.error-name::after {
+    content: "";
+    background: red;
+    width: 110%;
+    background-size: 100% 100%;
+    height: -webkit-calc(100% + 2vw);
+    height:    -moz-calc(100% + 2vw);
+    height:         calc(100% + 2vw);
+    position: absolute;
+    z-index: -1;
+    left: -5%;
+    top: -1vw;
+    opacity: 0.8;
+}
+
+.error-name:hover::after {
+    background: blue;
+}
+
+.error-expanded .stack-line:nth-of-type(1) {
+    padding-left: 1vw;
+  }
+  .error-expanded .stack-line:nth-of-type(2) {
+    padding-left: 2vw;
+  }
+  .error-expanded .stack-line:nth-of-type(3) {
+    padding-left: 3vw;
+  }
+  .error-expanded .stack-line:nth-of-type(4) {
+    padding-left: 4vw;
+  }
+  .error-expanded .stack-line:nth-of-type(5) {
+    padding-left: 5vw;
+  }
+  .error-expanded .stack-line:nth-of-type(6) {
+    padding-left: 6vw;
+  }
+  .error-expanded .stack-line:nth-of-type(7) {
+    padding-left: 7vw;
+  }
+  .error-expanded .stack-line:nth-of-type(8) {
+    padding-left: 8vw;
+  }
+  .error-expanded .stack-line:nth-of-type(9) {
+    padding-left: 9vw;
+  }
+  .error-expanded .stack-line:nth-of-type(10) {
+    padding-left: 10vw;
+  }
+  .error-expanded .stack-line:nth-of-type(11) {
+    padding-left: 11vw;
+  }
+  .error-expanded .stack-line:nth-of-type(12) {
+    padding-left: 12vw;
+  }
+  .error-expanded .stack-line:nth-of-type(13) {
+    padding-left: 13vw;
+  }
+  .error-expanded .stack-line:nth-of-type(14) {
+    padding-left: 14vw;
+  }
+  .error-expanded .stack-line:nth-of-type(15) {
+    padding-left: 15vw;
+  }
+  

@@ -18,10 +18,19 @@ function onLoad () {
 
                 userAgent: el.getAttribute('userAgent'),
 
-                stackTrace: el.getAttribute('stackTrace')
+                stackTrace: ''
             });
             el.remove();
-        });    
+        });
+        
+        for (let index = 0; index < stepsData.length; index++) {
+            const stackTraceElement = this.document.querySelector(`div[traceFixture='${stepsData[index].fixture}'][traceTest='${stepsData[index].test}']`);
+            
+            if (stackTraceElement) {
+                stepsData[index].stackTrace = JSON.parse(stackTraceElement.textContent);
+                stackTraceElement.remove();
+            }
+        }
     }
     this.addSummary();
     this.addFixtureSummary();

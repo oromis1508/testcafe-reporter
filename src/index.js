@@ -2,6 +2,40 @@ module.exports = function () {
     return {
         noColors: false,
 
+        testStatuses: {
+            passed: 'passed',
+
+            failed: 'failed',
+
+            broken: 'broken',
+
+            skipped: 'skipped'
+        },
+
+        chalkStyles: {
+            passed: 'green',
+
+            failed: 'red',
+
+            broken: 'yellow',
+
+            skipped: 'gray',
+
+            borderLine: 'gray',
+
+            borderText: 'bold'
+        },
+
+        testsCount: 0,
+
+        startTime: 0,
+
+        userAgent: '',
+
+        currentFixtureName: '',
+
+        skippedCount: 0,
+
         createErrorDecorator () {
             return {
                 'span category':       () => '',
@@ -24,16 +58,16 @@ module.exports = function () {
         reportUtil: require('./jsonToHtml'),
       
         writeToReportSomething (data, field) {
-            var content = '{"fixtures": []}';
+            let content = this.reportUtil.jsonNames.baseJsonContent;
 
             if (this.fs.existsSync(this.reportUtil.getResultFileName()))
                 content = this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString();
 
             const json = JSON.parse(content);
 
-            if (field === 'fixture') 
+            if (field === this.reportUtil.jsonNames.fixture) 
                 json.fixtures.push(data);
-            else if (field === 'test') 
+            else if (field === this.reportUtil.jsonNames.test) 
                 json.fixtures[json.fixtures.length - 1].tests.push(data);
             else if (field) 
                 json[field] = data;
@@ -64,21 +98,21 @@ module.exports = function () {
             const tests = fixtures[fixtures.length - 1].tests;
             const currentStatus = tests[tests.length - 1].status;
 
-            if (currentStatus !== 'broken') 
-                this.setLastTestProperties({ name: 'status', value: status });
+            if (currentStatus !== this.testStatuses.broken) 
+                this.setLastTestProperties({ name: this.reportUtil.jsonNames.testStatus, value: status });
         },
 
         logBorder (info) {
-            console.log(this.chalk.gray(`-------------------------------------------${info ? this.chalk.bold(info) : ''}-------------------------------------------`));
+            console.log(this.chalk[this.chalkStyles.borderLine](`-------------------------------------------${info ? this.chalk[this.chalkStyles.borderText](info) : ''}-------------------------------------------`));
         },
 
         addTestInfo (testStatus, screenPath, userAgent, durationMs, stackTrace) {
             this.setTestStatus(testStatus);
             this.setLastTestProperties([
-                { name: 'screenshot', value: screenPath },
-                { name: 'userAgent', value: userAgent },
-                { name: 'durationMs', value: durationMs },
-                { name: 'stackTrace', value: stackTrace }
+                { name: this.reportUtil.jsonNames.screenshotOnFail, value: screenPath },
+                { name: this.reportUtil.jsonNames.testUserAgents, value: userAgent },
+                { name: this.reportUtil.jsonNames.testDuration, value: durationMs },
+                { name: this.reportUtil.jsonNames.testStackTrace, value: stackTrace }
             ]);
         },
 
@@ -97,98 +131,61 @@ module.exports = function () {
             if (!this.fs.existsSync(reportPath.join('/')))
                 this.fs.mkdirSync(reportPath.join('/'), { recursive: true });
             
-            this.testCount = testsCount;
+            this.testsCount = testsCount;
             this.startTime = startTime;
             this.userAgent = userAgents;
             this.logBorder('Task start');
+
             console.log(`Tests run: ${testsCount} on ${userAgents}`);
             console.log(`Start time: ${time}`);
             this.logBorder();
-            this.writeToReportSomething(time, 'startTime');
+            this.writeToReportSomething(time, this.reportUtil.jsonNames.startTime);
         },
 
         reportFixtureStart (name) {
             if (this.currentFixtureName !== name) {
-                const fixtureContent = { name: name, tests: [] };
-
                 this.currentFixtureName = name;
                 this.logBorder('Fixture start');
                 console.log(`Fixture started: ${name}`);
-                this.writeToReportSomething(fixtureContent, 'fixture');    
+                this.writeToReportSomething(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
             }
         },
 
         reportTestStart (name) {
-            const testContent = { name: name, steps: [] };
-
             this.logBorder('Test start');
             console.log(`Test started: ${this.currentFixtureName} - ${name}`);
-            this.writeToReportSomething(testContent, 'test');
+            this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name), this.reportUtil.jsonNames.test);
         },
 
         reportTestDone (name, testRunInfo) {
             const hasErr = !!testRunInfo.errs.length;
-           
-            let result = hasErr ? 'failed' : 'passed';
+            const stackTrace = [];
+
+            let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
+
+            const chalkColor = this.chalkStyles[result];
 
             if (testRunInfo.skipped) {
-                result = 'skipped';                
-                this.skippedCount = this.skippedCount ? this.skippedCount + 1 : 1;
+                result = this.testStatuses.skipped;                
+                this.skippedCount++;
             }
+
             this.logBorder('Test done');
-
-            let chalkColor;
-
-            switch (result) {
-            case 'skipped':
-                chalkColor = 'gray'; break;
-            case 'passed':
-                chalkColor = 'green'; break;
-            case 'failed':
-                chalkColor = 'red'; break;
-            case 'broken':
-                chalkColor = 'yellow'; break;
-            }
-            //this.symbols
             console.log(this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}`));
-            // var info = {
-            //     "errs":[
-            //         {
-            //             "userAgent":"Chrome 79.0.3945 / Windows 10.0.0",
-            //             "screenshotPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\1.png",
-            //             "testRunPhase":"inFixtureBeforeEachHook",
-            //             "code":"E24",
-            //             "isTestCafeError":true,
-            //             "callsite":{
-            //                 "filename":"d:\\autotests\\luminata-test\\page-objects\\panels\\header.ts",
-            //                 "lineNum":106,
-            //                 "callsiteFrameIdx":6,
-            //                 "stackFrames":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],
-            //                 "isV8Frames":true
-            //             },
-            //             "apiFnChain":["Selector('.com-acdlabs-luminata-client-mvp-main-recordsetpicker-RecordSetPickerView_BinderImpl_GenCss_style-recordSetPickerLabel')"],
-            //             "apiFnIndex":0
-            //         }
-            //     ],
-            //     "warnings":[],
-            //     "durationMs":18947,
-            //     "screenshotPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\1.png",
-            //     "screenshots":[
-            //         {
-            //             "screenshotPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\1.png",
-            //             "thumbnailPath":"D:\\autotests\\luminata-test\\screenshots\\2020-02-06_14-47-44\\test-1\\Chrome_79.0.3945_Windows_10.0.0\\errors\\thumbnails\\1.png",
-            //             "userAgent":"Chrome_79.0.3945_Windows_10.0.0",
-            //             "quarantineAttempt":null,
-            //             "takenOnFail":true
-            //         }
-            //     ],
-            //     "quarantine":null,
-            //     "skipped":false
-            // }
-            if (testRunInfo.errs[0]) {
-                testRunInfo.errs[0].callsite.stackFrames.forEach(st => {
-                    console.log(JSON.stringify(st));
-                });
+            
+            if (hasErr) {
+                for (let index = 0; index < testRunInfo.errs.length; index++) {
+                    const err = testRunInfo.errs[index];
+
+                    stackTrace.push([]);
+                    stackTrace[index].push(err.errMsg ? err.errMsg : err.testRunPhase);
+                    testRunInfo.errs[index].callsite.stackFrames.forEach(stackFrame => {
+                        const msg = stackFrame.toString();
+
+                        if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':') && msg.includes('('))
+                            stackTrace[index].push(msg);
+                    });    
+                }
             }
 
             this.logBorder();
@@ -196,7 +193,7 @@ module.exports = function () {
                 hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
                 this.userAgent,
                 testRunInfo.durationMs,
-                hasErr ? JSON.stringify(testRunInfo.errs[0]) : '');
+                stackTrace);
         },
 
         reportTaskDone (endTime, passed, warnings) {
@@ -204,10 +201,12 @@ module.exports = function () {
             const durationMs = endTime - this.startTime;
             const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
       
-            let summary = `${passed}/${this.testsCount} passed, `;
+            let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`) + ', ';
       
-            if (passed !== this.testsCount)
-                summary += `${this.testsCount - passed}/${this.testsCount} failed, ${this.skippedCount ? this.skippedCount : 0} skipped`;
+            if (passed !== this.testsCount) {
+                summary += this.chalk[this.chalkStyles.failed](`${this.testsCount - passed}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
+                this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
+            }
       
             this.logBorder('Task done');
             console.log(`Test run finished: ${time}`);

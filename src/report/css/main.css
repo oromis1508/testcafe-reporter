@@ -1,18 +1,19 @@
 body {
     margin: 0;
     background-color: #dbcfc3;
+    height: 71.3vw;
 }
 
 .tests-tree {
     width: 49vw;
     padding: 0 0.7vw;
     margin-top: 1.4vw;
-    height: 68vw;
+    height: 96.1%;
 }
 
 .fixtures {
     overflow: auto;
-    height: inherit;
+    height: 100%;
 }
 
 .fixtureName {

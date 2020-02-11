@@ -6,6 +6,35 @@ function onFixtureClick (element) {
     element.parentElement.classList[isCurrentFixtureSelected ? 'remove' : 'add']('selected');
 }
 
+function addStackTrace (stackTrace) {
+    const trace = this.document.createElement('div');
+    const testInfoNode = this.document.querySelector('.test-info');
+
+    trace.id = 'error-info';
+
+    testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
+
+    for (const error of stackTrace) {
+        const errorName = this.document.createElement('div');
+        const errorsNode = this.document.querySelector('#error-info');
+    
+        errorName.classList.add('error-name');
+        errorName.textContent = error[0];
+        errorsNode.onclick = this.errorOnClick;
+        errorsNode.appendChild(errorName);
+    
+        for (let index = 1; index < error.length; index++) {
+            const stackLineText = error[index];
+            const stackLine = this.document.createElement('div');
+            
+            stackLine.classList.add('stack-line');
+            stackLine.textContent = stackLineText;
+
+            errorsNode.appendChild(stackLine);
+        }
+    }
+}
+
 function addTestInfo (testData) {
     if (testData.screenshot) {
         const screen = this.document.createElement('img');
@@ -15,21 +44,14 @@ function addTestInfo (testData) {
         this.document.querySelector('#screenshot').appendChild(screen);
     }
 
-    if (testData.stackTrace) {
-        const trace = this.document.createElement('div');
-        const testInfoNode = this.document.querySelector('.test-info');
-
-        trace.textContent = testData.stackTrace;
-        trace.id = 'error-info';
-        testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
-    } 
+    if (testData.stackTrace)
+        this.addStackTrace(testData.stackTrace);
     else {
         const el = this.document.querySelector('#error-info');
-        
+
         if (el) el.remove();
     }
         
-
     const duration = this.document.createElement('div');
     const userAgent = this.document.createElement('div');
     const durationMs = parseInt(testData.durationMs, 10);
