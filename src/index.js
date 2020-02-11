@@ -23,7 +23,9 @@ module.exports = function () {
 
             borderLine: 'gray',
 
-            borderText: 'bold'
+            borderText: 'bold',
+
+            stackTrace: [254, 109, 90]
         },
 
         testsCount: 0,
@@ -186,6 +188,11 @@ module.exports = function () {
                             stackTrace[index].push(msg);
                     });    
                 }
+            }
+
+            for (const error of stackTrace) {
+                for (let index = 0; index < error.length; index++)
+                    console.log(this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index]));
             }
 
             this.logBorder();
