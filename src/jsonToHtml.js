@@ -1,7 +1,7 @@
 var stepsArray = [];
 
-var ad = {
-// module.exports = {
+// var ad = {
+module.exports = {
     jsonNames: {
         baseJsonContent: '{"fixtures": []}',
 
@@ -44,6 +44,56 @@ var ad = {
     getReportPath: function () {        
         return `test-results/report_${this.getFormattedDate()}`;
     },
+
+    // generateReportAsHtml: function () {
+    //     const fs = require('fs');
+    //     // const copydir = require('copy-dir');
+    //     const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
+    //     const newReportDir = this.getReportPath();
+
+    //     let originalReportPath = 'src/report';
+
+    //     if (!fs.existsSync(originalReportPath))
+    //         originalReportPath = 'node_modules/testcafe-reporter-acd-html-reporter/report';
+        
+    //     // copydir.sync(originalReportPath, newReportDir, {
+    //     //     utimes: true,
+
+    //     //     mode: true,
+
+    //     //     cover: true
+    //     // });
+        
+    //     const html = fs.readFileSync(`${originalReportPath}/index.html`).toLocaleString();
+
+    //     let htmlHead = '<head>';
+    //     for(const cssFile of fs.readdirSync(`${originalReportPath}/css`)) {
+    //         let cssContent = fs.readFileSync(`${originalReportPath}/css/${cssFile}`).toLocaleString();
+    //         let regexResult;
+
+    //         while(regexResult = /url\((\..*?)\)/.exec(cssContent)) {
+    //             const split = regexResult[1].split('/');
+    //             const fileName = split[split.length - 1];
+    //             const fileNameSplit = fileName.split('.');
+    //             const imageExtension = fileNameSplit[fileNameSplit.length - 1];
+    //             const bitmap = fs.readFileSync(`${originalReportPath}/img/${fileName}`);
+    //             const base64 = new Buffer(bitmap).toString('base64');
+
+    //             cssContent = cssContent.replace(regexResult[1], `data:image/${imageExtension};base64,${base64}`);
+    //         }
+            
+    //         htmlHead += cssContent;
+    //         // // convert binary data to base64 encoded string
+    //         // return new Buffer(bitmap).toString('base64');
+        
+    //     }
+
+    //     const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`)
+    //     .replace('startTime', json.startTime)
+    //     .replace(/\<head\>.*\<\/head\>/g, htmlHead);
+
+    //     fs.writeFileSync(`${newReportDir}/index.html`, generatedReport);
+    // },
 
     generateReport: function () {
         const fs = require('fs');
@@ -124,4 +174,4 @@ var ad = {
     }
 };
 
-ad.generateReport();
+// ad.generateReport();

@@ -28,7 +28,7 @@ function addStackTrace (stackTrace) {
             const stackLine = this.document.createElement('div');
             
             stackLine.classList.add('stack-line');
-            stackLine.innerHTML = stackLineText.replace(/\((.*?\:\d*:\d*)/g, '<a href="vscode://file/$1">$1</a>');
+            stackLine.innerHTML = stackLineText.replace(/\((.*?:\d*:\d*)/g, '<a href="vscode://file/$1">$1</a>');
 
             errorsNode.appendChild(stackLine);
         }

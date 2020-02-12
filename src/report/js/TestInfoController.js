@@ -6,7 +6,10 @@ function screenOnHover () {
 }
 
 function screenOnClick () {
-    document.querySelector('#screenshot img').classList.contains('increased') ? screenOnLeave() : screenOnHover();
+    if (document.querySelector('#screenshot img').classList.contains('increased'))
+        screenOnLeave();
+    else
+        screenOnHover();
 }
 
 function screenOnLeave () {
