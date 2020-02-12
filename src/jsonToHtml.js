@@ -1,7 +1,7 @@
 var stepsArray = [];
 
-// var ad = {
-module.exports = {
+var ad = {
+// module.exports = {
     jsonNames: {
         baseJsonContent: '{"fixtures": []}',
 
@@ -124,4 +124,4 @@ module.exports = {
     }
 };
 
-// ad.generateReport();
+ad.generateReport();

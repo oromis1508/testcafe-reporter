@@ -2,15 +2,15 @@
 /* eslint-disable no-undef */
 
 function screenOnHover () {
-    this.document.querySelector('#screenshot img').classList.add('hover');
+    document.querySelector('#screenshot img').classList.add('increased');
 }
 
 function screenOnClick () {
-
+    document.querySelector('#screenshot img').classList.contains('increased') ? screenOnLeave() : screenOnHover();
 }
 
 function screenOnLeave () {
-    this.document.querySelector('#screenshot img').classList.remove('hover');
+    document.querySelector('#screenshot img').classList.remove('increased');
 }
 
 function errorOnClick () {

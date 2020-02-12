@@ -85,9 +85,13 @@
     cursor: pointer;
 }
 
+#error-info a:hover {
+    cursor: alias;
+}
+
 .error-name::after {
     content: "";
-    background: red;
+    background: rgb(150, 50, 50);
     width: 110%;
     background-size: 100% 100%;
     height: -webkit-calc(100% + 2vw);
@@ -101,7 +105,7 @@
 }
 
 .error-name:hover::after {
-    background: blue;
+    background: rgba(150, 50, 50, 0.5);
 }
 
 .error-expanded .stack-line:nth-of-type(1) {

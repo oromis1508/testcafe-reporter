@@ -12,7 +12,15 @@
     border-radius: 5vw;
 }
 
-#screenshot img:hover, #screenshot img.selected {
+#screenshot img.increased:hover {
+    cursor: zoom-out;
+}
+
+#screenshot img:hover {
+    cursor: zoom-in;
+}
+
+#screenshot img.increased {
     width: 80vw;
     top: 1vw;
     left: 10vw;

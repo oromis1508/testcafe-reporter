@@ -20,7 +20,7 @@ function addStackTrace (stackTrace) {
     
         errorName.classList.add('error-name');
         errorName.textContent = error[0];
-        errorsNode.onclick = this.errorOnClick;
+        errorName.onclick = this.errorOnClick;
         errorsNode.appendChild(errorName);
     
         for (let index = 1; index < error.length; index++) {
@@ -28,7 +28,7 @@ function addStackTrace (stackTrace) {
             const stackLine = this.document.createElement('div');
             
             stackLine.classList.add('stack-line');
-            stackLine.textContent = stackLineText;
+            stackLine.innerHTML = stackLineText.replace(/\((.*?\:\d*:\d*)/g, '<a href="vscode://file/$1">$1</a>');
 
             errorsNode.appendChild(stackLine);
         }
@@ -41,6 +41,8 @@ function addTestInfo (testData) {
 
         screen.src = testData.screenshot;
         screen.onclick = this.screenOnClick;
+        screen.onmouseover = this.screenOnHover;
+        screen.onmouseleave = this.screenOnLeave;
         this.document.querySelector('#screenshot').appendChild(screen);
     }
 
