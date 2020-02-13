@@ -7,31 +7,40 @@ function onFixtureClick (element) {
 }
 
 function addStackTrace (stackTrace) {
-    const trace = this.document.createElement('div');
     const testInfoNode = this.document.querySelector('.test-info');
+    
+    let errorsNode = this.document.querySelector('#error-info');
 
-    trace.id = 'error-info';
+    if (!errorsNode) {
+        const trace = this.document.createElement('div');
+        
+        trace.id = 'error-info';
+        testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
+        errorsNode = this.document.querySelector('#error-info');
+    }
 
-    testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
 
     for (const error of stackTrace) {
         const errorName = this.document.createElement('div');
-        const errorsNode = this.document.querySelector('#error-info');
+        const errorBlock = this.document.createElement('div');
     
+        errorBlock.classList.add('error');
         errorName.classList.add('error-name');
         errorName.textContent = error[0];
         errorName.onclick = this.errorOnClick;
-        errorsNode.appendChild(errorName);
+        errorBlock.appendChild(errorName);
     
         for (let index = 1; index < error.length; index++) {
             const stackLineText = error[index];
             const stackLine = this.document.createElement('div');
             
             stackLine.classList.add('stack-line');
-            stackLine.innerHTML = stackLineText.replace(/\((.*?:\d*:\d*)/g, '<a href="vscode://file/$1">$1</a>');
+            stackLine.innerHTML = stackLineText.replace('()@', ' ').replace(/((\w:)?\\.*?:\d*:\d*)/g, '<a href="vscode://file/$1">$1</a>');
 
-            errorsNode.appendChild(stackLine);
+            errorBlock.appendChild(stackLine);
         }
+
+        errorsNode.appendChild(errorBlock);
     }
 }
 
@@ -74,6 +83,10 @@ function testOnClick (element) {
     const testName = element.textContent.trim();
     const fixtureName = element.parentElement.parentElement.querySelector('.fixtureName').textContent.trim();
     const testInfo = this.document.querySelector('.test-info');
+
+    this.document.querySelector('body').style.height = '';
+    testInfo.style.height = '';
+    testInfo.classList.remove('error-expanded');
 
     this.document.querySelectorAll('.test.selected').forEach(el => {
         el.classList.remove('selected');

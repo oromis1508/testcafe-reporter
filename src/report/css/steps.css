@@ -65,7 +65,9 @@
 #error-info {
     position: inherit;
     top: 4vw;
-    margin: 5vw;
+    margin: 5vw 7vw 0;
+    height: 9vw;
+    width: 35vw;
 }
 
 #error-info:empty {
@@ -89,7 +91,19 @@
     cursor: alias;
 }
 
-.error-name::after {
+.error {
+    position: relative;
+}
+
+.error:nth-of-type(1) {
+    top: -1vw;
+}
+
+.error:nth-of-type(2) {
+    bottom: -3vw;
+}
+
+.error::after {
     content: "";
     background: rgb(150, 50, 50);
     width: 110%;
@@ -100,12 +114,17 @@
     position: absolute;
     z-index: -1;
     left: -5%;
-    top: -1vw;
     opacity: 0.8;
+    top: -1vw;
 }
 
-.error-name:hover::after {
+.error:hover::after {
     background: rgba(150, 50, 50, 0.5);
+}
+
+.error-name {
+    text-align: center;
+    width: inherit;
 }
 
 .error-expanded .stack-line:nth-of-type(1) {

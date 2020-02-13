@@ -16,19 +16,20 @@ function screenOnLeave () {
     document.querySelector('#screenshot img').classList.remove('increased');
 }
 
-function errorOnClick () {
+function errorOnClick (event) {
+    const errorBlock = event.target.parentElement;
     const body = document.querySelector('body');
     const testInfo = document.querySelector('.test-info');
-    const errorInfo = document.querySelector('#error-info');
-    const errorHeight = errorInfo.getBoundingClientRect().height;
-    const isExpanded = testInfo.classList.contains('error-expanded');
+    const errorHeight = errorBlock.getBoundingClientRect().height;
+    const isExpanded = errorBlock.classList.contains('error-expanded');
 
-    testInfo.classList[isExpanded ? 'remove' : 'add']('error-expanded');
+    errorBlock.classList[isExpanded ? 'remove' : 'add']('error-expanded');
 
-    const errorOffset = errorInfo.getBoundingClientRect().height - errorHeight;
+    const expandedErrorBlock = document.querySelectorAll('error-expanded');
+    const errorOffset = errorBlock.getBoundingClientRect().height - errorHeight;
 
-    body.style.height = errorOffset > 0 ? `${errorOffset + body.getBoundingClientRect().height}px` : '';
-    testInfo.style.height = errorOffset > 0 ? `${errorOffset + testInfo.getBoundingClientRect().height}px` : '';
+    body.style.height = expandedErrorBlock ? `${errorOffset + body.getBoundingClientRect().height}px` : '';
+    testInfo.style.height = expandedErrorBlock ? `${errorOffset + testInfo.getBoundingClientRect().height}px` : '';
 }
 
 /* eslint-enable no-undef */
