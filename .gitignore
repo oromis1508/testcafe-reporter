@@ -4,3 +4,4 @@ media
 test-results/*
 report/*
 utils/*
+package copy.json

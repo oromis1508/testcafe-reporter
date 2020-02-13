@@ -2,6 +2,8 @@ module.exports = function () {
     return {
         noColors: false,
 
+        chalk: require('chalk'),
+
         testStatuses: {
             passed: 'passed',
 
@@ -178,9 +180,18 @@ module.exports = function () {
             if (hasErr) {
                 for (let index = 0; index < testRunInfo.errs.length; index++) {
                     const err = testRunInfo.errs[index];
+                    
+                    let errName;
+                    
+                    if (err.errMsg)
+                        errName = err.errMsg;
+                    else if (err.apiFnChain && err.apiFnChain.some(val => val.includes('Selector')))
+                        errName = `Element not found: ${err.apiFnChain.join('')}`;
+                    else
+                        errName = 'Unknown error';
 
                     stackTrace.push([]);
-                    stackTrace[index].push(err.errMsg ? err.errMsg : err.testRunPhase);
+                    stackTrace[index].push(errName);          
                     testRunInfo.errs[index].callsite.stackFrames.forEach(stackFrame => {
                         const msg = stackFrame.toString();
 

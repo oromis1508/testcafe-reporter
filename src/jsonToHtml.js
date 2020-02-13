@@ -151,7 +151,7 @@ module.exports = {
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
                 `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
-            if (stepsData.stackTrace.length)
+            if (stepsData.stackTrace && stepsData.stackTrace.length)
                 generatedReport += `<div traceFixture="${stepsData.fixture}" traceTest="${stepsData.test}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });
 
