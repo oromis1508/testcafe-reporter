@@ -163,8 +163,9 @@ module.exports = {
         let stepsString = '<step>';
 
         steps.forEach(step => {
-
-            stepsString += `<div class="step"><div class="stepName">${step.name}</div>`;
+            stepsString += '<div class="step">';
+            if (step.name)
+                stepsString += `<div class="stepName">${step.name}</div>`;
             step.actions.forEach(action => {
                 stepsString += `<div class="subStep">${action}</div>`;
             });

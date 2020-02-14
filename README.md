@@ -29,7 +29,7 @@ Logger.step(1, 'Click the link and do something');
 Logger.step([2, 3, 4], 'Doing something else');
 ```
 
-Logger.info used for adding some information of test actions. **Using of Logger.info without Logger.step, Logger.cleanUp or Logger.preconditions not implemented, it will crash test run** (will be implemented in next versions)
+Logger.info used for adding some information of test actions.
 ```
 Logger.step(1, 'Click the link and do something');
 await t.click('link');
