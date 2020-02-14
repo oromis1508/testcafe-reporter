@@ -1,8 +1,8 @@
 {
   "generator-testcafe-reporter": {
     "promptValues": {
-      "githubUsername": "Arg",
-      "website": "http://-"
+      "githubUsername": "oromis1508",
+      "website": "https://github.com/oromis1508/testcafe-reporter.git"
     }
   }
 }

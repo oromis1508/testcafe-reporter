@@ -1,7 +1,5 @@
-lib
 node_modules
-media
 test-results/*
+lib
 report/*
 utils/*
-package copy.json
