@@ -1,10 +1,10 @@
 # testcafe-reporter-acd-html-reporter
-[![Build Status](https://github.com/oromis1508/testcafe-reporter)](https://github.com/oromis1508/testcafe-reporter)
+[![Build Status](https://travis-ci.org/Arg/testcafe-reporter-acd-html-reporter.svg)](https://github.com/oromis1508/testcafe-reporter)
 
 This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
 <p align="center">
-    <img src="https://github.com/oromis1508/testcafe-reporter/master/media/preview.png" alt="Reporter view" />
+    <img src="https://github.com/oromis1508/testcafe-reporter/blob/master/media/preview.png" alt="Reporter view" />
 </p>
 
 ## About
