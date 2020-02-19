@@ -2,6 +2,7 @@ export class Logger {
     private static testsResultsFile = require('../lib/jsonToHtml').getResultFileName();
     private static reporter = require('../lib/index')();
     private static fs = require('fs');
+    private static isReportUsed = Logger.fs.existsSync(Logger.testsResultsFile);
 
     private static getCurrentDateTime(dateSeparator: string = '/', timeSeparator: string = ':', dateTimeSeparator: string = '|--|'): string {
         const currentdate = new Date(); 
@@ -14,26 +15,9 @@ export class Logger {
     }
 
     private static log(message: string, isStep: boolean) {
-        const json = JSON.parse(this.fs.readFileSync(this.testsResultsFile).toLocaleString());
-
         console.log(`${this.getCurrentDateTime()} --- ${message}`);
 
-        const fixtures = json.fixtures;
-        const tests = json.fixtures[fixtures.length - 1].tests;
-        const steps = json.fixtures[fixtures.length - 1].tests[tests.length - 1].steps;
-        const baseStepContent = (name: string) => ({name: name, actions: []});
-
-        if(isStep) {
-            json.fixtures[fixtures.length - 1].tests[tests.length - 1].steps.push(baseStepContent(message));
-        } else {
-            if(!steps.length) {
-                json.fixtures[fixtures.length - 1].tests[tests.length - 1].steps[0] = baseStepContent(message);
-            }
-            
-            json.fixtures[fixtures.length - 1].tests[tests.length - 1].steps[steps.length - 1].actions.push(message);
-        }
-
-        this.fs.writeFileSync(this.testsResultsFile, JSON.stringify(json));
+        if(this.isReportUsed) this.reporter[isStep ? 'addStep' : 'addStepInfo'](message);
     }
 
     static step(num: number | number[], message: string) {
@@ -55,7 +39,7 @@ export class Logger {
 
     static warn(message: string) {
         this.log(`WARN --- : ${message}`, false);
-        this.reporter.setTestStatus(this.reporter.testStatuses.broken);
+        if(this.isReportUsed) this.reporter.setTestStatus(this.reporter.testStatuses.broken);
     }
 }
 

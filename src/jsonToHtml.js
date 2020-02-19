@@ -17,6 +17,10 @@ module.exports = {
             return { name: name, tests: [] };
         },
 
+        baseStepContent: (name) => {
+            return { name: name, actions: [] };
+        },
+
         startTime: 'startTime',
 
         screenshotOnFail: 'screenshot',
@@ -150,7 +154,7 @@ module.exports = {
         generatedReport += '</div>';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixture="${stepsData.fixture}" test="${stepsData.test}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
+                `<div fixture="${stepsData.fixture}" test="${stepsData.test.replace(/"/g, '&#34;')}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
             if (stepsData.stackTrace && stepsData.stackTrace.length)
                 generatedReport += `<div traceFixture="${stepsData.fixture}" traceTest="${stepsData.test}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });

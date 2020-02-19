@@ -27,16 +27,20 @@ module.exports = function () {
 
             borderText: 'bold',
 
-            stackTrace: [254, 109, 90]
+            stackTrace: [254, 109, 90],
+
+            report: 'cyan',
+
+            screenPath: 'cyan'
         },
 
         testsCount: 0,
 
-        startTime: 0,
+        taskStartTime: 0,
+        
+        testStartTime: 0,
 
         userAgent: '',
-
-        currentFixtureName: '',
 
         skippedCount: 0,
 
@@ -69,10 +73,11 @@ module.exports = function () {
 
             const json = JSON.parse(content);
 
-            if (field === this.reportUtil.jsonNames.fixture) 
-                json.fixtures.push(data);
-            else if (field === this.reportUtil.jsonNames.test) 
-                json.fixtures[json.fixtures.length - 1].tests.push(data);
+            if (field === this.reportUtil.jsonNames.fixture) {
+                if (!json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
+            }
+            else if (field === this.reportUtil.jsonNames.test)
+                json.fixtures.find(fixt => fixt.name === console.currentFixtureName).tests.push(data);
             else if (field) 
                 json[field] = data;
 
@@ -85,13 +90,13 @@ module.exports = function () {
         setLastTestProperties (properties) {
             const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
             const fixtures = json.fixtures;
-            const tests = fixtures[fixtures.length - 1].tests;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
 
             if (!properties.length) 
                 properties = [properties];
             
             for (const { name, value } of properties) {
-                json.fixtures[fixtures.length - 1].tests[tests.length - 1][name] = value;
+                tests[tests.length - 1][name] = value;
                 this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));    
             }
         },
@@ -99,7 +104,7 @@ module.exports = function () {
         setTestStatus (status) {
             const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
             const fixtures = json.fixtures;
-            const tests = fixtures[fixtures.length - 1].tests;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
             const currentStatus = tests[tests.length - 1].status;
 
             if (currentStatus !== this.testStatuses.broken) 
@@ -120,6 +125,58 @@ module.exports = function () {
             ]);
         },
 
+        addStep (message) {
+            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const fixtures = json.fixtures;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
+            
+            tests[tests.length - 1].steps.push(this.reportUtil.jsonNames.baseStepContent(message));
+            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+        },
+
+        addStepInfo (message) {
+            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const fixtures = json.fixtures;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
+            const steps = tests[tests.length - 1].steps;
+
+            if (!steps.length) {
+                this.addStep('');
+                this.addStepInfo(message);
+            }
+            
+            steps[steps.length - 1].actions.push(message);
+            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+        },
+
+        getStackTraceAsStringsArray (errs) {
+            const stackTrace = [];
+
+            for (let index = 0; index < errs.length; index++) {
+                const err = errs[index];
+                
+                let errName;
+                
+                if (err.errMsg)
+                    errName = err.errMsg;
+                else if (err.apiFnChain && err.apiFnChain.some(val => val.includes('Selector')))
+                    errName = `Element not found: ${err.apiFnChain.join('')}`;
+                else
+                    errName = 'Unknown error';
+                
+                stackTrace.push([]);
+                stackTrace[index].push(errName);          
+                errs[index].callsite.stackFrames.forEach(stackFrame => {
+                    const msg = stackFrame.toString();
+
+                    if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':'))
+                        stackTrace[index].push(msg);
+                });    
+            }
+
+            return stackTrace;
+        },
+
         reportTaskStart (startTime, userAgents, testsCount) {
             const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
             const reportPath = this.reportUtil.getResultFileName().split('/');
@@ -136,7 +193,7 @@ module.exports = function () {
                 this.fs.mkdirSync(reportPath.join('/'), { recursive: true });
             
             this.testsCount = testsCount;
-            this.startTime = startTime;
+            this.taskStartTime = startTime;
             this.userAgent = userAgents;
             this.logBorder('Task start');
 
@@ -147,8 +204,8 @@ module.exports = function () {
         },
 
         reportFixtureStart (name) {
-            if (this.currentFixtureName !== name) {
-                this.currentFixtureName = name;
+            if (console.currentFixtureName !== name) {
+                console.currentFixtureName = name;
                 this.logBorder('Fixture start');
                 console.log(`Fixture started: ${name}`);
                 this.writeToReportSomething(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
@@ -156,73 +213,49 @@ module.exports = function () {
         },
 
         reportTestStart (name) {
+            this.testStartTime = new Date().valueOf();
+            const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
+
             this.logBorder('Test start');
-            console.log(`Test started: ${this.currentFixtureName} - ${name}`);
+            console.log(`Test started: ${console.currentFixtureName} - ${name}`);
+            console.log(`Start time: ${time}`);
             this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name), this.reportUtil.jsonNames.test);
         },
 
         reportTestDone (name, testRunInfo) {
             const hasErr = !!testRunInfo.errs.length;
-            const stackTrace = [];
-
-            let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
-
+            const screenPath = hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
+            const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
+            const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
+            const result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
             const chalkColor = this.chalkStyles[result];
 
-            if (testRunInfo.skipped) {
-                result = this.testStatuses.skipped;                
-                this.skippedCount++;
-            }
+            if (testRunInfo.skipped) this.skippedCount++;
 
             this.logBorder('Test done');
-            console.log(this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}`));
-            
-            if (hasErr) {
-                for (let index = 0; index < testRunInfo.errs.length; index++) {
-                    const err = testRunInfo.errs[index];
-                    
-                    let errName;
-                    
-                    if (err.errMsg)
-                        errName = err.errMsg;
-                    else if (err.apiFnChain && err.apiFnChain.some(val => val.includes('Selector')))
-                        errName = `Element not found: ${err.apiFnChain.join('')}`;
-                    else
-                        errName = 'Unknown error';
-
-                    stackTrace.push([]);
-                    stackTrace[index].push(errName);          
-                    testRunInfo.errs[index].callsite.stackFrames.forEach(stackFrame => {
-                        const msg = stackFrame.toString();
-
-                        if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':') && msg.includes('('))
-                            stackTrace[index].push(msg);
-                    });    
-                }
-            }
+            console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
+            console.log(`Duration: ${duration}`);
 
             for (const error of stackTrace) {
                 for (let index = 0; index < error.length; index++)
                     console.log(this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index]));
             }
 
+            if (screenPath) console.log(this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`));
             this.logBorder();
-            this.addTestInfo(result, 
-                hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null,
-                this.userAgent,
-                testRunInfo.durationMs,
-                stackTrace);
+
+            this.addTestInfo(testRunInfo.skipped ? this.testStatuses.skipped : result, screenPath, this.userAgent, duration, stackTrace);
         },
 
         reportTaskDone (endTime, passed, warnings) {
             const time = this.moment(endTime).format('M/DD/YYYY HH:mm:ss');
-            const durationMs = endTime - this.startTime;
+            const durationMs = endTime - this.taskStartTime;
             const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
       
-            let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`) + ', ';
+            let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
       
             if (passed !== this.testsCount) {
-                summary += this.chalk[this.chalkStyles.failed](`${this.testsCount - passed}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
+                summary += ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
                 this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
             }
       
@@ -231,6 +264,8 @@ module.exports = function () {
             console.log(`Duration: ${durationStr}`);
             console.log(`Run results: ${summary}`);
             if (warnings.length) console.log(warnings);
+            console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/index.html`));
+            
             this.reportUtil.generateReport();
         }
     };

@@ -22,9 +22,8 @@
 
 #screenshot img.increased {
     width: 80vw;
-    top: 1vw;
+    top: 10vw;
     left: 10vw;
-    bottom: -30vw;
     z-index: 1;
     position: fixed;
     border-radius: 0;

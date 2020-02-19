@@ -8,17 +8,12 @@ function onFixtureClick (element) {
 
 function addStackTrace (stackTrace) {
     const testInfoNode = this.document.querySelector('.test-info');
-    
-    let errorsNode = this.document.querySelector('#error-info');
-
-    if (!errorsNode) {
-        const trace = this.document.createElement('div');
+    const trace = this.document.createElement('div');
         
-        trace.id = 'error-info';
-        testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
-        errorsNode = this.document.querySelector('#error-info');
-    }
-
+    trace.id = 'error-info';
+    testInfoNode.insertBefore(trace, testInfoNode.childNodes[0]);
+    
+    const errorsNode = this.document.querySelector('#error-info');
 
     for (const error of stackTrace) {
         const errorName = this.document.createElement('div');
@@ -26,7 +21,7 @@ function addStackTrace (stackTrace) {
     
         errorBlock.classList.add('error');
         errorName.classList.add('error-name');
-        errorName.textContent = error[0];
+        errorName.innerHTML = error[0].replace(/\n/g, '<br>');
         errorName.onclick = this.errorOnClick;
         errorBlock.appendChild(errorName);
     
@@ -55,22 +50,15 @@ function addTestInfo (testData) {
         this.document.querySelector('#screenshot').appendChild(screen);
     }
 
-    if (testData.stackTrace)
-        this.addStackTrace(testData.stackTrace);
-    else {
-        const el = this.document.querySelector('#error-info');
+    const el = this.document.querySelector('#error-info');
 
-        if (el) el.remove();
-    }
+    if (el) el.remove();
+    if (testData.stackTrace) this.addStackTrace(testData.stackTrace);
         
     const duration = this.document.createElement('div');
     const userAgent = this.document.createElement('div');
-    const durationMs = parseInt(testData.durationMs, 10);
-    const min = Math.floor(durationMs / (1000 * 60));
-    const sec = Math.floor(durationMs / 1000) - min * 60;
-    const msec = durationMs % 1000;
 
-    duration.textContent = `Test duration: ${min ? `min: ${min}, ` : ''}sec: ${sec}, msec: ${msec}`;
+    duration.textContent = `Test duration: ${testData.durationMs}`;
     duration.classList.add('duration');
     userAgent.textContent = `Completed on: ${testData.userAgent}`;
     userAgent.classList.add('userAgent');
@@ -79,24 +67,27 @@ function addTestInfo (testData) {
     this.document.querySelector('#run-info').appendChild(userAgent);    
 }
 
+function clearTestInfo (testInfoElement) {
+    this.document.querySelector('body').style.height = '';
+    testInfoElement.style.height = '';
+    testInfoElement.classList.remove('error-expanded');
+    testInfoElement.classList.remove('selected');
+
+    this.document.querySelectorAll('.test.selected').forEach(el => {
+        el.classList.remove('selected');
+    });
+    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *').forEach(el => {
+        el.remove();
+    });
+}
+
 function testOnClick (element) {   
     const testName = element.textContent.trim();
     const fixtureName = element.parentElement.parentElement.querySelector('.fixtureName').textContent.trim();
     const testInfo = this.document.querySelector('.test-info');
 
-    this.document.querySelector('body').style.height = '';
-    testInfo.style.height = '';
-    testInfo.classList.remove('error-expanded');
-
-    this.document.querySelectorAll('.test.selected').forEach(el => {
-        el.classList.remove('selected');
-    });
+    this.clearTestInfo(testInfo);
     element.classList.add('selected');
-
-    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *').forEach(el => {
-        el.remove();
-    });
-    testInfo.classList.remove('selected');
 
     if (element.getAttribute('status') === 'skipped') return;
 
