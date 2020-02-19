@@ -8,9 +8,6 @@
     "email": "alex.chernik.upwork@gmail.com",
     "url": "https://www.upwork.com/o/profiles/users/~0184dd6e81b7e5f37b/"
   },
-  "publishConfig": {
-    "registry":"https://www.npmjs.com/package/"
-  },
   "main": "lib/index",
   "files": [
     "lib",
