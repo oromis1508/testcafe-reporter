@@ -52,4 +52,44 @@ function onSearch (searchValue) {
     });
 }
 
+/* eslint-disable no-undef */
+
+function filterTests (event) {
+    const status = event.target.classList[0];
+    const methodName = event.target.classList.contains('filtered') ? 'remove' : 'add';
+    const isFixture = event.target.parentElement.parentElement.classList.contains('fixture');
+    const filterFunction = (fixture) => {
+        fixture.querySelectorAll(`.test[status='${status}']`).forEach(test => {
+            test.classList[methodName]('hidden');
+        });
+
+        fixture.classList[fixture.querySelectorAll('.test:not(.hidden)').length === 0 ? 'add' : 'remove']('hidden');
+    };
+
+    if (isFixture) {
+        filterFunction(event.target.parentElement.parentElement);
+        event.target.classList[methodName]('filtered');
+
+        const filteredCount = document.querySelectorAll(`.fixture .${status}.filtered`).length;
+        
+        if (filteredCount === 0)
+            document.querySelector(`body > .summary .${status}`).classList.remove('filtered');
+        else if (filteredCount === document.querySelectorAll(`.fixture .${status}`).length)
+            document.querySelector(`body > .summary .${status}`).classList.add('filtered');
+    }
+    else {
+        document.querySelectorAll('.fixture').forEach(fixture => filterFunction(fixture));
+        document.querySelectorAll(`.summary .${status}`).forEach(el => el.classList[methodName]('filtered'));
+    }
+    this.onSearch(document.querySelector('#search').value);
+}
+
+/* eslint-enable no-undef */
+
+function filterByTag (element) {
+    const methodName = element.classList.contains('filtered') ? 'remove' : 'add';
+    
+    element.classList[methodName]('filtered');
+}
+
 /* eslint-enable no-unused-vars */

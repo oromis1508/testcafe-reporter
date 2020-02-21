@@ -37,6 +37,27 @@ function addStackTrace (stackTrace) {
 
         errorsNode.appendChild(errorBlock);
     }
+    setErrorFont();
+}
+
+function setErrorFont () {
+    const errorNames = this.document.querySelectorAll('.error-name');
+
+    let errorNamesLength = 0;
+
+    errorNames.forEach(err => {
+        errorNamesLength += err.textContent.trim().length;
+    });
+    
+    const contentLengthOffset = errorNamesLength / 550;
+
+    if (contentLengthOffset > 1) {
+        const fontSize = this.document.querySelector('#error-info').getBoundingClientRect().height / 14;
+
+        errorNames.forEach(err => {
+            err.style.fontSize = `${Math.round(fontSize / contentLengthOffset)}px`;
+        });
+    }
 }
 
 function addTestInfo (testData) {
@@ -81,7 +102,9 @@ function clearTestInfo (testInfoElement) {
     });
 }
 
-function testOnClick (element) {   
+function testOnClick (element) {
+    if (element.classList.contains('selected')) return;
+
     const testName = element.textContent.trim();
     const fixtureName = element.parentElement.parentElement.querySelector('.fixtureName').textContent.trim();
     const testInfo = this.document.querySelector('.test-info');
@@ -107,36 +130,4 @@ function testOnClick (element) {
     });
 }
 
-/* eslint-disable no-undef */
-
-function filterTests (event) {
-    const status = event.target.classList[0];
-    const methodName = event.target.classList.contains('filtered') ? 'remove' : 'add';
-    const isFixture = event.target.parentElement.parentElement.classList.contains('fixture');
-    const filterFunction = (fixture) => {
-        fixture.querySelectorAll(`.test[status='${status}']`).forEach(test => {
-            test.classList[methodName]('hidden');
-        });
-
-        fixture.classList[fixture.querySelectorAll('.test:not(.hidden)').length === 0 ? 'add' : 'remove']('hidden');
-    };
-
-    if (isFixture) {
-        filterFunction(event.target.parentElement.parentElement);
-        event.target.classList[methodName]('filtered');
-
-        const filteredCount = document.querySelectorAll(`.fixture .${status}.filtered`).length;
-        
-        if (filteredCount === 0)
-            document.querySelector(`body > .summary .${status}`).classList.remove('filtered');
-        else if (filteredCount === document.querySelectorAll(`.fixture .${status}`).length)
-            document.querySelector(`body > .summary .${status}`).classList.add('filtered');
-    }
-    else {
-        document.querySelectorAll('.fixture').forEach(fixture => filterFunction(fixture));
-        document.querySelectorAll(`.summary .${status}`).forEach(el => el.classList[methodName]('filtered'));
-    }
-}
-
-/* eslint-enable no-undef */
 /* eslint-enable no-unused-vars */

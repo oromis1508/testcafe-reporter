@@ -181,6 +181,7 @@ module.exports = function () {
             const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
             const reportPath = this.reportUtil.getResultFileName().split('/');
 
+            console.isReportUsed = true;
             try {
                 this.fs.unlinkSync(this.reportUtil.getResultFileName());
             }

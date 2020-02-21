@@ -3,11 +3,12 @@
     width: 20vw;
     position: absolute;
     left: 14.4vw;
-    bottom: 23vw;
+    bottom: 22vh;
 }
 
 #screenshot img {
     width: inherit;
+    height: 20vh;
     position: inherit;
     border-radius: 5vw;
 }
@@ -22,7 +23,8 @@
 
 #screenshot img.increased {
     width: 80vw;
-    top: 10vw;
+    bottom: 1vh;
+    height: auto;
     left: 10vw;
     z-index: 1;
     position: fixed;

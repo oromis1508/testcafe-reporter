@@ -1,14 +1,14 @@
 body {
     margin: 0;
     background-color: #dbcfc3;
-    height: 71.3vw;
+    height: 99vh;
 }
 
 .tests-tree {
     width: 49vw;
     padding: 0 0.7vw;
-    margin-top: 1.4vw;
-    height: 96.1%;
+    margin-top: 2.9vh;
+    height: 96.9%;
 }
 
 .fixtures {
@@ -127,7 +127,7 @@ body {
     position: initial;
 }
 
-.test.hidden, .fixture.hidden, .test.search-hidden, .fixture.search-hidden {
+.test.hidden, .fixture.hidden, .test.search-hidden, .fixture.search-hidden, .test.tag-hidden, .fixture.tag-hidden {
     visibility: hidden;
     position: absolute;
     top: 0;

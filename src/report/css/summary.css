@@ -1,14 +1,14 @@
 .summary {
     position: inherit;
-    padding-top: 0.7vw;
-    margin-bottom: -0.7vw;
+    margin: 1vh 0 -1.9vh;
     padding-left: 1vw;
+    height: 2vh;
 }
 
 .summary div {
     display: inline;
-    margin: 0.5vw;
-    padding: 0.4vw;
+    margin: 0.75vh 0.5vw;
+    padding: 0.6vh 0.4vw;
     border-radius: 4vw;
     font-weight: bold;
     color: #333388;
@@ -17,6 +17,10 @@
 .summary div.filtered {
     background-color: white;
     background-image: none;
+}
+
+.summary div[class] {
+    font-size: 1.25vw;
 }
 
 .summary div[class]:hover {
@@ -99,16 +103,30 @@
 #time {
     position: absolute;
     left: 50vw;
-    top: -0.5vw;
+    top: -1vh;
+    font-size: min(1.5vw, 2vh);
 }
 
 #search {
     position: absolute;
     left: 34vw;
     width: 15vw;
-    height: 1.8vw;
-    top: 0.4vw;
+    height: 2.8vh;
+    top: 0.4vh;
     font-style: oblique;
     font-size: 1.5vw;
     color: maroon;
+}
+
+.summary .tag {
+    background-color: #551155;
+    color: #dbcfc3;
+    position: absolute;
+    left: 31vw;
+    top: -0.3vh;
+}
+
+.summary .tag.filtered {
+    background-color: #dbcfc3;
+    color: #551155;
 }

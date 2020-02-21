@@ -1,8 +1,5 @@
 export class Logger {
-    private static testsResultsFile = require('../lib/jsonToHtml').getResultFileName();
     private static reporter = require('../lib/index')();
-    private static fs = require('fs');
-    private static isReportUsed = Logger.fs.existsSync(Logger.testsResultsFile);
 
     private static getCurrentDateTime(dateSeparator: string = '/', timeSeparator: string = ':', dateTimeSeparator: string = '|--|'): string {
         const currentdate = new Date(); 
@@ -17,7 +14,7 @@ export class Logger {
     private static log(message: string, isStep: boolean) {
         console.log(`${this.getCurrentDateTime()} --- ${message}`);
 
-        if(this.isReportUsed) this.reporter[isStep ? 'addStep' : 'addStepInfo'](message);
+        if((<any>console).isReportUsed) this.reporter[isStep ? 'addStep' : 'addStepInfo'](message);
     }
 
     static step(num: number | number[], message: string) {
@@ -39,7 +36,7 @@ export class Logger {
 
     static warn(message: string) {
         this.log(`WARN --- : ${message}`, false);
-        if(this.isReportUsed) this.reporter.setTestStatus(this.reporter.testStatuses.broken);
+        if((<any>console).isReportUsed) this.reporter.setTestStatus(this.reporter.testStatuses.broken);
     }
 }
 
