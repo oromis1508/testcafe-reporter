@@ -76,7 +76,6 @@
 
 .stack-line {
   display: none;
-  height: 1vw;
 }
 
 .error-expanded .stack-line {

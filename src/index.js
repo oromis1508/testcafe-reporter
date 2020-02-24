@@ -231,10 +231,13 @@ module.exports = function () {
             const result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
             const chalkColor = this.chalkStyles[result];
 
-            if (testRunInfo.skipped) this.skippedCount++;
-
             this.logBorder('Test done');
-            console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
+            if (testRunInfo.skipped) {
+                this.skippedCount++;
+                console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${console.currentFixtureName} - ${name}`));
+            }
+            else console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
+
             console.log(`Duration: ${duration}`);
 
             for (const error of stackTrace) {

@@ -132,7 +132,7 @@ module.exports = {
             generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
-                generatedReport += `<div class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}</div>`;
+                generatedReport += `<div class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
                 stepsArray.push({
                     fixture: fixture.name,
 

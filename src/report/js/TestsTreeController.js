@@ -130,4 +130,15 @@ function testOnClick (element) {
     });
 }
 
+function tagOnClick (element) {
+    const methodName = element.classList.contains('hidden') ? 'remove' : 'add';
+
+    element.classList[methodName]('hidden');
+    if (this.document.querySelector('.summary .tag.filtered')) {
+        element.parentElement.classList.add('tag-hidden');
+        if (!element.parentElement.parentElement.parentElement.querySelector('.test:not([class*=hidden])'))
+            element.parentElement.parentElement.parentElement.classList.add('tag-hidden');
+    }
+}
+
 /* eslint-enable no-unused-vars */

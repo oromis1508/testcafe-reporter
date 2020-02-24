@@ -138,3 +138,20 @@ body {
     font-size: 1.35vw;
     padding-top: 0.45vw;
 }
+
+.test .tag {
+    position: relative;
+    left: 1.8vw;
+    width: 1.5vw;
+    float: right;
+    content: url(../img/tag_on.png);
+}
+
+.test .tag.hidden {
+    content: url(../img/tag_off.png);
+}
+
+img.tag:hover {
+    border: 1px double black;
+    border-radius: 4vw;
+}

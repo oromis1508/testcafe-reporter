@@ -46,9 +46,11 @@ function onSearch (searchValue) {
             test.classList[isTestExactSearch ? 'remove' : 'add']('search-hidden');
         });
 
-        const isFixtureTestsHidden = fixture.querySelectorAll('.test:not(.hidden):not(.search-hidden)').length === 0;
+        if (!fixture.classList.contains('hidden') && !fixture.classList.contains('tag-hidden')) {
+            const isFixtureTestsHidden = fixture.querySelectorAll('.test:not([class*=hidden])').length === 0;
         
-        fixture.classList[isFixtureTestsHidden ? 'add' : 'remove']('search-hidden');
+            fixture.classList[isFixtureTestsHidden ? 'add' : 'remove']('search-hidden');    
+        }
     });
 }
 
@@ -81,15 +83,23 @@ function filterTests (event) {
         document.querySelectorAll('.fixture').forEach(fixture => filterFunction(fixture));
         document.querySelectorAll(`.summary .${status}`).forEach(el => el.classList[methodName]('filtered'));
     }
-    this.onSearch(document.querySelector('#search').value);
+    onSearch(document.querySelector('#search').value);
+}
+
+function filterByTag (element) {
+    const isFilteredOnClick = element.classList.contains('filtered');
+    const methodName = isFilteredOnClick ? 'remove' : 'add';
+    
+    element.classList[methodName]('filtered');
+
+    document.querySelectorAll('.fixture').forEach(fixture => {
+        fixture.querySelectorAll('.test').forEach(test => {
+            if (test.querySelector('.tag.hidden')) test.classList[methodName]('tag-hidden');
+        });
+        if (fixture.querySelector(".test:not([class*='hidden'])") && isFilteredOnClick || !fixture.querySelector(".test:not([class*='hidden'])") && !isFilteredOnClick)
+            fixture.classList[methodName]('tag-hidden');
+    });
 }
 
 /* eslint-enable no-undef */
-
-function filterByTag (element) {
-    const methodName = element.classList.contains('filtered') ? 'remove' : 'add';
-    
-    element.classList[methodName]('filtered');
-}
-
 /* eslint-enable no-unused-vars */
