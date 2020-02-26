@@ -144,9 +144,10 @@ module.exports = function () {
                 this.addStep('');
                 this.addStepInfo(message);
             }
-            
-            steps[steps.length - 1].actions.push(message);
-            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+            else {
+                steps[steps.length - 1].actions.push(message);
+                this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));    
+            }
         },
 
         getStackTraceAsStringsArray (errs) {

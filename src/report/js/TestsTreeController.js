@@ -4,6 +4,19 @@ function onFixtureClick (element) {
     const isCurrentFixtureSelected = element.parentElement.classList.contains('selected');
 
     element.parentElement.classList[isCurrentFixtureSelected ? 'remove' : 'add']('selected');
+    if (!isCurrentFixtureSelected) this.setTagsPosition(element.parentElement);
+}
+
+function setTagsPosition (fixture) {
+    fixture.querySelectorAll('.test .tag').forEach(tag => {
+        if (!tag.style.top) {
+            const parentRect = tag.parentElement.getBoundingClientRect();
+            const tagRect = tag.getBoundingClientRect();
+            const expectedY = parentRect.top + parentRect.height / 2 - tagRect.height / 2;
+            
+            tag.style.top = `${expectedY - tagRect.top}px`;
+        }
+    });
 }
 
 function addStackTrace (stackTrace) {
