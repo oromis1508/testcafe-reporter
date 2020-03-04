@@ -10,9 +10,10 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 ## About
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 
-<div name="baseReportDir"></div>
+<p id="baseReportDir">
 The report generates in base folder: {project}/test-results/report_{current date} as html + js/css/img files.
 Also reporter generates json file with test run info, it places in: {report_directory}/report.json.
+</p>
 
 If you need to run some times a day, save report, because old version with same date will be rewrited.
 You can <a href="#changeDirectory">change the report saving directory</a> or <a href="#saveToFile">save report to single file</a> (without css, js and img files).
@@ -59,15 +60,17 @@ If you want to have screenshots in report, use `-s` option:
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter -s takeOnFails=true
 ```
 
-<div name="changeDirectory"></div>
+<p id="changeDirectory">
 If you want to save report to another folder, you can use `--reportPath` argument:
+</p>
 
 ```
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportPath path/to/my/report
 ```
 
-<div name="saveToFile"></div>
-If you want to save report as single file, use `--reportFile` argument. If you don't passed argument value, it saved to <a href="baseReportDir">base report folder</a> as report.html and report.json:
+<p id="saveToFile">
+If you want to save report as single file, use `--reportFile` argument. If you don't passed argument value, it saved to <a href="#baseReportDir">base report folder</a> as report.html and report.json:
+</p>
 
 ```
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile
