@@ -4,16 +4,18 @@
 This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
 <p align="center">
-    <img src="https://github.com/oromis1508/testcafe-reporter/blob/master/media/preview.png" alt="Reporter view" />
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/preview.png" alt="Reporter view" />
 </p>
 
 ## About
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 
-The report generates in folder {project}/test-results/report_{current date}.
-Also reporter generates json file with test run info: {project}/test-results/report_{current date}.json.
+<div name="baseReportDir"></div>
+The report generates in base folder: {project}/test-results/report_{current date} as html + js/css/img files.
+Also reporter generates json file with test run info, it places in: {report_directory}/report.json.
 
-If you need to run some times a day, save report, because old version with same date will be rewrited (changing the report name will be added in future versions).
+If you need to run some times a day, save report, because old version with same date will be rewrited.
+You can <a href="#changeDirectory">change the report saving directory</a> or <a href="#saveToFile">save report to single file</a> (without css, js and img files).
 
 For extended test run information you can use Logger, implemented in the reporter.
 Method Logger.warn automatically sets status of a test: 'broken'.
@@ -51,21 +53,36 @@ When you run tests from the command line, specify the reporter name by using the
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter
 ```
 
-If you needed screenshots in report, use `-s` option:
+If you want to have screenshots in report, use `-s` option:
 
 ```
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter -s takeOnFails=true
 ```
 
-When you use API, pass the reporter name to the `reporter()` method:
+<div name="changeDirectory"></div>
+If you want to save report to another folder, you can use `--reportPath` argument:
 
-```js
-testCafe
-    .createRunner()
-    .src('path/to/test/file.js')
-    .browsers('chrome')
-    .reporter('acd-html-reporter') // <-
-    .run();
+```
+testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportPath path/to/my/report
+```
+
+<div name="saveToFile"></div>
+If you want to save report as single file, use `--reportFile` argument. If you don't passed argument value, it saved to <a href="baseReportDir">base report folder</a> as report.html and report.json:
+
+```
+testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile
+```
+
+or you can add folder name to report (report will be saved as path/to/html/report.html and path/to/html/report.json):
+
+```
+testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile path/to/html
+```
+
+or if the path ended with .html, report will be saved to it folder (path/to/my.html and path/to/report.json):
+
+```
+testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile path/to/my.html
 ```
 
 ## Author

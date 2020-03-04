@@ -43,6 +43,8 @@ module.exports = function () {
         userAgent: '',
 
         skippedCount: 0,
+        
+        isSaveAsFile: false,
 
         createErrorDecorator () {
             return {
@@ -65,13 +67,19 @@ module.exports = function () {
 
         reportUtil: require('./jsonToHtml'),
       
+        writeToJson (object) {
+            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(object, null, 2));
+        },
+
+        getJsonAsObject () {
+            return JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+        },
+
         writeToReportSomething (data, field) {
-            let content = this.reportUtil.jsonNames.baseJsonContent;
+            let json;
 
-            if (this.fs.existsSync(this.reportUtil.getResultFileName()))
-                content = this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString();
-
-            const json = JSON.parse(content);
+            if (this.fs.existsSync(this.reportUtil.getResultFileName())) json = this.getJsonAsObject();
+            else json = JSON.parse(this.reportUtil.jsonNames.baseJsonContent);
 
             if (field === this.reportUtil.jsonNames.fixture) {
                 if (!json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
@@ -81,14 +89,14 @@ module.exports = function () {
             else if (field) 
                 json[field] = data;
 
-            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+            this.writeToJson(json);    
         },
 
         /**
          * @param {{name: string, value: any} | {name: string, value: any}[]} properties 
          */
         setLastTestProperties (properties) {
-            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
 
@@ -97,12 +105,12 @@ module.exports = function () {
             
             for (const { name, value } of properties) {
                 tests[tests.length - 1][name] = value;
-                this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));    
+                this.writeToJson(json);    
             }
         },
 
         setTestStatus (status) {
-            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
             const currentStatus = tests[tests.length - 1].status;
@@ -126,16 +134,16 @@ module.exports = function () {
         },
 
         addStep (message) {
-            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
             
             tests[tests.length - 1].steps.push(this.reportUtil.jsonNames.baseStepContent(message));
-            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));
+            this.writeToJson(json);    
         },
 
         addStepInfo (message) {
-            const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
             const steps = tests[tests.length - 1].steps;
@@ -146,7 +154,7 @@ module.exports = function () {
             }
             else {
                 steps[steps.length - 1].actions.push(message);
-                this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(json));    
+                this.writeToJson(json);    
             }
         },
 
@@ -178,21 +186,50 @@ module.exports = function () {
             return stackTrace;
         },
 
+        parseStartArguments () {
+            const minimist = require('minimist');
+            const args = minimist(process.argv.slice(2));
+            const reportPathArg = args.reportPath;
+            const reportFileArg = args.reportFile;
+
+            if (reportPathArg) {
+                if (this.fs.existsSync(reportPathArg) && this.fs.statSync(reportPathArg).isFile()) {
+                    console.log(this.chalk.red(`Report warning: ${reportPathArg} - is file! The report will be generated in the base directory.`));
+                    return;
+                }
+
+                this.reportUtil.getResultFileName = () => `${reportPathArg}.json`;
+                this.reportUtil.getReportPath = () => reportPathArg;
+            }
+            else if (reportFileArg) {
+                this.isSaveAsFile = true;
+                if (typeof reportFileArg !== 'string') return;
+
+                let reportPath = reportFileArg;
+
+                if (reportFileArg.endsWith('.html')) {
+                    const split = reportFileArg.split(/[/\\]/g);
+
+                    this.reportUtil.singleHtmlFileName = split.pop();
+                    reportPath = split.join('/');
+                }
+
+                this.reportUtil.getReportPath = () => reportPath;
+            }
+        },
+
         reportTaskStart (startTime, userAgents, testsCount) {
             const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
-            const reportPath = this.reportUtil.getResultFileName().split('/');
 
             console.isReportUsed = true;
+            this.parseStartArguments();
+            if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
+                this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
+
             try {
                 this.fs.unlinkSync(this.reportUtil.getResultFileName());
             }
-            catch (e) {
-                //file doesn't exist
-            }
-
-            reportPath.pop();
-            if (!this.fs.existsSync(reportPath.join('/')))
-                this.fs.mkdirSync(reportPath.join('/'), { recursive: true });
+            catch (e) { /*file doesn't exist*/ }
             
             this.testsCount = testsCount;
             this.taskStartTime = startTime;
@@ -271,7 +308,8 @@ module.exports = function () {
             if (warnings.length) console.log(warnings);
             console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/index.html`));
             
-            this.reportUtil.generateReport();
+            if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml();
+            else this.reportUtil.generateReport();
         }
     };
 };

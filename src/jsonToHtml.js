@@ -1,4 +1,5 @@
 var stepsArray = [];
+const fs = require('fs');
 
 // var ad = {
 module.exports = {
@@ -34,6 +35,8 @@ module.exports = {
         testStatus: 'status'
     },
 
+    singleHtmlFileName: 'report.html',
+
     getFormattedDate: function () {
         const curDate = new Date();
         const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
@@ -49,74 +52,64 @@ module.exports = {
         return `test-results/report_${this.getFormattedDate()}`;
     },
 
-    // generateReportAsHtml: function () {
-    //     const fs = require('fs');
-    //     // const copydir = require('copy-dir');
-    //     const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
-    //     const newReportDir = this.getReportPath();
+    getOriginalReportPath: function () {
+        const originalReportPath = 'src/report';
 
-    //     let originalReportPath = 'src/report';
+        if (!fs.existsSync(originalReportPath))
+            return 'node_modules/testcafe-reporter-acd-html-reporter/report';
+        return originalReportPath;
+    },
 
-    //     if (!fs.existsSync(originalReportPath))
-    //         originalReportPath = 'node_modules/testcafe-reporter-acd-html-reporter/report';
-        
-    //     // copydir.sync(originalReportPath, newReportDir, {
-    //     //     utimes: true,
+    getReportFilesAsHtmlTags: function (originalReportPath) {
+        let result = '';
 
-    //     //     mode: true,
+        for (const cssFile of fs.readdirSync(`${originalReportPath}/css`)) {
+            const imageRegex = /url\((\..*?)\)/;
 
-    //     //     cover: true
-    //     // });
-        
-    //     const html = fs.readFileSync(`${originalReportPath}/index.html`).toLocaleString();
-
-    //     let htmlHead = '<head>';
-    //     for(const cssFile of fs.readdirSync(`${originalReportPath}/css`)) {
-    //         let cssContent = fs.readFileSync(`${originalReportPath}/css/${cssFile}`).toLocaleString();
-    //         let regexResult;
-
-    //         while(regexResult = /url\((\..*?)\)/.exec(cssContent)) {
-    //             const split = regexResult[1].split('/');
-    //             const fileName = split[split.length - 1];
-    //             const fileNameSplit = fileName.split('.');
-    //             const imageExtension = fileNameSplit[fileNameSplit.length - 1];
-    //             const bitmap = fs.readFileSync(`${originalReportPath}/img/${fileName}`);
-    //             const base64 = new Buffer(bitmap).toString('base64');
-
-    //             cssContent = cssContent.replace(regexResult[1], `data:image/${imageExtension};base64,${base64}`);
-    //         }
+            let cssContent = fs.readFileSync(`${originalReportPath}/css/${cssFile}`).toLocaleString();
             
-    //         htmlHead += cssContent;
-    //         // // convert binary data to base64 encoded string
-    //         // return new Buffer(bitmap).toString('base64');
-        
-    //     }
+            for (let regexResult = imageRegex.exec(cssContent); regexResult; regexResult = imageRegex.exec(cssContent)) {
+                const split = regexResult[1].split('/');
+                const fileName = split[split.length - 1];
+                const fileNameSplit = fileName.split('.');
+                const imageExtension = fileNameSplit[fileNameSplit.length - 1];
+                const bitmap = fs.readFileSync(`${originalReportPath}/img/${fileName}`);
+                const base64 = new Buffer(bitmap).toString('base64');
 
-    //     const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`)
-    //     .replace('startTime', json.startTime)
-    //     .replace(/\<head\>.*\<\/head\>/g, htmlHead);
+                cssContent = cssContent.replace(regexResult[1], `data:image/${imageExtension};base64,${base64}`);
+                regexResult = imageRegex.exec(cssContent);
+            }
+            result += `<style>${cssContent}</style>`;
+        }
 
-    //     fs.writeFileSync(`${newReportDir}/index.html`, generatedReport);
-    // },
+        for (const jsFile of fs.readdirSync(`${originalReportPath}/js`)) {
+            const jsContent = fs.readFileSync(`${originalReportPath}/js/${jsFile}`).toLocaleString();
 
+            result += `<script>${jsContent}</script>`;
+        }
+
+        return result;
+    },
+
+    generateReportAsHtml: function () {
+        const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
+        const originalReportPath = this.getOriginalReportPath();
+        const html = fs.readFileSync(`${originalReportPath}/index.html`).toLocaleString();
+        const htmlHead = `<head>${this.getReportFilesAsHtmlTags(originalReportPath)}</head>`;
+        const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`)
+            .replace('startTime', json.startTime)
+            .replace(/<head>.*<\/head>/gs, htmlHead);
+
+        fs.writeFileSync(`${this.getReportPath()}/${this.singleHtmlFileName}`, generatedReport);
+    },
+    
     generateReport: function () {
-        const fs = require('fs');
         const copydir = require('copy-dir');
         const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
         const newReportDir = this.getReportPath();
-
-        let originalReportPath = 'src/report';
-
-        if (!fs.existsSync(originalReportPath))
-            originalReportPath = 'node_modules/testcafe-reporter-acd-html-reporter/report';
+        const originalReportPath = this.getOriginalReportPath();
         
-        copydir.sync(originalReportPath, newReportDir, {
-            utimes: true,
-
-            mode: true,
-
-            cover: true
-        });
+        copydir.sync(originalReportPath, newReportDir, { utimes: true, mode: true, cover: true });
         
         const html = fs.readFileSync(`${newReportDir}/index.html`).toLocaleString();
         const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`).replace('startTime', json.startTime);
