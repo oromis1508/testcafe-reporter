@@ -38,12 +38,18 @@ function addFixtureSummary () {
     });
 }
 
+/* eslint-disable no-undef */
+
 function onSearch (searchValue) {
+    const isSearchByFixtureEnabled = document.querySelector('#searchFixture').getAttribute('enabled') === 'true';
+    
     this.document.querySelectorAll('.fixture').forEach(fixture => {
+        const isFixtureExactSearch = isSearchByFixtureEnabled && fixture.querySelector('.fixtureName').textContent.toLowerCase().includes(searchValue.toLowerCase());
+
         fixture.querySelectorAll('.test').forEach(test => {
             const isTestExactSearch = test.textContent.toLowerCase().includes(searchValue.toLowerCase());
-            
-            test.classList[isTestExactSearch ? 'remove' : 'add']('search-hidden');
+
+            test.classList[isTestExactSearch || isFixtureExactSearch ? 'remove' : 'add']('search-hidden');
         });
 
         if (!fixture.classList.contains('hidden') && !fixture.classList.contains('tag-hidden')) {
@@ -53,8 +59,6 @@ function onSearch (searchValue) {
         }
     });
 }
-
-/* eslint-disable no-undef */
 
 function filterTests (event) {
     const status = event.target.classList[0];
@@ -99,6 +103,31 @@ function filterByTag (element) {
         if (fixture.querySelector(".test:not([class*='hidden'])") && isFilteredOnClick || !fixture.querySelector(".test:not([class*='hidden'])") && !isFilteredOnClick)
             fixture.classList[methodName]('tag-hidden');
     });
+}
+
+function onSearchButtonMove (event) {
+    if (!document.querySelector('#searchFixtureTooltip')) {
+        const tooltip = document.createElement('div');
+
+        tooltip.id = 'searchFixtureTooltip';
+        document.querySelector('body > .summary').appendChild(tooltip);
+    }
+    const tooltip = document.querySelector('#searchFixtureTooltip');
+
+    tooltip.textContent = document.querySelector('#searchFixture').getAttribute('enabled') === 'false' ? 'Search by fixture and test' : 'Search only by test';
+    tooltip.style.top = `${event.clientY}px`;
+    tooltip.style.left = `${event.clientX}px`;
+}
+
+function onSearchButtonLeave () {
+    const tooltip = document.querySelector('#searchFixtureTooltip');
+
+    if (tooltip) tooltip.remove();
+}
+
+function onSearchButtonClick (event) {
+    event.target.setAttribute('enabled', event.target.getAttribute('enabled') !== 'true');
+    this.onSearchButtonMove(event);
 }
 
 /* eslint-enable no-undef */

@@ -43,6 +43,8 @@ module.exports = function () {
         userAgent: '',
 
         skippedCount: 0,
+
+        testsNumber: 0,
         
         isSaveAsFile: false,
 
@@ -255,15 +257,16 @@ module.exports = function () {
             this.testStartTime = new Date().valueOf();
             const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
 
+            this.testsNumber++;
             this.logBorder('Test start');
-            console.log(`Test started: ${console.currentFixtureName} - ${name}`);
+            console.log(`Test started (${this.testsNumber}/${this.testsCount}): ${console.currentFixtureName} - ${name}`);
             console.log(`Start time: ${time}`);
             this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name), this.reportUtil.jsonNames.test);
         },
 
         reportTestDone (name, testRunInfo) {
             const hasErr = !!testRunInfo.errs.length;
-            const screenPath = hasErr && testRunInfo.screenshots ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
+            const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
             const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
             const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
             const result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;

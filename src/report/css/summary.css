@@ -110,13 +110,13 @@
 #search {
     position: absolute;
     left: 34vw;
-    width: 15vw;
+    width: 14.1vw;
     height: 2.8vh;
     top: 0.4vh;
     font-style: oblique;
     font-size: 1.5vw;
     color: maroon;
-}
+    padding-right: 1vw;}
 
 .summary .tag {
     background-color: #551155;
@@ -129,4 +129,25 @@
 .summary .tag.filtered {
     background-color: #dbcfc3;
     color: #551155;
+}
+
+#searchFixtureTooltip {
+    position: absolute;
+    left: 44vw;
+    z-index: 2;
+}
+
+#searchFixture {
+    left: 48.35vw;
+    margin: 0;
+    padding: 0;
+    height: 3.4vh;
+    top: 0.4vh;
+    position: absolute;
+    font-weight: 1000;
+    z-index: 1;
+}
+
+#searchFixture[enabled=false] {
+    color: rgba(0,0,0,0.1);
 }

@@ -45,7 +45,7 @@ module.exports = {
     },
 
     getResultFileName: function () {       
-        return `test-results/report_${this.getFormattedDate()}.json`;
+        return `${this.getReportPath()}/report_${this.getFormattedDate()}.json`;
     },
 
     getReportPath: function () {        
