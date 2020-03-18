@@ -34,6 +34,7 @@ function onLoad () {
     }
     this.addSummary();
     this.addFixtureSummary();
+    this.addSearchByFixtureListeners();
 }
 
 /* eslint-enable no-unused-vars */

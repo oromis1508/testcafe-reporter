@@ -130,5 +130,13 @@ function onSearchButtonClick (event) {
     this.onSearchButtonMove(event);
 }
 
+function addSearchByFixtureListeners () {
+    const btnSearchByFixture = document.querySelector('#searchFixture');
+    
+    btnSearchByFixture.onclick += onSearchButtonClick;
+    btnSearchByFixture.onmouseleave += onSearchButtonLeave;
+    btnSearchByFixture.onmousemove += onSearchButtonMove;
+}
+
 /* eslint-enable no-undef */
 /* eslint-enable no-unused-vars */

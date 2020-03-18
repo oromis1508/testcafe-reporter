@@ -134,7 +134,6 @@
 #searchFixtureTooltip {
     position: absolute;
     left: 44vw;
-    z-index: 2;
 }
 
 #searchFixture {
