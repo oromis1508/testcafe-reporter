@@ -149,7 +149,7 @@ module.exports = {
             generatedReport += stepsData.steps.replace('<step>', 
                 `<div fixture="${stepsData.fixture}" test="${stepsData.test.replace(/"/g, '&#34;')}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
             if (stepsData.stackTrace && stepsData.stackTrace.length)
-                generatedReport += `<div traceFixture="${stepsData.fixture}" traceTest="${stepsData.test}">${JSON.stringify(stepsData.stackTrace)}</div>`;
+                generatedReport += `<div traceFixture="${stepsData.fixture}" traceTest="${stepsData.test.replace(/"/g, '&#34;')}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });
 
         return generatedReport;
