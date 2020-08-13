@@ -170,19 +170,31 @@ module.exports = function () {
                 
                 if (err.errMsg)
                     errName = err.errMsg;
-                else if (err.apiFnChain && err.apiFnChain.some(val => val.includes('Selector')))
-                    errName = `Element not found: ${err.apiFnChain.join('')}`;
+                else if (err.code) {
+                    const errorsTypes = require('testcafe/lib/errors/types');
+                    const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
+                    const testRunKey = Object.keys(errorsTypes.TEST_RUN_ERRORS).find(key => errorsTypes.TEST_RUN_ERRORS[key] === err.code);
+                    
+                    errName = runtimeKey ? runtimeKey : testRunKey;
+                }
                 else
                     errName = 'Unknown error';
                 
-                stackTrace.push([]);
-                stackTrace[index].push(errName);          
-                errs[index].callsite.stackFrames.forEach(stackFrame => {
-                    const msg = stackFrame.toString();
+                if (err.apiFnChain)
+                    errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
 
-                    if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':'))
-                        stackTrace[index].push(msg);
-                });    
+                stackTrace.push([]);
+                if (errs[index].callsite) {
+                    stackTrace[index].push(errName);          
+                    errs[index].callsite.stackFrames.forEach(stackFrame => {
+                        const msg = stackFrame.toString();
+    
+                        if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':'))
+                            stackTrace[index].push(msg);
+                    });
+                } 
+                else
+                    stackTrace[index].push(...errName.split('\n'));
             }
 
             return stackTrace;
@@ -275,6 +287,7 @@ module.exports = function () {
             this.logBorder('Test done');
             if (testRunInfo.skipped) {
                 this.skippedCount++;
+                this.testsCount++;
                 console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${console.currentFixtureName} - ${name}`));
             }
             else console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));

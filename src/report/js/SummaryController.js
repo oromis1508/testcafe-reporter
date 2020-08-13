@@ -133,9 +133,9 @@ function onSearchButtonClick (event) {
 function addSearchByFixtureListeners () {
     const btnSearchByFixture = document.querySelector('#searchFixture');
     
-    btnSearchByFixture.onclick += onSearchButtonClick;
-    btnSearchByFixture.onmouseleave += onSearchButtonLeave;
-    btnSearchByFixture.onmousemove += onSearchButtonMove;
+    btnSearchByFixture.onclick = onSearchButtonClick;
+    btnSearchByFixture.onmouseleave = onSearchButtonLeave;
+    btnSearchByFixture.onmousemove = onSearchButtonMove;
 }
 
 /* eslint-enable no-undef */
