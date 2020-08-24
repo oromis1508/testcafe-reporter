@@ -182,6 +182,8 @@ module.exports = function () {
                 
                 if (err.apiFnChain)
                     errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
+                if (err.filePaths)
+                    errName += `(Files: ${err.filePaths.join ? err.filePaths.join('') : err.filePaths})`;
 
                 stackTrace.push([]);
                 if (errs[index].callsite) {
