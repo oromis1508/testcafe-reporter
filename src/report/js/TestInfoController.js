@@ -32,5 +32,10 @@ function errorOnClick (event) {
     testInfo.style.height = expandedErrorBlock ? `${errorOffset + testInfo.getBoundingClientRect().height}px` : '';
 }
 
+function stepOnClick (stepNameElement) {
+    const stepBlock = stepNameElement.parentElement;
+    stepBlock.hasAttribute('hidden') ? stepBlock.removeAttribute('hidden') : stepBlock.addAttribute('hidden');
+} 
+
 /* eslint-enable no-undef */
 /* eslint-enable no-unused-vars */

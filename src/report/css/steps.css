@@ -45,7 +45,12 @@
   border-style: inset outset;
 }
 
-.subStep {
+.step[hidden] .subStep {
+  visibility: hidden;
+  position: absolute;
+}
+
+.step .subStep {
   padding-left: 4vw;
 }
 
