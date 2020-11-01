@@ -8,8 +8,8 @@ module.exports = {
 
         test: 'test',
 
-        baseTestContent: (name) => {
-            return { name: name, steps: [] };
+        baseTestContent: (name, id) => {
+            return { id: id, name: name, steps: [] };
         },
 
         fixture: 'fixture',
@@ -125,8 +125,10 @@ module.exports = {
             generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
-                generatedReport += `<div class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
+                generatedReport += `<div id="${test.id}" class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
                 stepsArray.push({
+                    id: test.id,
+
                     fixture: fixture.name,
 
                     test: test.name,
@@ -147,9 +149,9 @@ module.exports = {
         generatedReport += '</div>';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixture="${stepsData.fixture}" test="${stepsData.test.replace(/"/g, '&#34;')}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
+                `<div fixtureId="${stepsData.id}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
             if (stepsData.stackTrace && stepsData.stackTrace.length)
-                generatedReport += `<div traceFixture="${stepsData.fixture}" traceTest="${stepsData.test.replace(/"/g, '&#34;')}">${JSON.stringify(stepsData.stackTrace)}</div>`;
+                generatedReport += `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });
 
         return generatedReport;

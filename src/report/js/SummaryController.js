@@ -88,6 +88,7 @@ function filterTests (event) {
         document.querySelectorAll(`.summary .${status}`).forEach(el => el.classList[methodName]('filtered'));
     }
     onSearch(document.querySelector('#search').value);
+    filterByTag(element);
 }
 
 function filterByTag (element) {

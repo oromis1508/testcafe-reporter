@@ -4,11 +4,9 @@ var stepsData = [];
 
 function onLoad () {
     if (stepsData.length === 0) {
-        this.document.querySelectorAll('div[fixture]').forEach(el => {
+        this.document.querySelectorAll('div[fixtureId]').forEach(el => {
             stepsData.push({
-                fixture: el.getAttribute('fixture'),
-
-                test: el.getAttribute('test'),
+                id: el.getAttribute('fixtureId'),
 
                 steps: el.outerHTML,
 
@@ -24,7 +22,7 @@ function onLoad () {
         });
         
         for (let index = 0; index < stepsData.length; index++) {
-            const stackTraceElement = this.document.querySelector(`div[traceFixture='${stepsData[index].fixture}'][traceTest='${stepsData[index].test}']`);
+            const stackTraceElement = this.document.querySelector(`div[traceId='${stepsData[index].id}']`);
             
             if (stackTraceElement) {
                 stepsData[index].stackTrace = JSON.parse(stackTraceElement.textContent);

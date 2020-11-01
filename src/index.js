@@ -275,7 +275,7 @@ module.exports = function () {
             this.logBorder('Test start');
             console.log(`Test started (${this.testsNumber}/${this.testsCount}): ${console.currentFixtureName} - ${name}`);
             console.log(`Start time: ${time}`);
-            this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name), this.reportUtil.jsonNames.test);
+            this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name, this.testsNumber), this.reportUtil.jsonNames.test);
         },
 
         reportTestDone (name, testRunInfo) {
@@ -311,7 +311,8 @@ module.exports = function () {
             const time = this.moment(endTime).format('M/DD/YYYY HH:mm:ss');
             const durationMs = endTime - this.taskStartTime;
             const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
-      
+            const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
+
             let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
       
             if (passed !== this.testsCount) {
@@ -324,7 +325,8 @@ module.exports = function () {
             console.log(`Duration: ${durationStr}`);
             console.log(`Run results: ${summary}`);
             if (warnings.length) console.log(warnings);
-            console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/index.html`));
+
+            console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/${fileName}`));
             
             if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml();
             else this.reportUtil.generateReport();

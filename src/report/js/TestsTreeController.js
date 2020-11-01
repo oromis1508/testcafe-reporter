@@ -118,8 +118,6 @@ function clearTestInfo (testInfoElement) {
 function testOnClick (element) {
     if (element.classList.contains('selected')) return;
 
-    const testName = element.textContent.trim();
-    const fixtureName = element.parentElement.parentElement.querySelector('.fixtureName').textContent.trim();
     const testInfo = this.document.querySelector('.test-info');
 
     this.clearTestInfo(testInfo);
@@ -128,9 +126,8 @@ function testOnClick (element) {
     if (element.getAttribute('status') === 'skipped') return;
 
     this.stepsData.forEach(data => {
-        if (data.fixture === fixtureName && data.test === testName) {
+        if (data.id === element.id) {
             const child = this.document.createElement('div');
-            
 
             child.classList.add('stepsContent');
             child.innerHTML = data.steps;
