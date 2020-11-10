@@ -147,7 +147,7 @@ function tagOnClick (element) {
     if (this.document.querySelector('.summary .tag.filtered')) {
         element.parentElement.classList.add('tag-hidden');
         if (!element.parentElement.parentElement.parentElement.querySelector('.test:not([class*=hidden])'))
-            element.parentElement.parentElement.parentElement.classList.add('tag-hidden');
+            element.parentElement.parentElement.parentElement.classList.add('hidden');
     }
 }
 

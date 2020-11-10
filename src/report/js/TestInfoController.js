@@ -35,8 +35,8 @@ function errorOnClick (event) {
 function stepOnClick (stepNameElement) {
     const stepBlock = stepNameElement.parentElement;
 
-    if (stepBlock.hasAttribute('hidden')) stepBlock.removeAttribute('hidden');
-    else stepBlock.addAttribute('hidden');
+    if (stepBlock.hasAttribute('hiddenInfo')) stepBlock.removeAttribute('hiddenInfo');
+    else stepBlock.setAttribute('hiddenInfo', '');
 } 
 
 /* eslint-enable no-undef */
