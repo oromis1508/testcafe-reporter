@@ -238,6 +238,8 @@ module.exports = function () {
             const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
 
             console.isReportUsed = true;
+            console.startTime = new Date();
+            
             this.parseStartArguments();
             if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
                 this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
