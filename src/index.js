@@ -238,8 +238,8 @@ module.exports = function () {
             const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
 
             console.isReportUsed = true;
-            console.startTime = new Date();
-            
+            this.reportUtil.startTime = new Date(startTime);
+
             this.parseStartArguments();
             if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
                 this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
@@ -318,7 +318,7 @@ module.exports = function () {
             let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
       
             if (passed !== this.testsCount) {
-                summary += ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
+                summary += ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
                 this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
             }
       

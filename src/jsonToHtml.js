@@ -37,11 +37,12 @@ module.exports = {
 
     singleHtmlFileName: 'report.html',
 
+    startTime: new Date(),
+
     getFormattedDate: function () {
-        const curDate = console.startTime;
-        const month = curDate.getMonth() + 1 < 10 ? `0${curDate.getMonth() + 1}` : curDate.getMonth() + 1;
+        const month = this.startTime.getMonth() < 9 ? `0${this.startTime.getMonth() + 1}` : this.startTime.getMonth() + 1;
         
-        return `${curDate.getDate()}.${month}`;
+        return `${this.startTime.getDate()}.${month}`;
     },
 
     getResultFileName: function () {       
