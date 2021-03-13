@@ -52,11 +52,9 @@ function onSearch (searchValue) {
             test.classList[isTestExactSearch || isFixtureExactSearch ? 'remove' : 'add']('search-hidden');
         });
 
-        if (!fixture.classList.contains('hidden')) {
-            const isFixtureTestsHidden = fixture.querySelectorAll('.test:not([class*=hidden])').length === 0;
+        const isFixtureTestsHidden = fixture.querySelectorAll('.test:not([class*=hidden])').length === 0;
         
-            fixture.classList[isFixtureTestsHidden ? 'add' : 'remove']('hidden');    
-        }
+        fixture.classList[isFixtureTestsHidden ? 'add' : 'remove']('hidden');    
     });
 }
 
