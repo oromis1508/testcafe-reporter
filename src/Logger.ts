@@ -12,9 +12,13 @@ export class Logger {
     }
 
     private static log(message: string, isStep: boolean) {
-        console.log(`${this.getCurrentDateTime()} --- ${message}`);
+        try {
+            console.log(`${this.getCurrentDateTime()} --- ${message}`);
 
-        if((<any>console).isReportUsed) this.reporter[isStep ? 'addStep' : 'addStepInfo'](message);
+            if((<any>console).isReportUsed) this.reporter[isStep ? 'addStep' : 'addStepInfo'](message);
+        } catch (err) {
+            console.log(err.message ?? err.msg);
+        }
     }
 
     static step(num: number | number[], message: string) {

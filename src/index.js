@@ -235,103 +235,123 @@ module.exports = function () {
         },
 
         reportTaskStart (startTime, userAgents, testsCount) {
-            const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
-
-            console.isReportUsed = true;
-            this.reportUtil.startTime = new Date(startTime);
-
-            this.parseStartArguments();
-            if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
-                this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
-
             try {
-                this.fs.unlinkSync(this.reportUtil.getResultFileName());
-            }
-            catch (e) { /*file doesn't exist*/ }
-            
-            this.testsCount = testsCount;
-            this.taskStartTime = startTime;
-            this.userAgent = userAgents;
-            this.logBorder('Task start');
+                const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
 
-            console.log(`Tests run: ${testsCount} on ${userAgents}`);
-            console.log(`Start time: ${time}`);
-            this.logBorder();
-            this.writeToReportSomething(time, this.reportUtil.jsonNames.startTime);
+                console.isReportUsed = true;
+                this.reportUtil.startTime = new Date(startTime);
+
+                this.parseStartArguments();
+                if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
+                    this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
+
+                try {
+                    this.fs.unlinkSync(this.reportUtil.getResultFileName());
+                }
+                catch (e) { /*file doesn't exist*/ }
+                
+                this.testsCount = testsCount;
+                this.taskStartTime = startTime;
+                this.userAgent = userAgents;
+                this.logBorder('Task start');
+
+                console.log(`Tests run: ${testsCount} on ${userAgents}`);
+                console.log(`Start time: ${time}`);
+                this.logBorder();
+                this.writeToReportSomething(time, this.reportUtil.jsonNames.startTime);
+            } catch (err) {
+                console.log(err.message ?? err.msg);
+            }
         },
 
         reportFixtureStart (name) {
-            if (console.currentFixtureName !== name) {
-                console.currentFixtureName = name;
-                this.logBorder('Fixture start');
-                console.log(`Fixture started: ${name}`);
-                this.writeToReportSomething(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
+            try {
+                if (console.currentFixtureName !== name) {
+                    console.currentFixtureName = name;
+                    this.logBorder('Fixture start');
+                    console.log(`Fixture started: ${name}`);
+                    this.writeToReportSomething(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
+                }
+            } catch (err) {
+                console.log(err.message ?? err.msg);
             }
         },
 
         reportTestStart (name) {
-            this.testStartTime = new Date().valueOf();
-            const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
+            try {
+                this.testStartTime = new Date().valueOf();
+                const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
 
-            this.testsNumber++;
-            this.logBorder('Test start');
-            console.log(`Test started (${this.testsNumber}/${this.testsCount}): ${console.currentFixtureName} - ${name}`);
-            console.log(`Start time: ${time}`);
-            this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name, this.testsNumber), this.reportUtil.jsonNames.test);
+                this.testsNumber++;
+                this.logBorder('Test start');
+                console.log(`Test started (${this.testsNumber}/${this.testsCount}): ${console.currentFixtureName} - ${name}`);
+                console.log(`Start time: ${time}`);
+                this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name, this.testsNumber), this.reportUtil.jsonNames.test);
+            } catch (err) {
+                console.log(err.message ?? err.msg);
+            }
         },
 
         reportTestDone (name, testRunInfo) {
-            const hasErr = !!testRunInfo.errs.length;
-            const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
-            const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
-            const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
-            const result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
-            const chalkColor = this.chalkStyles[result];
+            try {
+                const hasErr = !!testRunInfo.errs.length;
+                const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
+                const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
+                const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
+                const result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
+                const chalkColor = this.chalkStyles[result];
 
-            this.logBorder('Test done');
-            if (testRunInfo.skipped) {
-                this.skippedCount++;
-                this.testsCount++;
-                console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${console.currentFixtureName} - ${name}`));
+                this.logBorder('Test done');
+                if (testRunInfo.skipped) {
+                    this.skippedCount++;
+                    this.testsCount++;
+                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${console.currentFixtureName} - ${name}`));
+                }
+                else console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
+
+                console.log(`Duration: ${duration}`);
+
+                for (const error of stackTrace) {
+                    for (let index = 0; index < error.length; index++)
+                        console.log(this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index]));
+                }
+
+                if (screenPath) console.log(this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`));
+                this.logBorder();
+
+                this.addTestInfo(testRunInfo.skipped ? this.testStatuses.skipped : result, screenPath, this.userAgent, duration, stackTrace);
+            } catch (err) {
+                console.log(err.message ?? err.msg);
             }
-            else console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
-
-            console.log(`Duration: ${duration}`);
-
-            for (const error of stackTrace) {
-                for (let index = 0; index < error.length; index++)
-                    console.log(this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index]));
-            }
-
-            if (screenPath) console.log(this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`));
-            this.logBorder();
-
-            this.addTestInfo(testRunInfo.skipped ? this.testStatuses.skipped : result, screenPath, this.userAgent, duration, stackTrace);
         },
 
         reportTaskDone (endTime, passed, warnings) {
-            const time = this.moment(endTime).format('M/DD/YYYY HH:mm:ss');
-            const durationMs = endTime - this.taskStartTime;
-            const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
-            const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
+            try {
+                const time = this.moment(endTime).format('M/DD/YYYY HH:mm:ss');
+                const durationMs = endTime - this.taskStartTime;
+                const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
+                const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
 
-            let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
-      
-            if (passed !== this.testsCount) {
-                summary += ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
-                this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
+                let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
+        
+                if (passed !== this.testsCount) {
+                    summary += ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
+                    this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
+                }
+        
+                this.logBorder('Task done');
+                console.log(`Test run finished: ${time}`);
+                console.log(`Duration: ${durationStr}`);
+                console.log(`Run results: ${summary}`);
+                if (warnings.length) console.log(warnings);
+
+                console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/${fileName}`));
+                
+                if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml();
+                else this.reportUtil.generateReport();
+            } catch (err) {
+                console.log(err.message ?? err.msg);
             }
-      
-            this.logBorder('Task done');
-            console.log(`Test run finished: ${time}`);
-            console.log(`Duration: ${durationStr}`);
-            console.log(`Run results: ${summary}`);
-            if (warnings.length) console.log(warnings);
-
-            console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/${fileName}`));
-            
-            if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml();
-            else this.reportUtil.generateReport();
         }
     };
 };

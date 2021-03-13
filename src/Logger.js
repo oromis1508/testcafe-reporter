@@ -12,9 +12,13 @@ const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', d
 };
 
 const log = function (message, isStep) {
-    console.log(`${getCurrentDateTime()} --- ${message}`);
+    try {
+        console.log(`${getCurrentDateTime()} --- ${message}`);
 
-    if (console.isReportUsed) reporter[isStep ? 'addStep' : 'addStepInfo'](message);
+        if (console.isReportUsed) reporter[isStep ? 'addStep' : 'addStepInfo'](message);
+    } catch(err) {
+        console.log(err.message ?? err.msg);
+    }
 };
 
 module.exports = class Logger {
