@@ -35,8 +35,8 @@ module.exports = {
         testStatus: 'status'
     },
 
-    get singleHtmlFileName() {
-        return console.singleHtmlFileName ?? 'report.html';
+    get singleHtmlFileName () {
+        return console.singleHtmlFileName ? console.singleHtmlFileName : 'report.html';
     },
 
     startTime: new Date(),
@@ -48,11 +48,11 @@ module.exports = {
     },
 
     getResultFileName: function () {       
-        return console.resultFileName ?? `${this.getReportPath()}/report_${this.getFormattedDate()}.json`;
+        return console.resultFileName ? console.resultFileName : `${this.getReportPath()}/report_${this.getFormattedDate()}.json`;
     },
 
     getReportPath: function () {        
-        return console.reportPath ?? `test-results/report_${this.getFormattedDate()}`;
+        return console.reportPath ? console.reportPath : `test-results/report_${this.getFormattedDate()}`;
     },
 
     getOriginalReportPath: function () {

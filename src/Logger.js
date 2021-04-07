@@ -16,7 +16,8 @@ const log = function (message, isStep) {
         console.log(`${getCurrentDateTime()} --- ${message}`);
 
         if (console.isReportUsed) reporter[isStep ? 'addStep' : 'addStepInfo'](message);
-    } catch(err) {
+    } 
+    catch (err) {
         console.log(err.message ?? err.msg);
     }
 };
