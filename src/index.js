@@ -43,10 +43,6 @@ module.exports = function () {
         userAgent: '',
 
         skippedCount: 0,
-
-        testId: 0,
-
-        currentFixtureName: '',
         
         isSaveAsFile: false,
 
@@ -89,7 +85,7 @@ module.exports = function () {
                 if (!json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
             }
             else if (field === this.reportUtil.jsonNames.test)
-                json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data);
+                json.fixtures.find(fixt => fixt.name === console.currentFixtureName).tests.push(data);
             else if (field) 
                 json[field] = data;
 
@@ -102,13 +98,13 @@ module.exports = function () {
         setLastTestProperties (properties) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
 
             if (!properties.length) 
                 properties = [properties];
             
             for (const { name, value } of properties) {
-                tests.find(test => test.id === this.testId)[name] = value;
+                tests.find(test => test.id === console.testId)[name] = value;
                 this.writeToJson(json);    
             }
         },
@@ -116,8 +112,8 @@ module.exports = function () {
         setTestStatus (status) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
-            const currentStatus = tests.find(test => test.id === this.testId).status;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
+            const currentStatus = tests.find(test => test.id === console.testId).status;
 
             if (currentStatus !== this.testStatuses.broken) 
                 this.setLastTestProperties({ name: this.reportUtil.jsonNames.testStatus, value: status });
@@ -140,17 +136,17 @@ module.exports = function () {
         addStep (message) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
             
-            tests.find(test => test.id === this.testId).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
+            tests.find(test => test.id === console.testId).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
             this.writeToJson(json);    
         },
 
         addStepInfo (message) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
-            const steps = tests.find(test => test.id === this.testId).steps;
+            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
+            const steps = tests.find(test => test.id === console.testId).steps;
 
             if (!steps.length) {
                 this.addStep('');
@@ -269,8 +265,8 @@ module.exports = function () {
 
         reportFixtureStart (name) {
             try {
-                if (this.currentFixtureName !== name) {
-                    this.currentFixtureName = name;
+                if (console.currentFixtureName !== name) {
+                    console.currentFixtureName = name;
                     this.logBorder('Fixture start');
                     console.log(`Fixture started: ${name}`);
                     this.writeToReportSomething(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
@@ -286,11 +282,11 @@ module.exports = function () {
                 this.testStartTime = new Date().valueOf();
                 const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
 
-                this.testId++;
+                console.testId = console.testId ? console.testId + 1 : 1;
                 this.logBorder('Test start');
-                console.log(`Test started (${this.testId}/${this.testsCount}): ${this.currentFixtureName} - ${name}`);
+                console.log(`Test started (${console.testId}/${this.testsCount}): ${console.currentFixtureName} - ${name}`);
                 console.log(`Start time: ${time}`);
-                this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name, this.testId), this.reportUtil.jsonNames.test);
+                this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name, console.testId), this.reportUtil.jsonNames.test);
             } 
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
@@ -310,9 +306,9 @@ module.exports = function () {
                 if (testRunInfo.skipped) {
                     this.skippedCount++;
                     this.testsCount++;
-                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${this.currentFixtureName} - ${name}`));
+                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${console.currentFixtureName} - ${name}`));
                 }
-                else console.log(this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}`));
+                else console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
 
                 console.log(`Duration: ${duration}`);
 
