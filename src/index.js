@@ -214,8 +214,8 @@ module.exports = function () {
                     return;
                 }
 
-                this.reportUtil.getResultFileName = () => `${reportPathArg}.json`;
-                this.reportUtil.getReportPath = () => reportPathArg;
+                console.resultFileName = `${reportPathArg}.json`;
+                console.reportPath = reportPathArg;
             }
             else if (reportFileArg) {
                 this.isSaveAsFile = true;
@@ -226,11 +226,11 @@ module.exports = function () {
                 if (reportFileArg.endsWith('.html')) {
                     const split = reportFileArg.split(/[/\\]/g);
 
-                    this.reportUtil.singleHtmlFileName = split.pop();
+                    console.singleHtmlFileName = split.pop();
                     reportPath = split.join('/');
                 }
 
-                this.reportUtil.getReportPath = () => reportPath;
+                console.reportPath = reportPath;
             }
         },
 
