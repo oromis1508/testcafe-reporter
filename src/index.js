@@ -166,18 +166,29 @@ module.exports = function () {
                 
                 let errName;
                 
-                if (err.errMsg)
-                    errName = err.errMsg;
-                else if (err.code) {
-                    const errorsTypes = require('testcafe/lib/errors/types');
-                    const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
-                    const testRunKey = Object.keys(errorsTypes.TEST_RUN_ERRORS).find(key => errorsTypes.TEST_RUN_ERRORS[key] === err.code);
-                    
-                    errName = runtimeKey ? runtimeKey : testRunKey;
+                try {
+                    var errorMarkup = err.getErrorMarkup();
+
+                    errName = />(.*?)\n/.exec(errorMarkup)[1];
                 }
-                else
-                    errName = 'Unknown error';
-                
+                catch (ignoreErr) {
+                    console.log('getErrorMarkup not available. Will be used another name');
+                }
+
+                if (!errName) {
+                    if (err.errMsg)
+                        errName = err.errMsg;
+                    else if (err.code) {
+                        const errorsTypes = require('testcafe/lib/errors/types');
+                        const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
+                        const testRunKey = Object.keys(errorsTypes.TEST_RUN_ERRORS).find(key => errorsTypes.TEST_RUN_ERRORS[key] === err.code);
+                        
+                        errName = runtimeKey ? runtimeKey : testRunKey;
+                    }
+                    else
+                        errName = 'Unknown error';
+                }
+
                 if (err.apiFnChain)
                     errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
                 if (err.filePaths)
@@ -195,6 +206,12 @@ module.exports = function () {
                 } 
                 else
                     stackTrace[index].push(...errName.split('\n'));
+                
+                if (errorMarkup) {
+                    const firstStackRow = /stack-line-location.*?>(.*?)</.exec(errorMarkup)[1];
+        
+                    stackTrace[index].splice(1, 0, firstStackRow);
+                }
             }
 
             return stackTrace;

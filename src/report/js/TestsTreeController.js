@@ -125,19 +125,15 @@ function testOnClick (element) {
 
     if (element.getAttribute('status') === 'skipped') return;
 
-    this.stepsData.forEach(data => {
-        if (data.id === element.id) {
-            const child = this.document.createElement('div');
+    const child = this.document.createElement('div');
+    const testData = this.stepsData.find(data => data.id === element.id);
 
-            child.classList.add('stepsContent');
-            child.innerHTML = data.steps;
-            testInfo.appendChild(child);
-            testInfo.classList.add('selected');
+    child.classList.add('stepsContent');
+    child.innerHTML = testData.steps;
+    testInfo.appendChild(child);
+    testInfo.classList.add('selected');
 
-            this.addTestInfo(data);
-            return;
-        }
-    });
+    this.addTestInfo(testData);
 }
 
 function tagOnClick (element) {

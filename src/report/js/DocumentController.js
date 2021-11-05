@@ -18,16 +18,13 @@ function onLoad () {
 
                 stackTrace: ''
             });
-            el.remove();
         });
         
         for (let index = 0; index < stepsData.length; index++) {
             const stackTraceElement = this.document.querySelector(`div[traceId='${stepsData[index].id}']`);
             
-            if (stackTraceElement) {
+            if (stackTraceElement)
                 stepsData[index].stackTrace = JSON.parse(stackTraceElement.textContent);
-                stackTraceElement.remove();
-            }
         }
     }
     this.addSummary();

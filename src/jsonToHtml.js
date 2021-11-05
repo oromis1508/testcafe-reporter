@@ -150,12 +150,14 @@ module.exports = {
             generatedReport += '</div></div>';
         }); 
         generatedReport += '</div>';
+        generatedReport += '<div steps style="display: none;">';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
                 `<div fixtureId="${stepsData.id}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
             if (stepsData.stackTrace && stepsData.stackTrace.length)
                 generatedReport += `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });
+        generatedReport += '</div>';
 
         return generatedReport;
     },
