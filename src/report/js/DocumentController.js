@@ -23,8 +23,14 @@ function onLoad () {
         for (let index = 0; index < stepsData.length; index++) {
             const stackTraceElement = this.document.querySelector(`div[traceId='${stepsData[index].id}']`);
             
-            if (stackTraceElement)
-                stepsData[index].stackTrace = JSON.parse(stackTraceElement.textContent);
+            if (stackTraceElement) {
+                try {
+                    stepsData[index].stackTrace = JSON.parse(stackTraceElement.textContent);
+                }
+                catch (e) {
+                    console.log(`Error of parsing ${stackTraceElement.textContent} as JSON`);
+                }
+            }
         }
     }
     this.addSummary();

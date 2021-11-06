@@ -167,9 +167,9 @@ module.exports = function () {
                 let errName;
                 
                 try {
-                    var errorMarkup = err.getErrorMarkup();
+                    const errorMarkup = err.getErrorMarkup();
 
-                    errName = />(.*?)\n/.exec(errorMarkup)[1];
+                    errName = />(.*?)\n/.exec(errorMarkup)[1].replace('</div>', '');
                 }
                 catch (ignoreErr) {
                     console.log('getErrorMarkup not available. Will be used another name');
@@ -206,12 +206,6 @@ module.exports = function () {
                 } 
                 else
                     stackTrace[index].push(...errName.split('\n'));
-                
-                if (errorMarkup) {
-                    const firstStackRow = /stack-line-location.*?>(.*?)</.exec(errorMarkup)[1];
-        
-                    stackTrace[index].splice(1, 0, firstStackRow);
-                }
             }
 
             return stackTrace;
