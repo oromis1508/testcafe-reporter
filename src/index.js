@@ -315,7 +315,9 @@ module.exports = function () {
                 const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
                 const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
                 const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
+                
                 let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
+                
                 const chalkColor = this.chalkStyles[result];
 
                 if (this.getTestStatus() === this.testStatuses.broken && !hasErr) {
