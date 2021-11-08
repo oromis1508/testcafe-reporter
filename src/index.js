@@ -43,6 +43,8 @@ module.exports = function () {
         userAgent: '',
 
         skippedCount: 0,
+
+        brokenCount: 0,
         
         isSaveAsFile: false,
 
@@ -109,13 +111,16 @@ module.exports = function () {
             }
         },
 
-        setTestStatus (status) {
+        getTestStatus() {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
-            const currentStatus = tests.find(test => test.id === console.testId).status;
 
-            if (currentStatus !== this.testStatuses.broken) 
+            return tests.find(test => test.id === console.testId).status;
+        },
+
+        setTestStatus (status) {
+            if (status === this.testStatuses.failed || this.getTestStatus() !== this.testStatuses.broken) 
                 this.setLastTestProperties({ name: this.reportUtil.jsonNames.testStatus, value: status });
         },
 
@@ -313,6 +318,11 @@ module.exports = function () {
                 const result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
                 const chalkColor = this.chalkStyles[result];
 
+                if (this.getTestStatus() === this.testStatuses.broken && !hasErr) {
+                    result = this.testStatuses.broken;
+                    this.brokenCount++;
+                }
+
                 this.logBorder('Test done');
                 if (testRunInfo.skipped) {
                     this.skippedCount++;
@@ -345,10 +355,11 @@ module.exports = function () {
                 const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
                 const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
 
-                let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
+                let summary = this.chalk[this.chalkStyles.passed](`${passed - this.brokenCount}/${this.testsCount} ${this.testStatuses.passed}`);
         
                 if (passed !== this.testsCount) {
-                    summary += ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
+                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount ? this.brokenCount : 0} ${this.testStatuses.broken}`) + ', ' + 
+                    this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
                     this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
                 }
         
