@@ -88,6 +88,10 @@ or if the path ended with .html, report will be saved to it folder (path/to/my.h
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile path/to/my.html
 ```
 
+<p id="screenshots">
+If you want to replace files of screenshots with base64 strings, use `--base64screens` argument (report file can have large size).
+</p>
+
 ## Author
  Alex Chernik
 

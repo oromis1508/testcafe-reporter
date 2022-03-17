@@ -48,6 +48,8 @@ module.exports = function () {
         
         isSaveAsFile: false,
 
+        isScreensAsBase64: false,
+
         createErrorDecorator () {
             return {
                 'span category':       () => '',
@@ -221,6 +223,10 @@ module.exports = function () {
             const args = minimist(process.argv.slice(2));
             const reportPathArg = args.reportPath;
             const reportFileArg = args.reportFile;
+            const base64screens = args.base64screens;
+
+            if (base64screens)
+                this.isScreensAsBase64 = true;
 
             if (reportPathArg) {
                 if (this.fs.existsSync(reportPathArg) && this.fs.statSync(reportPathArg).isFile()) {
@@ -311,14 +317,22 @@ module.exports = function () {
 
         reportTestDone (name, testRunInfo) {
             try {
-                const hasErr = !!testRunInfo.errs.length;
-                const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - 1].screenshotPath : null;
+                const errorsCount = testRunInfo.errs.length;
+                const hasErr = !!errorsCount;
+                const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - errorsCount].screenshotPath : null;
                 const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
                 const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
                 
                 let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
-                
+
                 const chalkColor = this.chalkStyles[result];
+
+                if (this.isScreensAsBase64) {
+                    const bitmap = this.fs.readFileSync(screenPath);
+                    const base64 = Buffer.from(bitmap).toString('base64');
+    
+                    var base64screenshot = `data:image/png;base64,${base64}`;
+                }
 
                 if (this.getTestStatus() === this.testStatuses.broken && !hasErr) {
                     result = this.testStatuses.broken;
@@ -343,7 +357,7 @@ module.exports = function () {
                 if (screenPath) console.log(this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`));
                 this.logBorder();
 
-                this.addTestInfo(testRunInfo.skipped ? this.testStatuses.skipped : result, screenPath, this.userAgent, duration, stackTrace);
+                this.addTestInfo(testRunInfo.skipped ? this.testStatuses.skipped : result, base64screenshot ? base64screenshot : screenPath, this.userAgent, duration, stackTrace);
             } 
             catch (err) {
                 console.log(err.message ? err.message : err.msg);

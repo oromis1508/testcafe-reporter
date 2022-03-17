@@ -77,7 +77,7 @@ module.exports = {
                 const fileNameSplit = fileName.split('.');
                 const imageExtension = fileNameSplit[fileNameSplit.length - 1];
                 const bitmap = fs.readFileSync(`${originalReportPath}/img/${fileName}`);
-                const base64 = new Buffer(bitmap).toString('base64');
+                const base64 = Buffer.from(bitmap).toString('base64');
 
                 cssContent = cssContent.replace(regexResult[1], `data:image/${imageExtension};base64,${base64}`);
                 regexResult = imageRegex.exec(cssContent);
