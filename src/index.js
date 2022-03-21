@@ -327,7 +327,7 @@ module.exports = function () {
 
                 const chalkColor = this.chalkStyles[result];
 
-                if (this.isScreensAsBase64) {
+                if (this.isScreensAsBase64 && screenPath) {
                     const bitmap = this.fs.readFileSync(screenPath);
                     const base64 = Buffer.from(bitmap).toString('base64');
     
