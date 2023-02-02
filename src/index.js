@@ -166,7 +166,14 @@ module.exports = function () {
             ]);
         },
 
-        addStep (testName, message) {
+        updateTestFixture (testName, fixture) {
+            if (!this.testsInfo.find(test => test.name === testName && test.fixture === fixture))
+                this.testsInfo.find(test => test.name === testName).fixture = fixture;
+        },
+
+        addStep (testName, message, fixture) {
+            this.updateTestFixture(testName, fixture);
+
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
@@ -175,7 +182,9 @@ module.exports = function () {
             this.writeToJson(json);    
         },
 
-        addStepInfo (testName, message) {
+        addStepInfo (testName, message, fixture) {
+            this.updateTestFixture(testName, fixture);
+
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;

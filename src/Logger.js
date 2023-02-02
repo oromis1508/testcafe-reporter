@@ -17,7 +17,7 @@ const log = function (message, isStep, isBroken) {
 
     try {
         if (console.isReportUsed) {
-            __reporter.obj[isStep ? 'addStep' : 'addStepInfo'](ctx.testName, ctx.fixtureName, message);
+            __reporter.obj[isStep ? 'addStep' : 'addStepInfo'](ctx.testName, message, ctx.fixtureName);
             
             if (isBroken) __reporter.obj.setTestStatus(ctx.testName, null);
         }
