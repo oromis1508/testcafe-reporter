@@ -1,78 +1,49 @@
 let maxTestId = 1;
 
-//getTestStatus, getId, setTestStatus, setTestProperties
 module.exports = function () {
     return {
         noColors: false,
 
-        chalk: require('chalk'),
-
+        chalk:        require('chalk'), 
         testStatuses: {
-            passed: 'passed',
-
-            failed: 'failed',
-
-            broken: 'broken',
-
-            skipped: 'skipped'
+            passed:  'passed', 
+            failed:  'failed',
+            broken:  'broken',   
+            skipped: 'skipped' 
         },
-
         chalkStyles: {
-            passed: 'green',
-
-            failed: 'red',
-
-            broken: 'yellow',
-
-            skipped: 'gray',
-
+            passed:     'green',
+            failed:     'red',
+            broken:     'yellow',
+            skipped:    'gray',
             borderLine: 'gray',
-
             borderText: 'bold',
-
             stackTrace: [254, 109, 90],
-
-            report: 'cyan',
-
+            report:     'cyan',
             screenPath: 'cyan'
         },
-
-        testsCount: 0,
-
-        taskStartTime: 0,
-        
-        testStartTime: 0,
-
-        userAgent: '',
-
-        skippedCount: 0,
-
-        brokenCount: 0,
-        
-        isSaveAsFile: false,
-
-        isScreensAsBase64: false,
-
-        appendLogs: false,
-
+        testsCount:         0,
+        taskStartTime:      0,
+        testStartTime:      0,
+        userAgent:          '',
+        skippedCount:       0,
+        brokenCount:        0,
+        isSaveAsFile:       false,
+        isScreensAsBase64:  false,
+        appendLogs:         false,
         currentFixtureName: '',
 
         /**
-         * @type {{id: number, fixture: string, name: string}[]}
-         */
+     * @type {{id: number, fixture: string, name: string}[]}
+     */
         testsInfo: [],
-
-        getFixtureName (testName) {
-            if (testName) return this.testsInfo.find(test => test.name === testName).fixture;
-            return this.currentFixtureName;
-        },
 
         getTestName (testName) {
             return testName ? testName : this.testName;
         },
 
         getId (testName) {
-            return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.getFixtureName(testName)).id;
+            return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.currentFixtureName).id;
         },
 
         createErrorDecorator () {
@@ -91,13 +62,17 @@ module.exports = function () {
                 'a':                   str => this.chalk.yellow(`"${str}"`)
             };
         },
-        
-        fs: require('fs'),
 
+        fs:         require('fs'),
         reportUtil: require('./jsonToHtml'),
-      
-        writeToJson (object) {
-            this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(object, null, 2));
+
+        writeToJson (object, retryNum) {
+            try {
+                this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(object, null, 2));
+            }
+            catch (err) {
+                if (!retryNum || retryNum < 100) this.writeToJson(object, 1);
+            }
         },
 
         getJsonAsObject () {
@@ -107,49 +82,51 @@ module.exports = function () {
         writeToReportOnStart (data, field) {
             let json;
 
-            if (this.fs.existsSync(this.reportUtil.getResultFileName())) json = this.getJsonAsObject();
-            else json = JSON.parse(this.reportUtil.jsonNames.baseJsonContent);
+            if (this.fs.existsSync(this.reportUtil.getResultFileName())) json = this.getJsonAsObject(); else json = JSON.parse(this.reportUtil.jsonNames.baseJsonContent);
 
             if (field === this.reportUtil.jsonNames.fixture) {
                 if (!json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
             }
-            else if (field === this.reportUtil.jsonNames.test)
-                json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data);
-            else if (field) 
-                json[field] = data;
+            else if (field === this.reportUtil.jsonNames.test) json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data); else if (field) json[field] = data;
 
-            this.writeToJson(json);    
+            this.writeToJson(json);
         },
 
         /**
-         * @param {string} testName 
-         * @param {{name: string, value: any} | {name: string, value: any}[]} properties 
-         */
-        setTestProperties (testName, properties) {
+     * @param {number} id 
+     * @param {{name: string, value: any} | {name: string, value: any}[]} properties 
+     */
+        setTestProperties (id, properties) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === this.getFixtureName(testName)).tests;
+            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
 
-            if (!properties.length) 
-                properties = [properties];
-            
-            for (const { name, value } of properties) {
-                tests.find(test => test.id === this.getId(testName))[name] = value;
-                this.writeToJson(json);    
+            if (!properties.length) properties = [properties];
+
+            for (const {
+                name,
+                value
+            } of properties) {
+                tests.find(test => test.id === id)[name] = value;
+                this.writeToJson(json);
             }
         },
 
-        getTestStatus (testName) {
+        getTestStatus (id) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === this.getFixtureName(testName)).tests;
+            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
 
-            return tests.find(test => test.id === this.getId(testName, testName)).status;
+            return tests.find(test => test.id === id).status;
         },
 
-        setTestStatus (testName, status) {
-            if (status === this.testStatuses.failed || this.getTestStatus(this.getTestName(testName)) !== this.testStatuses.broken) 
-                this.setTestProperties(this.getTestName(testName), { name: this.reportUtil.jsonNames.testStatus, value: status === null ? this.testStatuses.broken : status });
+        setTestStatus (id, status) {
+            if (status === this.testStatuses.failed || this.getTestStatus(id) !== this.testStatuses.broken) {
+                this.setTestProperties(id, {
+                    name:  this.reportUtil.jsonNames.testStatus,
+                    value: status === null ? this.testStatuses.broken : status
+                });
+            }
         },
 
         logBorder (info) {
@@ -157,46 +134,44 @@ module.exports = function () {
         },
 
         addTestInfo (testName, testStatus, screenPath, userAgent, durationMs, stackTrace) {
-            this.setTestStatus(this.getTestName(testName), testStatus);
-            this.setTestProperties(this.getTestName(testName), [
-                { name: this.reportUtil.jsonNames.screenshotOnFail, value: screenPath },
-                { name: this.reportUtil.jsonNames.testUserAgents, value: userAgent },
-                { name: this.reportUtil.jsonNames.testDuration, value: durationMs },
-                { name: this.reportUtil.jsonNames.testStackTrace, value: stackTrace }
-            ]);
+            this.setTestStatus(this.getId(testName), testStatus);
+            this.setTestProperties(this.getId(testName), [{
+                name:  this.reportUtil.jsonNames.screenshotOnFail,
+                value: screenPath
+            }, {
+                name:  this.reportUtil.jsonNames.testUserAgents,
+                value: userAgent
+            }, {
+                name:  this.reportUtil.jsonNames.testDuration,
+                value: durationMs
+            }, {
+                name:  this.reportUtil.jsonNames.testStackTrace,
+                value: stackTrace
+            }]);
         },
 
-        updateTestFixture (testName, fixture) {
-            if (!this.testsInfo.find(test => test.name === testName && test.fixture === fixture))
-                this.testsInfo.find(test => test.name === testName).fixture = fixture;
-        },
-
-        addStep (testName, message, fixture) {
-            this.updateTestFixture(testName, fixture);
-
+        addStep (id, message) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
 
-            tests.find(test => test.id === this.getId(testName)).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
-            this.writeToJson(json);    
+            tests.find(test => test.id === id).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
+            this.writeToJson(json);
         },
 
-        addStepInfo (testName, message, fixture) {
-            this.updateTestFixture(testName, fixture);
-
+        addStepInfo (id, message) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
-            const steps = tests.find(test => test.id === this.getId(testName)).steps;
+            const steps = tests.find(test => test.id === id).steps;
 
             if (!steps.length) {
-                this.addStep(testName, '');
-                this.addStepInfo(testName, message);
+                this.addStep(id, '');
+                this.addStepInfo(id, message);
             }
             else {
                 steps[steps.length - 1].actions.push(message);
-                this.writeToJson(json);    
+                this.writeToJson(json);
             }
         },
 
@@ -205,9 +180,9 @@ module.exports = function () {
 
             for (let index = 0; index < errs.length; index++) {
                 const err = errs[index];
-                
+
                 let errName;
-                
+
                 try {
                     const errorMarkup = err.getErrorMarkup();
 
@@ -218,52 +193,67 @@ module.exports = function () {
                 }
 
                 if (!errName) {
-                    if (err.errMsg)
-                        errName = err.errMsg;
-                    else if (err.code) {
+                    if (err.errMsg) errName = err.errMsg; else if (err.code) {
                         const errorsTypes = require('testcafe/lib/errors/types');
+
                         const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
                         const testRunKey = Object.keys(errorsTypes.TEST_RUN_ERRORS).find(key => errorsTypes.TEST_RUN_ERRORS[key] === err.code);
-                        
+
                         errName = runtimeKey ? runtimeKey : testRunKey;
                     }
-                    else
-                        errName = 'Unknown error';
+                    else errName = 'Unknown error';
                 }
 
-                if (err.apiFnChain)
-                    errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
-                if (err.filePaths)
-                    errName += `(Files: ${err.filePaths.join ? err.filePaths.join('') : err.filePaths})`;
-
+                if (err.apiFnChain) errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
+                if (err.filePaths) errName += `(Files: ${err.filePaths.join ? err.filePaths.join('') : err.filePaths})`;
                 stackTrace.push([]);
+
                 if (errs[index].callsite) {
-                    stackTrace[index].push(errName);          
+                    stackTrace[index].push(errName);
                     errs[index].callsite.stackFrames.forEach(stackFrame => {
                         const msg = stackFrame.toString();
-    
-                        if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':'))
-                            stackTrace[index].push(msg);
+
+                        if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':')) stackTrace[index].push(msg);
                     });
-                } 
-                else
-                    stackTrace[index].push(...errName.split('\n'));
+                }
+                else stackTrace[index].push(...errName.split('\n'));
             }
 
             return stackTrace;
         },
 
+        getStartArgObject () {
+            const obj = { odd: [] };
+            const args = process.argv.slice(2);
+
+            for (let i = 0; i < args.length; i++) {
+                const arg = args[i];
+                const argNameReg = /^--?(.*?)(=|$)/;
+                const argName = argNameReg.exec(arg);
+
+                if (argName) {
+                    const argValue = /.+=(.*)$/.exec(arg);
+
+                    if (argValue) obj[argName[1]] = argValue[1];
+                    else if (args[i + 1] && !argNameReg.exec(args[i + 1])) {
+                        obj[argName[1]] = args[i + 1];
+                        i++;
+                    }
+                    else obj[argName[1]] = true;
+                }
+                else obj.odd.push(arg);
+            }
+            return obj;
+        },
+
         parseStartArguments () {
-            const minimist = require('minimist');
-            const args = minimist(process.argv.slice(2));
+            const args = this.getStartArgObject();
             const reportPathArg = args.reportPath;
             const reportFileArg = args.reportFile ? args.reportFile : true;
             const base64screens = args.base64screens;
-            
-            this.appendLogs = args.appendLogs;
 
-            if (base64screens)
-                this.isScreensAsBase64 = true;
+            this.appendLogs = args.appendLogs;
+            if (base64screens) this.isScreensAsBase64 = true;
 
             if (reportPathArg) {
                 if (this.fs.existsSync(reportPathArg) && this.fs.statSync(reportPathArg).isFile()) {
@@ -277,7 +267,6 @@ module.exports = function () {
             else if (reportFileArg) {
                 this.isSaveAsFile = true;
                 if (typeof reportFileArg !== 'string') return;
-
                 let reportPath = reportFileArg;
 
                 if (reportFileArg.endsWith('.html')) {
@@ -291,6 +280,54 @@ module.exports = function () {
             }
         },
 
+        createReportPath () {
+            if (!this.fs.existsSync(this.reportUtil.getReportPath())) {
+                this.fs.mkdirSync(this.reportUtil.getReportPath(), {
+                    recursive: true
+                });
+            }  
+        },
+
+        getMaxTestId () {
+            try {
+                const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+                const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
+
+                return Math.max(...testIds);
+            }
+            catch {
+                return maxTestId;
+            }
+        },
+
+        prepareResultFile () {
+            try {
+                if (!this.appendLogs) this.fs.unlinkSync(this.reportUtil.getResultFileName());
+                else if (this.fs.existsSync(this.reportUtil.getResultFileName())) 
+                    maxTestId = this.getMaxTestId() + 1;
+            }
+            catch (e) {
+            /*file doesn't exist*/
+            }  
+        },
+
+        parseAgents (userAgents) {
+            if (typeof userAgents === 'object') {
+                if (userAgents.every) {
+                    if (userAgents.every(el => el === userAgents[0])) 
+                        this.userAgent = userAgents[0] + ` (${userAgents.length} browser(-s))`;
+                    else {
+                        const set = userAgents.filter((val, index) => !userAgents.slice(index + 1).find(el => el === val));
+
+                        for (const item of set) 
+                            this.userAgent += item + `(${userAgents.filter(el => el === item).length} browser(-s)); `;
+                    }
+                }
+                else this.userAgent = userAgents;
+            }
+            else this.userAgent = userAgents;
+        },
+
         reportTaskStart (startTime, userAgents, testsCount) {
             try {
                 const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
@@ -298,46 +335,31 @@ module.exports = function () {
                 console.isReportUsed = true;
                 this.reportUtil.startTime = new Date(startTime);
                 require('./Logger').__reporter.obj = this;
-
                 this.parseStartArguments();
-                
-                if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
-                    this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
+                this.createReportPath();
+                this.prepareResultFile();
+                this.parseAgents(userAgents);
 
-                try {
-                    if (!this.appendLogs) this.fs.unlinkSync(this.reportUtil.getResultFileName());
-                    else if (this.fs.existsSync(this.reportUtil.getResultFileName())) {
-                        const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
-                        const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
-
-                        maxTestId = Math.max(...testIds) + 1;
-                    }
-                }
-                catch (e) { /*file doesn't exist*/ }
-                
                 this.testsCount = testsCount;
                 this.taskStartTime = startTime;
-                this.userAgent = userAgents;
                 this.logBorder('Task start');
-
-                console.log(`Tests run: ${testsCount} on ${userAgents}`);
+                console.log(`Tests run: ${testsCount} on ${this.userAgent}`);
                 console.log(`Start time: ${time}`);
                 this.logBorder();
-                if (this.appendLogs && !this.fs.existsSync(this.reportUtil.getResultFileName()) || !this.appendLogs) 
-                    this.writeToReportOnStart(time, this.reportUtil.jsonNames.startTime);
-            } 
+                if (this.appendLogs && !this.fs.existsSync(this.reportUtil.getResultFileName()) || !this.appendLogs) this.writeToReportOnStart(time, this.reportUtil.jsonNames.startTime);
+            }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
             }
         },
 
-        reportFixtureStart (name) {
+        reportFixtureStart (name) {//TODO: to test start
             try {
                 this.currentFixtureName = name;
                 this.logBorder('Fixture start');
                 console.log(`Fixture started: ${name}`);
-                this.writeToReportOnStart(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
-            } 
+                this.writeToReportOnStart(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);
+            }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
             }
@@ -347,16 +369,18 @@ module.exports = function () {
             try {
                 this.testName = name;
                 this.testStartTime = new Date().valueOf();
-                
                 const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
-                const id = maxTestId++;
+                const id = this.getMaxTestId();
 
-                this.testsInfo.push({ id, name, fixture: this.currentFixtureName });
-
+                this.testsInfo.push({
+                    id,
+                    name,
+                    fixture: this.currentFixtureName
+                });
                 this.logBorder('Test start');
                 console.log(`Test started (${id}/${this.testsCount}): ${this.currentFixtureName} - ${name}\nStart time: ${time}`);
                 this.writeToReportOnStart(this.reportUtil.jsonNames.baseTestContent(name, id), this.reportUtil.jsonNames.test);
-            } 
+            }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
             }
@@ -364,56 +388,52 @@ module.exports = function () {
 
         reportTestDone (name, testRunInfo) {
             try {
-                const fixture = this.getFixtureName(name);
                 const errorsCount = testRunInfo.errs.length;
                 const hasErr = !!errorsCount;
                 const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - errorsCount].screenshotPath : null;
                 const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
                 const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
-                
-                let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
 
+                let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
                 const chalkColor = this.chalkStyles[result];
+                const testId = this.getId(name);
 
                 if (this.isScreensAsBase64 && screenPath) {
                     const bitmap = this.fs.readFileSync(screenPath);
                     const base64 = Buffer.from(bitmap).toString('base64');
-    
                     var base64screenshot = `data:image/png;base64,${base64}`;
                 }
 
-                if (this.getTestStatus(name) === this.testStatuses.broken && !hasErr) {
+                if (this.getTestStatus(testId) === this.testStatuses.broken && !hasErr) {
                     result = this.testStatuses.broken;
                     this.brokenCount++;
                 }
 
-                this.logBorder(`Test ${this.getId(name)} done`);
+                this.logBorder(`Test ${testId} done`);
                 console.log(`Duration: ${duration}`);
 
                 if (testRunInfo.skipped) {
                     this.skippedCount++;
                     this.testsCount++;
-                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${fixture} - ${name}`));
+                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${this.currentFixtureName} - ${name}`));
                 }
                 else {
-                    let msg = this.chalk[chalkColor](`Test ${result}: ${fixture} - ${name}\n`);
+                    let msg = this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}\n`);
 
-                    for (const error of stackTrace) {
-                        for (let index = 0; index < error.length; index++)
-                            msg += this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index] + '\n');
-                    }
+                    for (const error of stackTrace) 
+                        for (let index = 0; index < error.length; index++) msg += this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index] + '\n');
+          
+
                     if (screenPath) msg += this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`);
                     console.log(msg);
                 }
 
                 this.logBorder();
-
                 this.addTestInfo(name, testRunInfo.skipped ? this.testStatuses.skipped : result, base64screenshot ? base64screenshot : screenPath, this.userAgent, duration, stackTrace);
-                
                 const index = this.testsInfo.findIndex(test => test.name === name);
-                    
-                this.testsInfo.splice(index, 1);    
-            } 
+
+                this.testsInfo.splice(index, 1);
+            }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
             }
@@ -427,27 +447,23 @@ module.exports = function () {
                 const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
 
                 let summary = this.chalk[this.chalkStyles.passed](`${passed - this.brokenCount}/${this.testsCount} ${this.testStatuses.passed}`);
+
+                if (passed !== this.testsCount) 
+                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount ? this.brokenCount : 0} ${this.testStatuses.broken}`) + ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
         
-                if (passed !== this.testsCount) {
-                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount ? this.brokenCount : 0} ${this.testStatuses.broken}`) + ', ' + 
-                    this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + 
-                    this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
-                }
-        
+
                 this.logBorder('Task done');
                 console.log(`Test run finished: ${time}`);
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
                 if (warnings.length) console.log(warnings);
-
                 console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/${fileName}`));
-                
-                if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml();
-                else this.reportUtil.generateReport();
-            } 
+                if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
+            }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
             }
         }
+
     };
 };

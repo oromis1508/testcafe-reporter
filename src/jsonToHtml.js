@@ -94,8 +94,8 @@ module.exports = {
         return result;
     },
 
-    generateReportAsHtml: function () {
-        const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
+    generateReportAsHtml: function (...args) {
+        const json = args[0] ? args[0] : JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
         const originalReportPath = this.getOriginalReportPath();
         const html = fs.readFileSync(`${originalReportPath}/index.html`).toLocaleString();
         const htmlHead = `<head>${this.getReportFilesAsHtmlTags(originalReportPath)}</head>`;
@@ -103,7 +103,7 @@ module.exports = {
             .replace('startTime', json.startTime)
             .replace(/<head>.*<\/head>/gs, htmlHead);
 
-        fs.writeFileSync(`${this.getReportPath()}/${this.singleHtmlFileName}`, generatedReport);
+        fs.writeFileSync(args[1] ? args[1] : `${this.getReportPath()}/${this.singleHtmlFileName}`, generatedReport);
     },
     
     generateReport: function () {

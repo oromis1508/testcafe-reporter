@@ -3,13 +3,8 @@ let __reporter = {};
 
 const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', dateTimeSeparator = '|--|') {
     const currentdate = new Date();
-    
-    return currentdate.getDate() + dateSeparator
-            + (currentdate.getMonth() + 1) + dateSeparator 
-            + currentdate.getFullYear() + dateTimeSeparator
-            + currentdate.getHours() + timeSeparator
-            + currentdate.getMinutes() + timeSeparator
-            + currentdate.getSeconds();
+
+    return currentdate.getDate() + dateSeparator + (currentdate.getMonth() + 1) + dateSeparator + currentdate.getFullYear() + dateTimeSeparator + currentdate.getHours() + timeSeparator + currentdate.getMinutes() + timeSeparator + currentdate.getSeconds();
 };
 
 const log = function (message, isStep, isBroken) {
@@ -17,11 +12,11 @@ const log = function (message, isStep, isBroken) {
 
     try {
         if (console.isReportUsed) {
-            __reporter.obj[isStep ? 'addStep' : 'addStepInfo'](ctx.testName, message, ctx.fixtureName);
-            
-            if (isBroken) __reporter.obj.setTestStatus(ctx.testName, null);
+            __reporter.obj[isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
+
+            if (isBroken) __reporter.obj.setTestStatus(ctx.testId, null);
         }
-    } 
+    }
     catch (err) {
         console.log(err.message ?? err.msg);
     }
@@ -31,7 +26,6 @@ const log = function (message, isStep, isBroken) {
 };
 
 class Logger {
-
     static step (stepNum, message) {
         stepNum = typeof stepNum === 'number' ? stepNum : `${stepNum[0]}-${stepNum[stepNum.length - 1]}`;
         log(`Step ${stepNum}: ${message}`, true);
@@ -54,4 +48,7 @@ class Logger {
     }
 }
 
-module.exports = { Logger, __reporter };
+module.exports = {
+    Logger,
+    __reporter
+};

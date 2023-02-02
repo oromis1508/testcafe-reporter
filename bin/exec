@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const path          = require('path');
+const v8FlagsFilter = require('@devexpress/bin-v8-flags-filter');
+
+v8FlagsFilter(path.join(__dirname, '../lib/register.js'), { useShutdownMessage: true });
