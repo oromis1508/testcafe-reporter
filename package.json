@@ -45,7 +45,10 @@
     "testcafe": "^1.0.1"
   },
   "dependencies": {
-    "@babel/runtime": "^7.3.4"
+    "@babel/runtime": "^7.3.4",
+    "copy-dir": "^1.2.0",
+    "chalk": "^3.0.0",
+    "minimist": "^1.2.5"
   },
   "bin": {
     "testcafe-reporter-acd-html-reporter": "lib/register.js"
