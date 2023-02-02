@@ -26,8 +26,8 @@ function build () {
         .pipe(gulp.dest('lib'));
     gulp.src('src/report/**')
         .pipe(gulp.dest('report'));
-    return gulp.src('src/Logger.ts')
-        .pipe(gulp.dest('utils'));
+    return gulp.src('src/Logger.d.ts')
+        .pipe(gulp.dest('lib'));
 }
 
 function test () {

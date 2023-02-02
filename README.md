@@ -8,10 +8,20 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 1.3:
+#### Added support of <a href="#concurrency">concurrency</a> (also for Logger)
+#### TS Logger moved from 'testcafe-reporter-acd-html-reporter/utils/Logger' to 'testcafe-reporter-acd-html-reporter/lib/Logger'
+#### Added argument --appendLogs. With definition <a href="#changeDirectory">--reportPath</a> or or <a href="#saveToFile">--reportFile</a> can be used to write results in one file for different runs.
+#### Argument <a href="#saveToFile">--reportFile</a> is applying by default
+
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 
+<p id="concurrency">
+To run tests concurrently, need to run the command first: `npx testcafe-reporter-acd-html-reporter` (after npm i)
+</p>
+
 <p id="baseReportDir">
-The report generates in base folder: {project}/test-results/report_{current date} as html + js/css/img files.
+The report generates in base folder: {project}/test-results/report_{current date} as report.html (html + js/css/img files in case <a href="#changeDirectory">saving as folder</a>.)
 Also reporter generates json file with test run info, it places in: {report_directory}/report.json.
 </p>
 

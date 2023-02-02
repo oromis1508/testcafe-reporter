@@ -1,3 +1,6 @@
+let maxTestId = 1;
+
+//getTestStatus, getId, setTestStatus, setTestProperties
 module.exports = function () {
     return {
         noColors: false,
@@ -50,6 +53,28 @@ module.exports = function () {
 
         isScreensAsBase64: false,
 
+        appendLogs: false,
+
+        currentFixtureName: '',
+
+        /**
+         * @type {{id: number, fixture: string, name: string}[]}
+         */
+        testsInfo: [],
+
+        getFixtureName (testName) {
+            if (testName) return this.testsInfo.find(test => test.name === testName).fixture;
+            return this.currentFixtureName;
+        },
+
+        getTestName (testName) {
+            return testName ? testName : this.testName;
+        },
+
+        getId (testName) {
+            return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.getFixtureName(testName)).id;
+        },
+
         createErrorDecorator () {
             return {
                 'span category':       () => '',
@@ -79,7 +104,7 @@ module.exports = function () {
             return JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
         },
 
-        writeToReportSomething (data, field) {
+        writeToReportOnStart (data, field) {
             let json;
 
             if (this.fs.existsSync(this.reportUtil.getResultFileName())) json = this.getJsonAsObject();
@@ -89,7 +114,7 @@ module.exports = function () {
                 if (!json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
             }
             else if (field === this.reportUtil.jsonNames.test)
-                json.fixtures.find(fixt => fixt.name === console.currentFixtureName).tests.push(data);
+                json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data);
             else if (field) 
                 json[field] = data;
 
@@ -97,42 +122,43 @@ module.exports = function () {
         },
 
         /**
+         * @param {string} testName 
          * @param {{name: string, value: any} | {name: string, value: any}[]} properties 
          */
-        setLastTestProperties (properties) {
+        setTestProperties (testName, properties) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
+            const tests = fixtures.find(fixt => fixt.name === this.getFixtureName(testName)).tests;
 
             if (!properties.length) 
                 properties = [properties];
             
             for (const { name, value } of properties) {
-                tests.find(test => test.id === console.testId)[name] = value;
+                tests.find(test => test.id === this.getId(testName))[name] = value;
                 this.writeToJson(json);    
             }
         },
 
-        getTestStatus () {
+        getTestStatus (testName) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
+            const tests = fixtures.find(fixt => fixt.name === this.getFixtureName(testName)).tests;
 
-            return tests.find(test => test.id === console.testId).status;
+            return tests.find(test => test.id === this.getId(testName, testName)).status;
         },
 
-        setTestStatus (status) {
-            if (status === this.testStatuses.failed || this.getTestStatus() !== this.testStatuses.broken) 
-                this.setLastTestProperties({ name: this.reportUtil.jsonNames.testStatus, value: status });
+        setTestStatus (testName, status) {
+            if (status === this.testStatuses.failed || this.getTestStatus(this.getTestName(testName)) !== this.testStatuses.broken) 
+                this.setTestProperties(this.getTestName(testName), { name: this.reportUtil.jsonNames.testStatus, value: status === null ? this.testStatuses.broken : status });
         },
 
         logBorder (info) {
             console.log(this.chalk[this.chalkStyles.borderLine](`-------------------------------------------${info ? this.chalk[this.chalkStyles.borderText](info) : ''}-------------------------------------------`));
         },
 
-        addTestInfo (testStatus, screenPath, userAgent, durationMs, stackTrace) {
-            this.setTestStatus(testStatus);
-            this.setLastTestProperties([
+        addTestInfo (testName, testStatus, screenPath, userAgent, durationMs, stackTrace) {
+            this.setTestStatus(this.getTestName(testName), testStatus);
+            this.setTestProperties(this.getTestName(testName), [
                 { name: this.reportUtil.jsonNames.screenshotOnFail, value: screenPath },
                 { name: this.reportUtil.jsonNames.testUserAgents, value: userAgent },
                 { name: this.reportUtil.jsonNames.testDuration, value: durationMs },
@@ -140,24 +166,24 @@ module.exports = function () {
             ]);
         },
 
-        addStep (message) {
+        addStep (testName, message) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
-            
-            tests.find(test => test.id === console.testId).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
+            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
+
+            tests.find(test => test.id === this.getId(testName)).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
             this.writeToJson(json);    
         },
 
-        addStepInfo (message) {
+        addStepInfo (testName, message) {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
-            const tests = fixtures.find(fixt => fixt.name === console.currentFixtureName).tests;
-            const steps = tests.find(test => test.id === console.testId).steps;
+            const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
+            const steps = tests.find(test => test.id === this.getId(testName)).steps;
 
             if (!steps.length) {
-                this.addStep('');
-                this.addStepInfo(message);
+                this.addStep(testName, '');
+                this.addStepInfo(testName, message);
             }
             else {
                 steps[steps.length - 1].actions.push(message);
@@ -222,8 +248,10 @@ module.exports = function () {
             const minimist = require('minimist');
             const args = minimist(process.argv.slice(2));
             const reportPathArg = args.reportPath;
-            const reportFileArg = args.reportFile;
+            const reportFileArg = args.reportFile ? args.reportFile : true;
             const base64screens = args.base64screens;
+            
+            this.appendLogs = args.appendLogs;
 
             if (base64screens)
                 this.isScreensAsBase64 = true;
@@ -260,13 +288,21 @@ module.exports = function () {
 
                 console.isReportUsed = true;
                 this.reportUtil.startTime = new Date(startTime);
+                require('./Logger').__reporter.obj = this;
 
                 this.parseStartArguments();
+                
                 if (!this.fs.existsSync(this.reportUtil.getReportPath())) 
                     this.fs.mkdirSync(this.reportUtil.getReportPath(), { recursive: true });
 
                 try {
-                    this.fs.unlinkSync(this.reportUtil.getResultFileName());
+                    if (!this.appendLogs) this.fs.unlinkSync(this.reportUtil.getResultFileName());
+                    else if (this.fs.existsSync(this.reportUtil.getResultFileName())) {
+                        const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+                        const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
+
+                        maxTestId = Math.max(...testIds) + 1;
+                    }
                 }
                 catch (e) { /*file doesn't exist*/ }
                 
@@ -278,7 +314,8 @@ module.exports = function () {
                 console.log(`Tests run: ${testsCount} on ${userAgents}`);
                 console.log(`Start time: ${time}`);
                 this.logBorder();
-                this.writeToReportSomething(time, this.reportUtil.jsonNames.startTime);
+                if (this.appendLogs && !this.fs.existsSync(this.reportUtil.getResultFileName()) || !this.appendLogs) 
+                    this.writeToReportOnStart(time, this.reportUtil.jsonNames.startTime);
             } 
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
@@ -287,12 +324,10 @@ module.exports = function () {
 
         reportFixtureStart (name) {
             try {
-                if (console.currentFixtureName !== name) {
-                    console.currentFixtureName = name;
-                    this.logBorder('Fixture start');
-                    console.log(`Fixture started: ${name}`);
-                    this.writeToReportSomething(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
-                }
+                this.currentFixtureName = name;
+                this.logBorder('Fixture start');
+                console.log(`Fixture started: ${name}`);
+                this.writeToReportOnStart(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);    
             } 
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
@@ -301,14 +336,17 @@ module.exports = function () {
 
         reportTestStart (name) {
             try {
+                this.testName = name;
                 this.testStartTime = new Date().valueOf();
+                
                 const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
+                const id = maxTestId++;
 
-                console.testId = console.testId ? console.testId + 1 : 1;
+                this.testsInfo.push({ id, name, fixture: this.currentFixtureName });
+
                 this.logBorder('Test start');
-                console.log(`Test started (${console.testId}/${this.testsCount}): ${console.currentFixtureName} - ${name}`);
-                console.log(`Start time: ${time}`);
-                this.writeToReportSomething(this.reportUtil.jsonNames.baseTestContent(name, console.testId), this.reportUtil.jsonNames.test);
+                console.log(`Test started (${id}/${this.testsCount}): ${this.currentFixtureName} - ${name}\nStart time: ${time}`);
+                this.writeToReportOnStart(this.reportUtil.jsonNames.baseTestContent(name, id), this.reportUtil.jsonNames.test);
             } 
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
@@ -317,6 +355,7 @@ module.exports = function () {
 
         reportTestDone (name, testRunInfo) {
             try {
+                const fixture = this.getFixtureName(name);
                 const errorsCount = testRunInfo.errs.length;
                 const hasErr = !!errorsCount;
                 const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - errorsCount].screenshotPath : null;
@@ -334,30 +373,37 @@ module.exports = function () {
                     var base64screenshot = `data:image/png;base64,${base64}`;
                 }
 
-                if (this.getTestStatus() === this.testStatuses.broken && !hasErr) {
+                if (this.getTestStatus(name) === this.testStatuses.broken && !hasErr) {
                     result = this.testStatuses.broken;
                     this.brokenCount++;
                 }
 
-                this.logBorder('Test done');
+                this.logBorder(`Test ${this.getId(name)} done`);
+                console.log(`Duration: ${duration}`);
+
                 if (testRunInfo.skipped) {
                     this.skippedCount++;
                     this.testsCount++;
-                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${console.currentFixtureName} - ${name}`));
+                    console.log(this.chalk[this.chalkStyles.skipped](`Test skipped: ${fixture} - ${name}`));
                 }
-                else console.log(this.chalk[chalkColor](`Test ${result}: ${console.currentFixtureName} - ${name}`));
+                else {
+                    let msg = this.chalk[chalkColor](`Test ${result}: ${fixture} - ${name}\n`);
 
-                console.log(`Duration: ${duration}`);
-
-                for (const error of stackTrace) {
-                    for (let index = 0; index < error.length; index++)
-                        console.log(this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index]));
+                    for (const error of stackTrace) {
+                        for (let index = 0; index < error.length; index++)
+                            msg += this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index] + '\n');
+                    }
+                    if (screenPath) msg += this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`);
+                    console.log(msg);
                 }
 
-                if (screenPath) console.log(this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`));
                 this.logBorder();
 
-                this.addTestInfo(testRunInfo.skipped ? this.testStatuses.skipped : result, base64screenshot ? base64screenshot : screenPath, this.userAgent, duration, stackTrace);
+                this.addTestInfo(name, testRunInfo.skipped ? this.testStatuses.skipped : result, base64screenshot ? base64screenshot : screenPath, this.userAgent, duration, stackTrace);
+                
+                const index = this.testsInfo.findIndex(test => test.name === name);
+                    
+                this.testsInfo.splice(index, 1);    
             } 
             catch (err) {
                 console.log(err.message ? err.message : err.msg);

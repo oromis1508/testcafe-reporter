@@ -1,4 +1,5 @@
-const reporter = require('testcafe-reporter-acd-html-reporter')();
+/* eslint-disable-next-line prefer-const */
+let __reporter = {};
 
 const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', dateTimeSeparator = '|--|') {
     const currentdate = new Date();
@@ -11,18 +12,25 @@ const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', d
             + currentdate.getSeconds();
 };
 
-const log = function (message, isStep) {
-    try {
-        console.log(`${getCurrentDateTime()} --- ${message}`);
+const log = function (message, isStep, isBroken) {
+    const ctx = require('testcafe').t.ctx;
 
-        if (console.isReportUsed) reporter[isStep ? 'addStep' : 'addStepInfo'](message);
+    try {
+        if (console.isReportUsed) {
+            __reporter.obj[isStep ? 'addStep' : 'addStepInfo'](ctx.testName, ctx.fixtureName, message);
+            
+            if (isBroken) __reporter.obj.setTestStatus(ctx.testName, null);
+        }
     } 
     catch (err) {
         console.log(err.message ?? err.msg);
     }
+    finally {
+        console.log(`${getCurrentDateTime()} ---- ${ctx.id} ---- ${message}`);
+    }
 };
 
-module.exports = class Logger {
+class Logger {
 
     static step (stepNum, message) {
         stepNum = typeof stepNum === 'number' ? stepNum : `${stepNum[0]}-${stepNum[stepNum.length - 1]}`;
@@ -42,7 +50,8 @@ module.exports = class Logger {
     }
 
     static warn (message) {
-        log(`WARN --- : ${message}`, false);
-        if (console.isReportUsed) reporter.setTestStatus(reporter.testStatuses.broken);
+        log(`WARN --- : ${message}`, false, true);
     }
-};
+}
+
+module.exports = { Logger, __reporter };
