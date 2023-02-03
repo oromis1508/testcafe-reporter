@@ -20,12 +20,12 @@ Reporter in .html format, for seeing it, you don't need to start any server. Exc
 ### concurrency
 <p id="concurrency">
 <b>WARN: next line is required, concurrency with the reporter doesn't work without it!</b>
-<p>To run tests concurrently, need to run the command first: `npx acd-html-reporter` (after npm i)</p>
+<p>To run tests concurrently, need to run the command first: `npx acd-html-reporter` (after npm i, should be used with installed testcafe)</p>
 </p>
 
 ### appendLogs
 <p id="appendLogs">
-With that tag report always will be generated to one file.
+With that tag report always will be generated to one file.<br>
 Result files saved like `report_3.02_34138.json`, where 34138 - run id. Result will be formed as by <a href="#acd-html-combine">npx acd-html-combine</a> command (with combined json).
 
 With definition <a href="#saveToFile">--reportFile</a> can be used to write results in one file for different runs.
@@ -33,38 +33,38 @@ With definition <a href="#saveToFile">--reportFile</a> can be used to write resu
 
 ### acd-html-combine
 <p id="acd-html-combine">
-Command npx acd-html-combine can combine some .json result files to 1 report file.
-The command can be used in 2 ways, with a folder or with list of files delimited by ',':
-1. npx acd-html-combine test-results/report_1.02/report_1.02.json,test-results/report_1.11/report_1.11.json
-In that case report will be generated from the files in the list.
-2. npx acd-html-combine test-results
+Command npx acd-html-combine can combine some .json result files to 1 report file.<br>
+The command can be used in 2 ways, with a folder or with list of files delimited by ',':<br>
+1. npx acd-html-combine test-results/report_1.02/report_1.02.json,test-results/report_1.11/report_1.11.json<br>
+In that case report will be generated from the files in the list.<br>
+2. npx acd-html-combine test-results<br>
 In that case report will be generated from all .json files in the folder (except which are ended with -combined.json).
 
 Result html file will be generated in <a href="#baseReportDir">base report folder</a> with report-combined.json file with all files data.
 
-<b>If need to save combined report to a different path, use --dest (-dest) argument, e.g.:</b>
-npx acd-html-combine test-results --dest 123.html
-npx acd-html-combine test-results -dest=path/to/123.html
+<b>If need to save combined report to a different path, use --dest (-dest) argument, e.g.:</b><br>
+npx acd-html-combine test-results --dest 123.html<br>
+npx acd-html-combine test-results -dest=path/to/123.html<br>
 In that case report-combined.json will be in the same folder. 
 </p>
 
 ### baseReportDir
 <p id="baseReportDir">
-The report generates in base folder: {project}/test-results/report_{current date} as report.html (html + js/css/img files in case <a href="#changeDirectory">saving as folder</a>.)
+The report generates in base folder: {project}/test-results/report_{current date} as report.html (html + js/css/img files in case <a href="#changeDirectory">saving as folder</a>.)<br>
 Also reporter generates json file with test run info, it places in: {report_directory}/report.json.
 </p>
 
-If you need to run some times a day, save report, because old version with same date will be rewrited.
+If you need to run some times a day, save report, because old version with same date will be rewrited.<br>
 You can <a href="#changeDirectory">change the report saving directory</a> or <a href="#saveToFile">save report to single file</a> (without css, js and img files).
 
-For extended test run information you can use Logger, implemented in the reporter.
+For extended test run information you can use Logger, implemented in the reporter.<br>
 Method Logger.warn automatically sets status of a test: 'broken'.
 ```
 Logger.warn('Something is strange in this test, may be bug, that 2+2=5 isn't truth');
 await t.expect(2 + 2).eql(5);
 ```
 
-Methods Logger.cleanUp and Logger.preconditions can be used in test hooks (beforeTest, afterTest, etc). It's equivalent of Logger.step, but without step number.
+Methods Logger.cleanUp and Logger.preconditions can be used in test hooks (beforeTest, afterTest, etc). It's equivalent of Logger.step, but without step number.<br>
 Logger.step can be used with some steps as number, e.g. [1, 2, 3, 4], it will be showed in the report as Step 1-4.
 ```
 Logger.step(1, 'Click the link and do something');
