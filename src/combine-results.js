@@ -14,12 +14,12 @@ function deleteDuplicatedTests (json) {
 }
 
 function parseFilesAndGenerateReport (files) {
-    const json = { startTime: new Date(), fixtures: [] };
+    const json = { startTime: new Date().toString(), fixtures: [] };
 
     for (const file of files) {
         const content = JSON.parse(fs.readFileSync(file).toLocaleString());
 
-        if (content.startTime < json.startTime) 
+        if (new Date(content.startTime) < new Date(json.startTime)) 
             json.startTime = content.startTime;
         
         const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();

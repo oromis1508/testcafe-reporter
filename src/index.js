@@ -44,7 +44,8 @@ module.exports = function () {
             const fileName = this.reportUtil.getResultFileName();
             const getNewName = () => fileName.replace('.json', `_${this.testRunId}.json`);
 
-            if (this.appendLogs && this.testRunId === Infinity) {
+            if (!this.appendLogs) return fileName;
+            if (this.testRunId === Infinity) {
                 do 
                     this.testRunId = Math.floor(Math.random() * 100000) + +process.pid.toString().slice(-5);
                 while (this.fs.existsSync(getNewName()));
