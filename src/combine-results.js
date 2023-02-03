@@ -1,9 +1,12 @@
-const args = require('./index')().getStartArgObject();
+const mainFile = require('./index')();
+const args = mainFile.getStartArgObject();
 const reportObj = require('./jsonToHtml');
 const fs = require('fs');
 const path = require('path');
 const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
+
+if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
 function parseFilesAndGenerateReport (files) {
     const json = { startTime: new Date(), fixtures: [] };
@@ -28,7 +31,6 @@ function parseFilesAndGenerateReport (files) {
             else 
                 json.fixtures.push(fixture);
         }
-        
     }
     const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));
 
@@ -45,7 +47,7 @@ function getJsonsFromDir (dir, parent) {
 
     for (const item of subitems) {
         if (fs.lstatSync(path.join(dir, item)).isFile()) {
-            if (item.endsWith('.json')) files.push(path.join(dir, item));
+            if (item.endsWith('.json') && !item.endsWith('-combined.json')) files.push(path.join(dir, item));
         }
         else getJsonsFromDir(item, dir);
     }

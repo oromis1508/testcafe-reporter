@@ -11,13 +11,38 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 ### New in 1.3:
 #### Added support of <a href="#concurrency">concurrency</a> (also for Logger)
 #### TS Logger moved from 'testcafe-reporter-acd-html-reporter/utils/Logger' to 'testcafe-reporter-acd-html-reporter/lib/Logger'
-#### Added argument --appendLogs. With definition <a href="#changeDirectory">--reportPath</a> or or <a href="#saveToFile">--reportFile</a> can be used to write results in one file for different runs.
+#### Added argument <a href="#appendLogs">--appendLogs</a>. 
 #### Argument <a href="#saveToFile">--reportFile</a> is applying by default
+#### Added support <a href="#acd-html-combine">npx acd-html-combine</a> command
 
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 
 <p id="concurrency">
-To run tests concurrently, need to run the command first: `npx testcafe-reporter-acd-html-reporter` (after npm i)
+<b>WARN: next line is required, concurrency with the reporter doesn't work without it!</b>
+To run tests concurrently, need to run the command first: `npx acd-html-reporter` (after npm i)
+</p>
+
+<p id="appendLogs">
+With that tag report always will be generated to one file.
+Result files saved like `report_3.02_34138.json`, where 34138 - run id. Result will be formed as by <a href="#acd-html-combine">npx acd-html-combine</a> command (with combined json).
+
+With definition <a href="#saveToFile">--reportFile</a> can be used to write results in one file for different runs.
+</p>
+
+<p id="acd-html-combine">
+Command npx acd-html-combine can combine some .json result files to 1 report file.
+The command can be used in 2 ways, with a folder or with list of files delimited by ',':
+1. npx acd-html-combine test-results/report_1.02/report_1.02.json,test-results/report_1.11/report_1.11.json
+In that case report will be generated from the files in the list.
+2. npx acd-html-combine test-results
+In that case report will be generated from all .json files in the folder (except which are ended with -combined.json).
+
+Result html file will be generated in <a href="#baseReportDir">base report folder</a> with report-combined.json file with all files data.
+
+<b>If need to save combined report to a different path, use --dest (-dest) argument, e.g.:</b>
+npx acd-html-combine test-results --dest 123.html
+npx acd-html-combine test-results -dest=path/to/123.html
+In that case report-combined.json will be in the same folder. 
 </p>
 
 <p id="baseReportDir">

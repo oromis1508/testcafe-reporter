@@ -21,7 +21,9 @@ const log = function (message, isStep, isBroken) {
         console.log(err.message ?? err.msg);
     }
     finally {
-        console.log(`${getCurrentDateTime()} ---- ${ctx.testId} ---- ${message}`);
+        const testRunId = this.__reporter.appendLogs ? `${this.__reporter.testRunId}/` : '';
+
+        console.log(`${getCurrentDateTime()} ---- ${testRunId}${ctx.testId} ---- ${message}`);
     }
 };
 

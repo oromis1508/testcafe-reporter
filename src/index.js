@@ -41,18 +41,15 @@ module.exports = function () {
         testRunId: Infinity,
 
         getResultFileName () {
-            let fileName = this.reportUtil.getResultFileName();
+            const fileName = this.reportUtil.getResultFileName();
+            const getNewName = () => fileName.replace('.json', `_${this.testRunId}.json`);
 
-            if (this.appendLogs) {
-                if (this.testRunId === Infinity) {
-                    for (let index = 0; this.fs.existsSync(fileName); index++) {
-                        fileName = fileName.replace('.json', `${index}.json`);
-                        this.testRunId = index;
-                    }
-                }
-                else fileName = fileName.replace('.json', `${this.testRunId}.json`);
+            if (this.appendLogs && this.testRunId === Infinity) {
+                do 
+                    this.testRunId = Math.floor(Math.random() * 100000) + +process.pid.toString().slice(-5);
+                while (this.fs.existsSync(getNewName()));
             }
-            return fileName;
+            return getNewName();
         },
         
         getTestName (testName) {
@@ -63,12 +60,10 @@ module.exports = function () {
             return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.currentFixtureName).id;
         },
 
-        getDescId (id) {
-            const min = this.desc ? this.desc : this.desc = Math.min(...this.testsInfo.map(t => t.id));
-  
-            return id - min + 1;
+        getTestRunId () {
+            return this.appendLogs ? ` ${this.testRunId}` : '';
         },
-  
+        
         createErrorDecorator () {
             return {
                 'span category':       () => '',
@@ -176,6 +171,7 @@ module.exports = function () {
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
 
+            id = id ? id : this.getId();
             tests.find(test => test.id === id).steps.push(this.reportUtil.jsonNames.baseStepContent(message));
             this.writeToJson(json);
         },
@@ -184,6 +180,9 @@ module.exports = function () {
             const json = this.getJsonAsObject();
             const fixtures = json.fixtures;
             const tests = fixtures.find(fixt => fixt.name === this.currentFixtureName).tests;
+
+            id = id ? id : this.getId();
+            
             const steps = tests.find(test => test.id === id).steps;
 
             if (!steps.length) {
@@ -301,9 +300,10 @@ module.exports = function () {
             }
         },
 
-        createReportPath () {
-            if (!this.fs.existsSync(this.reportUtil.getReportPath())) {
-                this.fs.mkdirSync(this.reportUtil.getReportPath(), {
+        createReportPath (path) {
+            path = path ? path : this.reportUtil.getReportPath();
+            if (!this.fs.existsSync(path)) {
+                this.fs.mkdirSync(path, {
                     recursive: true
                 });
             }  
@@ -363,7 +363,7 @@ module.exports = function () {
                 this.testsCount = testsCount;
                 this.taskStartTime = startTime;
                 this.logBorder('Task start');
-                console.log(`Tests run: ${testsCount} on ${this.userAgent}`);
+                console.log(`Tests run${this.getTestRunId()}: ${testsCount} on ${this.userAgent}`);
                 console.log(`Start time: ${time}`);
                 this.logBorder();
                 if (this.appendLogs && !this.fs.existsSync(this.getResultFileName()) || !this.appendLogs) this.writeToReportOnStart(time, this.reportUtil.jsonNames.startTime);
@@ -377,7 +377,7 @@ module.exports = function () {
             try {
                 this.currentFixtureName = name;
                 this.logBorder('Fixture start');
-                console.log(`Fixture started: ${name}`);
+                console.log(`Fixture started${this.getTestRunId()}: ${name}`);
                 this.writeToReportOnStart(this.reportUtil.jsonNames.baseFixtureContent(name), this.reportUtil.jsonNames.fixture);
             }
             catch (err) {
@@ -398,7 +398,7 @@ module.exports = function () {
                     fixture: this.currentFixtureName
                 });
                 this.logBorder('Test start');
-                console.log(`Test ${id} started (${this.getDescId(id)}/${this.testsCount}): ${this.currentFixtureName} - ${name}\nStart time: ${time}`);
+                console.log(`Test started (${id}/${this.testsCount}): ${this.currentFixtureName} - ${name}\nStart time: ${time}`);
                 this.writeToReportOnStart(this.reportUtil.jsonNames.baseTestContent(name, id), this.reportUtil.jsonNames.test);
             }
             catch (err) {
@@ -429,7 +429,7 @@ module.exports = function () {
                     this.brokenCount++;
                 }
 
-                this.logBorder(`Test ${testId} (${this.getDescId(testId)}) done`);
+                this.logBorder(`Test ${testId} done`);
                 console.log(`Duration: ${duration}`);
 
                 if (testRunInfo.skipped) {
@@ -466,6 +466,7 @@ module.exports = function () {
                 const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
                 const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
                 const path = require('path');
+                const reportPath = `${this.reportUtil.getReportPath()}/${fileName}`;
 
                 let summary = this.chalk[this.chalkStyles.passed](`${passed - this.brokenCount}/${this.testsCount} ${this.testStatuses.passed}`);
 
@@ -474,13 +475,13 @@ module.exports = function () {
         
 
                 this.logBorder('Task done');
-                console.log(`Test run finished: ${time}`);
+                console.log(`Test run${this.getTestRunId()} finished: ${time}`);
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
                 if (warnings.length) console.log(warnings);
-                if (this.appendLogs) require('child_process').exec(`npx acd-html-combine ${path.dirname(this.getResultFileName())}`);
+                if (this.appendLogs) require('child_process').execSync(`npx acd-html-combine ${path.dirname(this.getResultFileName())} --dest ${reportPath}`);
                 else if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
-                console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(this.reportUtil.getReportPath())}/${fileName}`));
+                console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
             }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
