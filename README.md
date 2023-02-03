@@ -17,11 +17,13 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 
+### concurrency
 <p id="concurrency">
 <b>WARN: next line is required, concurrency with the reporter doesn't work without it!</b>
-To run tests concurrently, need to run the command first: `npx acd-html-reporter` (after npm i)
+<p>To run tests concurrently, need to run the command first: `npx acd-html-reporter` (after npm i)</p>
 </p>
 
+### appendLogs
 <p id="appendLogs">
 With that tag report always will be generated to one file.
 Result files saved like `report_3.02_34138.json`, where 34138 - run id. Result will be formed as by <a href="#acd-html-combine">npx acd-html-combine</a> command (with combined json).
@@ -29,6 +31,7 @@ Result files saved like `report_3.02_34138.json`, where 34138 - run id. Result w
 With definition <a href="#saveToFile">--reportFile</a> can be used to write results in one file for different runs.
 </p>
 
+### acd-html-combine
 <p id="acd-html-combine">
 Command npx acd-html-combine can combine some .json result files to 1 report file.
 The command can be used in 2 ways, with a folder or with list of files delimited by ',':
@@ -45,6 +48,7 @@ npx acd-html-combine test-results -dest=path/to/123.html
 In that case report-combined.json will be in the same folder. 
 </p>
 
+### baseReportDir
 <p id="baseReportDir">
 The report generates in base folder: {project}/test-results/report_{current date} as report.html (html + js/css/img files in case <a href="#changeDirectory">saving as folder</a>.)
 Also reporter generates json file with test run info, it places in: {report_directory}/report.json.
