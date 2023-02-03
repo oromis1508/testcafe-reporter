@@ -102,8 +102,10 @@ module.exports = {
         const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`)
             .replace('startTime', json.startTime)
             .replace(/<head>.*<\/head>/gs, htmlHead);
-
-        fs.writeFileSync(args[1] ? args[1] : `${this.getReportPath()}/${this.singleHtmlFileName}`, generatedReport);
+        const path = args[1] ? args[1] : `${this.getReportPath()}/${this.singleHtmlFileName}`;
+        
+        fs.writeFileSync(path, generatedReport);
+        return path;
     },
     
     generateReport: function () {

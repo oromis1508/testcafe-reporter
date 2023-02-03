@@ -1,11 +1,12 @@
 const args = require('./index')().getStartArgObject();
-const writeReport = require('./jsonToHtml').generateReportAsHtml;
+const reportObj = require('./jsonToHtml');
 const fs = require('fs');
+const path = require('path');
 const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
 
 function parseFilesAndGenerateReport (files) {
-    const json = { startTime: new Date() };
+    const json = { startTime: new Date(), fixtures: [] };
 
     for (const file of files) {
         const content = JSON.parse(fs.readFileSync(file).toLocaleString());
@@ -14,8 +15,8 @@ function parseFilesAndGenerateReport (files) {
             json.startTime = content.startTime;
         
         const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
-        const maxTestId = Math.max(...testIds);
-
+        const maxTestId = Math.max(0, ...testIds);
+        
         for (const fixture of content.fixtures) {
             fixture.tests.forEach(test => {
                 test.id += maxTestId;
@@ -29,19 +30,24 @@ function parseFilesAndGenerateReport (files) {
         }
         
     }
-    writeReport(json, dest);
+    const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));
+
+    console.log(resultHtml);
+    fs.writeFileSync(resultHtml.replace(/\.html$/, '-combined.json'), JSON.stringify(json, null, 2));
 }
 
 const files = [];
 
-function getJsonsFromDir (path) {
-    const subitems = fs.readdirSync(path);
+function getJsonsFromDir (dir, parent) {
+    dir = parent ? path.join(parent, dir) : dir;
+
+    const subitems = fs.readdirSync(dir);
 
     for (const item of subitems) {
-        if (fs.lstatSync(item).isFile()) {
-            if (item.endsWith('.json')) files.push(item);
+        if (fs.lstatSync(path.join(dir, item)).isFile()) {
+            if (item.endsWith('.json')) files.push(path.join(dir, item));
         }
-        else getJsonsFromDir(item);
+        else getJsonsFromDir(item, dir);
     }
 }
 

@@ -1,4 +1,4 @@
-let maxTestId = 1;
+let maxTestId = 0;
 
 module.exports = function () {
     return {
@@ -38,6 +38,23 @@ module.exports = function () {
      */
         testsInfo: [],
 
+        testRunId: Infinity,
+
+        getResultFileName () {
+            let fileName = this.reportUtil.getResultFileName();
+
+            if (this.appendLogs) {
+                if (this.testRunId === Infinity) {
+                    for (let index = 0; this.fs.existsSync(fileName); index++) {
+                        fileName = fileName.replace('.json', `${index}.json`);
+                        this.testRunId = index;
+                    }
+                }
+                else fileName = fileName.replace('.json', `${this.testRunId}.json`);
+            }
+            return fileName;
+        },
+        
         getTestName (testName) {
             return testName ? testName : this.testName;
         },
@@ -46,6 +63,12 @@ module.exports = function () {
             return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.currentFixtureName).id;
         },
 
+        getDescId (id) {
+            const min = this.desc ? this.desc : this.desc = Math.min(...this.testsInfo.map(t => t.id));
+  
+            return id - min + 1;
+        },
+  
         createErrorDecorator () {
             return {
                 'span category':       () => '',
@@ -66,30 +89,28 @@ module.exports = function () {
         fs:         require('fs'),
         reportUtil: require('./jsonToHtml'),
 
-        writeToJson (object, retryNum) {
+        writeToJson (object) {
             try {
-                this.fs.writeFileSync(this.reportUtil.getResultFileName(), JSON.stringify(object, null, 2));
+                this.fs.writeFileSync(this.getResultFileName(), JSON.stringify(object, null, 2));
             }
-            catch (err) {
-                if (!retryNum || retryNum < 100) this.writeToJson(object, 1);
-            }
+            catch (err) { /** ignore */}
         },
 
         getJsonAsObject () {
-            return JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
+            return JSON.parse(this.fs.readFileSync(this.getResultFileName()).toLocaleString());
         },
 
         writeToReportOnStart (data, field) {
             let json;
 
-            if (this.fs.existsSync(this.reportUtil.getResultFileName())) json = this.getJsonAsObject(); else json = JSON.parse(this.reportUtil.jsonNames.baseJsonContent);
+            if (this.fs.existsSync(this.getResultFileName())) json = this.getJsonAsObject(); else json = JSON.parse(this.reportUtil.jsonNames.baseJsonContent);
 
-            if (field === this.reportUtil.jsonNames.fixture) {
-                if (!json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
+            if (field === this.reportUtil.jsonNames.fixture && !json.fixtures.find(el => el.name === data.name)) {
+                json.fixtures.push(data);
+                return this.writeToJson(json);
             }
             else if (field === this.reportUtil.jsonNames.test) json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data); else if (field) json[field] = data;
-
-            this.writeToJson(json);
+            return this.writeToJson(json);
         },
 
         /**
@@ -290,10 +311,9 @@ module.exports = function () {
 
         getMaxTestId () {
             try {
-                const json = JSON.parse(this.fs.readFileSync(this.reportUtil.getResultFileName()).toLocaleString());
-                const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
+                const testIds = this.getJsonAsObject().fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
 
-                return Math.max(...testIds);
+                return Math.max(maxTestId, ...testIds) + 1;
             }
             catch {
                 return maxTestId;
@@ -302,9 +322,9 @@ module.exports = function () {
 
         prepareResultFile () {
             try {
-                if (!this.appendLogs) this.fs.unlinkSync(this.reportUtil.getResultFileName());
-                else if (this.fs.existsSync(this.reportUtil.getResultFileName())) 
-                    maxTestId = this.getMaxTestId() + 1;
+                if (!this.appendLogs) this.fs.unlinkSync(this.getResultFileName());
+                else if (this.fs.existsSync(this.getResultFileName())) 
+                    maxTestId = this.getMaxTestId();
             }
             catch (e) {
             /*file doesn't exist*/
@@ -346,14 +366,14 @@ module.exports = function () {
                 console.log(`Tests run: ${testsCount} on ${this.userAgent}`);
                 console.log(`Start time: ${time}`);
                 this.logBorder();
-                if (this.appendLogs && !this.fs.existsSync(this.reportUtil.getResultFileName()) || !this.appendLogs) this.writeToReportOnStart(time, this.reportUtil.jsonNames.startTime);
+                if (this.appendLogs && !this.fs.existsSync(this.getResultFileName()) || !this.appendLogs) this.writeToReportOnStart(time, this.reportUtil.jsonNames.startTime);
             }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);
             }
         },
 
-        reportFixtureStart (name) {//TODO: to test start
+        reportFixtureStart (name) {
             try {
                 this.currentFixtureName = name;
                 this.logBorder('Fixture start');
@@ -378,7 +398,7 @@ module.exports = function () {
                     fixture: this.currentFixtureName
                 });
                 this.logBorder('Test start');
-                console.log(`Test started (${id}/${this.testsCount}): ${this.currentFixtureName} - ${name}\nStart time: ${time}`);
+                console.log(`Test ${id} started (${this.getDescId(id)}/${this.testsCount}): ${this.currentFixtureName} - ${name}\nStart time: ${time}`);
                 this.writeToReportOnStart(this.reportUtil.jsonNames.baseTestContent(name, id), this.reportUtil.jsonNames.test);
             }
             catch (err) {
@@ -409,7 +429,7 @@ module.exports = function () {
                     this.brokenCount++;
                 }
 
-                this.logBorder(`Test ${testId} done`);
+                this.logBorder(`Test ${testId} (${this.getDescId(testId)}) done`);
                 console.log(`Duration: ${duration}`);
 
                 if (testRunInfo.skipped) {
@@ -445,6 +465,7 @@ module.exports = function () {
                 const durationMs = endTime - this.taskStartTime;
                 const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
                 const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
+                const path = require('path');
 
                 let summary = this.chalk[this.chalkStyles.passed](`${passed - this.brokenCount}/${this.testsCount} ${this.testStatuses.passed}`);
 
@@ -457,8 +478,9 @@ module.exports = function () {
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
                 if (warnings.length) console.log(warnings);
-                console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${require('path').resolve(this.reportUtil.getReportPath())}/${fileName}`));
-                if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
+                if (this.appendLogs) require('child_process').exec(`npx acd-html-combine ${path.dirname(this.getResultFileName())}`);
+                else if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
+                console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(this.reportUtil.getReportPath())}/${fileName}`));
             }
             catch (err) {
                 console.log(err.message ? err.message : err.msg);

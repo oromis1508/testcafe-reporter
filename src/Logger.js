@@ -21,7 +21,7 @@ const log = function (message, isStep, isBroken) {
         console.log(err.message ?? err.msg);
     }
     finally {
-        console.log(`${getCurrentDateTime()} ---- ${ctx.id} ---- ${message}`);
+        console.log(`${getCurrentDateTime()} ---- ${ctx.testId} ---- ${message}`);
     }
 };
 

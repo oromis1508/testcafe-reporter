@@ -9,7 +9,7 @@
 
 .stepsContent {
   margin: 0 4.5vw;
-  bottom: 23.5vh;
+  bottom: 25vh;
   position: absolute;
   width: 40vw;
   overflow: inherit;
@@ -61,11 +61,11 @@
 
 #run-info {
   position: absolute;
-  bottom: 55vh;
+  bottom: 57vh;
   left: 4vw;
-  font-size: 1.75vw;
+  font-size: 1.5vw;
   font-family: cursive;
-  color: cornsilk;
+  color: floralwhite;
 }
 
 #run-info:nth-child(1) {
