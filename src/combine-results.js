@@ -8,6 +8,11 @@ const dest = args.dest;
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
+function deleteDuplicatedTests (json) {
+    for (const fixture of json.fixtures) 
+        fixture.tests = fixture.tests.filter((val, index, obj) => !obj.slice(index + 1).find(el => el.name === val.name));
+}
+
 function parseFilesAndGenerateReport (files) {
     const json = { startTime: new Date(), fixtures: [] };
 
@@ -32,6 +37,7 @@ function parseFilesAndGenerateReport (files) {
                 json.fixtures.push(fixture);
         }
     }
+    deleteDuplicatedTests(json);
     const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));
 
     console.log(resultHtml);

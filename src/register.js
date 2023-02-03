@@ -23,4 +23,8 @@ const concurencyContent = fs.readFileSync(concurencyBlockFile).toLocaleString();
 const concurencyBlockStr = 'isBlocked || (hasIncompleteTestRuns || needWaitLastTestInFixture) && !isConcurrency';
 const concurencyBlockReplace = 'isBlocked || (hasIncompleteTestRuns && needWaitLastTestInFixture)';
 
-if (concurencyContent.includes(concurencyBlockStr)) fs.writeFileSync(concurencyBlockFile, concurencyContent.replace(concurencyBlockStr, concurencyBlockReplace));
+const featureCheckText = 'this._reportsPending.some(controller => controller.test.fixture !== testRunController.test.fixture)';
+const featureCheckReplace = 'this._reportsPending.some(controller => controller.test.fixture.name !== testRunController.test.fixture.name)';
+
+if (concurencyContent.includes(concurencyBlockStr) || concurencyContent.includes(featureCheckText)) 
+    fs.writeFileSync(concurencyBlockFile, concurencyContent.replace(concurencyBlockStr, concurencyBlockReplace).replace(featureCheckText, featureCheckReplace));

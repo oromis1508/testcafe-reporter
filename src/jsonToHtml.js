@@ -103,7 +103,7 @@ module.exports = {
             .replace('startTime', json.startTime)
             .replace(/<head>.*<\/head>/gs, htmlHead);
         const path = args[1] ? args[1] : `${this.getReportPath()}/${this.singleHtmlFileName}`;
-        
+
         fs.writeFileSync(path, generatedReport);
         return path;
     },
@@ -169,7 +169,7 @@ module.exports = {
         let stepsString = '<step>';
 
         steps.forEach(step => {
-            stepsString += '<div class="step">';
+            stepsString += '<div class="step" hiddeninfo>';
             if (step.name)
                 stepsString += `<div class="stepName" onclick="stepOnClick(this)">${step.name}</div>`;
             step.actions.forEach(action => {
