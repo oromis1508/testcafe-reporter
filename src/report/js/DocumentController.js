@@ -16,7 +16,13 @@ function onLoad () {
 
                 userAgent: el.getAttribute('userAgent'),
 
-                stackTrace: ''
+                stackTrace: '',
+
+                time: el.getAttribute('time'),
+
+                t: el.getAttribute('t'),
+
+                f: el.getAttribute('f'),
             });
         });
         
@@ -36,6 +42,7 @@ function onLoad () {
     this.addSummary();
     this.addFixtureSummary();
     this.addSearchByFixtureListeners();
+    this.document.querySelector('select').onchange = this.selectOnSelect;
 }
 
 /* eslint-enable no-unused-vars */

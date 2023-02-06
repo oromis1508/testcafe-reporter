@@ -15,8 +15,24 @@ const runningTests = new Proxy(_runningTests, {
         return value;
     }
 });`;
+const v137Replaced = `const _runningTests = {};
+const runningTests = new Proxy(_runningTests, {
+    set: function (target, key, value) {
+        if(value.ctx && value?.test?.name) {
+            try {
+                const tests = Object.values(target);
+                const theSameRunId = tests.find(t => t.testRunCtx === value.testRunCtx);
 
-if (testsContent.includes(testInfoObj)) fs.writeFileSync(testsFile, testsContent.replace(testInfoObj, testInfoObjReplaced));
+                value.ctx.runId = theSameRunId ? theSameRunId.ctx.runId : Math.max(-1, ...tests.map(t => t.ctx.runId)) + 1;
+                value.ctx.testId = require('testcafe-reporter-acd-html-reporter/lib/Logger').__reporters[value.ctx.runId].getId(value.test.name);    
+            } catch (err) {/*ignore*/}
+        }
+        target[key] = value;
+        return value;
+    }
+});`;
+
+if (testsContent.includes(testInfoObj) || testsContent.includes(testInfoObjReplaced)) fs.writeFileSync(testsFile, testsContent.replace(testInfoObj, v137Replaced).replace(testInfoObjReplaced, v137Replaced));
 
 const concurencyBlockFile = 'node_modules/testcafe/lib/runner/browser-job.js';
 const concurencyContent = fs.readFileSync(concurencyBlockFile).toLocaleString();

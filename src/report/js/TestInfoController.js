@@ -39,5 +39,9 @@ function stepOnClick (stepNameElement) {
     else stepBlock.setAttribute('hiddenInfo', '');
 } 
 
+function selectOnSelect (event) {
+    testOnClick(document.querySelector('.test.selected'), +event.target.value);
+}
+
 /* eslint-enable no-undef */
 /* eslint-enable no-unused-vars */

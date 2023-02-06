@@ -32,7 +32,9 @@ module.exports = {
 
         testStackTrace: 'stackTrace',
 
-        testStatus: 'status'
+        testStatus: 'status',
+        
+        testTime: 'time'
     },
 
     get singleHtmlFileName () {
@@ -124,13 +126,15 @@ module.exports = {
 
     getJsonAsHtml: function (json) {
         let generatedReport = '';
-        
+
         generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
             generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
-                generatedReport += `<div id="${test.id}" class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
+                const isLastTestRun = !fixture.tests.find(another => test.name === another.name && new Date(another[this.jsonNames.testTime]) > new Date(test[this.jsonNames.testTime]));
+
+                if (isLastTestRun) generatedReport += `<div id="${test.id}" class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
                 stepsArray.push({
                     id: test.id,
 
@@ -146,7 +150,9 @@ module.exports = {
 
                     userAgent: test[this.jsonNames.testUserAgents],
 
-                    stackTrace: test[this.jsonNames.testStackTrace]
+                    stackTrace: test[this.jsonNames.testStackTrace],
+
+                    time: test[this.jsonNames.testTime]
                 });
             });
             generatedReport += '</div></div>';
@@ -155,7 +161,7 @@ module.exports = {
         generatedReport += '<div steps style="display: none;">';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixtureId="${stepsData.id}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}">`);
+                `<div fixtureId="${stepsData.id}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" time="${stepsData.time}" f="${stepsData.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${stepsData.test.replace(/([\t\n\f />"'=]+)/, '')}">`);
             if (stepsData.stackTrace && stepsData.stackTrace.length)
                 generatedReport += `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });

@@ -64,13 +64,13 @@
   position: absolute;
   bottom: 57vh;
   left: 4vw;
-  font-size: 1.5vw;
+  font-size: min(6vh, 2vw);
   font-family: cursive;
   color: floralwhite;
 }
 
 #run-info:nth-child(1) {
-  top: 8vw;
+  bottom: 70vh;
 }
 
 #error-info {
@@ -181,4 +181,23 @@
 }
 .error-expanded .stack-line:nth-of-type(15) {
   padding-left: 15vw;
+}
+
+select {
+  position: absolute;
+  right: 3vw;
+  top: 0.5vw;
+  font-size: min(2vw, 6vh);
+}
+
+#run-info span.passed {
+  color: aquamarine;
+}
+
+#run-info span.failed {
+  color: tomato;
+}
+
+#run-info span.broken {
+  color: yellow;
 }

@@ -1,5 +1,5 @@
 /* eslint-disable-next-line prefer-const */
-let __reporter = {};
+let __reporters = [];
 
 const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', dateTimeSeparator = '|--|') {
     const currentdate = new Date();
@@ -11,17 +11,17 @@ const log = function (message, isStep, isBroken) {
     const ctx = require('testcafe').t.ctx;
 
     try {
-        if (console.isReportUsed) {
-            __reporter.obj[isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
+        if (__reporters.length && ctx.runId) {
+            __reporters[ctx.runId][isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
 
-            if (isBroken) __reporter.obj.setTestStatus(ctx.testId, null);
+            if (isBroken) __reporters[ctx.runId].setTestStatus(ctx.testId, null);
         }
     }
     catch (err) {
         console.log(err.message ?? err.msg);
     }
     finally {
-        const testRunId = __reporter.obj.appendLogs ? `${__reporter.obj.testRunId}/` : '';
+        const testRunId = __reporters.length && ctx.runId ? `${__reporters[ctx.runId].testRunId}/` : '';
 
         console.log(`${getCurrentDateTime()} ---- ${testRunId}${ctx.testId} ---- ${message}`);
     }
@@ -52,5 +52,5 @@ class Logger {
 
 module.exports = {
     Logger,
-    __reporter
+    __reporters
 };

@@ -47,7 +47,7 @@ module.exports = function () {
             if (!this.appendLogs) return fileName;
             if (this.testRunId === Infinity) {
                 do 
-                    this.testRunId = Math.floor(Math.random() * 100000) + +process.pid.toString().slice(-5);
+                    this.testRunId = Math.floor(Math.random() * 900000) + +process.pid.toString().slice(-5);
                 while (this.fs.existsSync(getNewName()));
             }
             return getNewName();
@@ -101,11 +101,12 @@ module.exports = function () {
 
             if (this.fs.existsSync(this.getResultFileName())) json = this.getJsonAsObject(); else json = JSON.parse(this.reportUtil.jsonNames.baseJsonContent);
 
-            if (field === this.reportUtil.jsonNames.fixture && !json.fixtures.find(el => el.name === data.name)) {
-                json.fixtures.push(data);
-                return this.writeToJson(json);
+            if (field === this.reportUtil.jsonNames.fixture && !json.fixtures.find(el => el.name === data.name)) json.fixtures.push(data);
+            else if (field === this.reportUtil.jsonNames.test) {
+                data[this.reportUtil.jsonNames.testTime] = new Date().toLocaleString();
+                json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data);
             }
-            else if (field === this.reportUtil.jsonNames.test) json.fixtures.find(fixt => fixt.name === this.currentFixtureName).tests.push(data); else if (field) json[field] = data;
+            else if (field) json[field] = data;
             return this.writeToJson(json);
         },
 
@@ -353,9 +354,8 @@ module.exports = function () {
             try {
                 const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
 
-                console.isReportUsed = true;
                 this.reportUtil.startTime = new Date(startTime);
-                require('./Logger').__reporter.obj = this;
+                require('./Logger').__reporters.push(this);
                 this.parseStartArguments();
                 this.createReportPath();
                 this.prepareResultFile();

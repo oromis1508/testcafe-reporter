@@ -91,14 +91,18 @@ function addTestInfo (testData) {
         
     const duration = this.document.createElement('div');
     const userAgent = this.document.createElement('div');
+    const result = this.document.createElement('div');
 
     duration.textContent = `Test duration: ${testData.durationMs}`;
     duration.classList.add('duration');
     userAgent.textContent = `Completed on: ${testData.userAgent}`;
     userAgent.classList.add('userAgent');
-
+    result.innerHTML = `Result: <span class="${testData.status}">${testData.status}</span> on ${testData.time}`;
+    result.classList.add('result');
+    
     this.document.querySelector('#run-info').appendChild(duration);
     this.document.querySelector('#run-info').appendChild(userAgent);    
+    this.document.querySelector('#run-info').appendChild(result);    
 }
 
 function clearTestInfo (testInfoElement) {
@@ -110,24 +114,36 @@ function clearTestInfo (testInfoElement) {
     this.document.querySelectorAll('.test.selected').forEach(el => {
         el.classList.remove('selected');
     });
-    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *').forEach(el => {
+    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *, select option').forEach(el => {
         el.remove();
     });
 }
 
-function testOnClick (element) {
-    if (element.classList.contains('selected')) return;
+function testOnClick (element, indexToShow) {
+    if (!indexToShow && element.classList.contains('selected')) return;
 
     const testInfo = this.document.querySelector('.test-info');
+    const status = element.getAttribute('status');
 
     this.clearTestInfo(testInfo);
     element.classList.add('selected');
-
-    if (element.getAttribute('status') === 'skipped') return;
+    if (status === 'skipped') return;
 
     const child = this.document.createElement('div');
-    const testData = this.stepsData.find(data => data.id === element.id);
+    const elementData = this.stepsData.find(data => data.id === element.id);
+    const testRuns = this.stepsData.filter(data => data.t === elementData.t && data.f === elementData.f);
+    const testData = indexToShow ? testRuns[indexToShow - 1] : elementData;
+    const select = this.document.querySelector('select');
 
+    for (let i = 0; i < testRuns.length; i++) {
+        const option = this.document.createElement('option');
+
+        option.textContent = (i + 1).toString();
+        if (!indexToShow && i === 0 || i + 1 === indexToShow) option.selected = true;
+        select.appendChild(option);
+    }
+
+    testData.status = status;
     child.classList.add('stepsContent');
     child.innerHTML = testData.steps;
     testInfo.appendChild(child);
