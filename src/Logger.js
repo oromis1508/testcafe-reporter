@@ -9,9 +9,10 @@ const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', d
 
 const log = function (message, isStep, isBroken) {
     const ctx = require('testcafe').t.ctx;
+    const isReportUsed = __reporters.length && typeof ctx.runId === 'number';
 
     try {
-        if (__reporters.length && ctx.runId) {
+        if (isReportUsed) {
             __reporters[ctx.runId][isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
 
             if (isBroken) __reporters[ctx.runId].setTestStatus(ctx.testId, null);
@@ -21,7 +22,7 @@ const log = function (message, isStep, isBroken) {
         console.log(err.message ?? err.msg);
     }
     finally {
-        const testRunId = __reporters.length && ctx.runId ? `${__reporters[ctx.runId].testRunId}/` : '';
+        const testRunId = isReportUsed ? `${__reporters[ctx.runId].testRunId}/` : '';
 
         console.log(`${getCurrentDateTime()} ---- ${testRunId}${ctx.testId} ---- ${message}`);
     }
