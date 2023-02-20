@@ -49,8 +49,39 @@ const runningTests = new Proxy(_runningTests, {
         return value;
     }
 });`;
+const v139Replaced = `const _runningTests = {};
+const runningTests = new Proxy(_runningTests, {
+    set: function (target, key, value) {
+        if(value.ctx && value?.test?.name) {
+            try {
+                const tests = Object.values(target);
+                const reporters = require('testcafe-reporter-acd-html-reporter/lib/Logger').__reporters;
+                
+                value.ctx.runId = typeof value.testRunCtx?.runId === 'number' ? value.testRunCtx.runId : Math.max(-1, ...tests.map(t => t.ctx.runId)) + 1;
+                value.testRunCtx.runId = value.ctx.runId;
 
-if (testsContent.includes(testInfoObj) || testsContent.includes(testInfoObjReplaced) || testsContent.includes(v137Replaced)) fs.writeFileSync(testsFile, testsContent.replace(v137Replaced, v138Replaced).replace(testInfoObj, v138Replaced).replace(testInfoObjReplaced, v138Replaced));
+                const report = reporters[value.ctx.runId];
+
+                value.ctx.testId = reporters.length ? report.getId(value.test.name) : value.id;
+                report.addStep(value.ctx.testId, 'Url: ' + value?.test?.pageUrl);
+            } catch {/*ignore*/}
+        }
+
+        target[key] = value;
+        return value;
+    }
+});`;
+
+if (testsContent.includes(testInfoObj) || 
+    testsContent.includes(testInfoObjReplaced) || 
+    testsContent.includes(v137Replaced) || 
+    testsContent.includes(v138Replaced)) {
+    fs.writeFileSync(testsFile, 
+        testsContent.replace(v138Replaced, v139Replaced)
+            .replace(v137Replaced, v139Replaced)
+            .replace(testInfoObj, v139Replaced)
+            .replace(testInfoObjReplaced, v139Replaced));
+}
 
 const concurencyBlockFile = 'node_modules/testcafe/lib/runner/browser-job.js';
 const concurencyContent = fs.readFileSync(concurencyBlockFile).toLocaleString();

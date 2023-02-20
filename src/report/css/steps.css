@@ -43,6 +43,7 @@
 
 .step div {
   border-style: inset outset;
+  background: linear-gradient( rgb(132, 189, 132), rgb(181, 234, 230),rgb(132, 189, 132));
   cursor: zoom-out;
 }
 

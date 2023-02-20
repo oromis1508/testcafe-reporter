@@ -336,13 +336,19 @@ module.exports = function () {
         parseAgents (userAgents) {
             if (typeof userAgents === 'object') {
                 if (userAgents.every) {
-                    if (userAgents.every(el => el === userAgents[0])) 
-                        this.userAgent = userAgents[0] + ` (${userAgents.length} browser(-s))`;
+                    if (userAgents.every(el => el === userAgents[0])) {
+                        this.userAgent = userAgents[0];
+                        if (userAgents.length > 1) this.userAgent += ` (${userAgents.length} browser(-s))`;
+                    }
                     else {
                         const set = userAgents.filter((val, index) => !userAgents.slice(index + 1).find(el => el === val));
 
-                        for (const item of set) 
-                            this.userAgent += item + `(${userAgents.filter(el => el === item).length} browser(-s)); `;
+                        for (const item of set) {
+                            const browsersC = userAgents.filter(el => el === item).length;
+
+                            this.userAgent += item;
+                            if (browsersC > 1) this.userAgent += ` (${browsersC} browser(-s))`;
+                        }
                     }
                 }
                 else this.userAgent = userAgents;
@@ -418,6 +424,7 @@ module.exports = function () {
                 let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
                 const chalkColor = this.chalkStyles[result];
                 const testId = this.getId(name);
+                const testAgent = testRunInfo?.browsers?.map(b => b.prettyUserAgent)?.join();
 
                 if (this.isScreensAsBase64 && screenPath) {
                     const bitmap = this.fs.readFileSync(screenPath);
@@ -450,7 +457,7 @@ module.exports = function () {
                 }
 
                 this.logBorder();
-                this.addTestInfo(name, testRunInfo.skipped ? this.testStatuses.skipped : result, base64screenshot ? base64screenshot : screenPath, this.userAgent, duration, stackTrace);
+                this.addTestInfo(name, testRunInfo.skipped ? this.testStatuses.skipped : result, base64screenshot ? base64screenshot : screenPath, testAgent ? testAgent : this.userAgent, duration, stackTrace);
                 const index = this.testsInfo.findIndex(test => test.name === name);
 
                 this.testsInfo.splice(index, 1);

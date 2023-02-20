@@ -134,7 +134,7 @@ module.exports = {
             fixture.tests.forEach(test => {
                 const isLastTestRun = !fixture.tests.find(another => test.name === another.name && new Date(another[this.jsonNames.testTime]) > new Date(test[this.jsonNames.testTime]));
 
-                if (isLastTestRun) generatedReport += `<div id="${test.id}" class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
+                if (test[this.jsonNames.testTime] && isLastTestRun) generatedReport += `<div id="${test.id}" class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
                 stepsArray.push({
                     id: test.id,
 
