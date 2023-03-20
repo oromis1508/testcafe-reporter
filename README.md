@@ -14,6 +14,7 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 #### Added argument <a href="#appendLogs">--appendLogs</a>. 
 #### Argument <a href="#saveToFile">--reportFile</a> is applying by default
 #### Added support <a href="#acd-html-combine">npx acd-html-combine</a> command
+#### Added argument --logWarnings. If used, warnings will be logged to console after test run.
 
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 

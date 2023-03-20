@@ -275,6 +275,7 @@ module.exports = function () {
             const base64screens = args.base64screens;
 
             this.appendLogs = args.appendLogs;
+            this.logWarnings = args.logWarnings;
             if (base64screens) this.isScreensAsBase64 = true;
 
             if (reportPathArg) {
@@ -486,7 +487,7 @@ module.exports = function () {
                 console.log(`Test run${this.getTestRunId()} finished: ${time}`);
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
-                if (warnings.length) console.log(warnings);
+                if (this.logWarnings && warnings.length) console.log(warnings);
                 if (this.appendLogs) require('child_process').execSync(`npx acd-html-combine ${path.dirname(this.getResultFileName())} --dest ${reportPath}`);
                 else if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
                 console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
