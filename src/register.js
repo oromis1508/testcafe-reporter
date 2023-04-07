@@ -71,17 +71,39 @@ const runningTests = new Proxy(_runningTests, {
         return value;
     }
 });`;
+const v1312Replaced = `const _runningTests = {};
+const runningTests = new Proxy(_runningTests, {
+    set: function (target, key, value) {
+        if(value.ctx && value?.test?.name) {
+            try {
+                const tests = Object.values(target);
+                const reporters = require('testcafe-reporter-acd-html-reporter/lib/Logger').__reporters;
+                
+                value.ctx.runId = typeof value.testRunCtx?.runId === 'number' ? value.testRunCtx.runId : Math.max(-1, ...tests.map(t => t.ctx.runId)) + 1;
+                value.testRunCtx.runId = value.ctx.runId;
 
-if (testsContent.includes(testInfoObj) || 
-    testsContent.includes(testInfoObjReplaced) || 
-    testsContent.includes(v137Replaced) || 
-    testsContent.includes(v138Replaced)) {
-    fs.writeFileSync(testsFile, 
-        testsContent.replace(v138Replaced, v139Replaced)
-            .replace(v137Replaced, v139Replaced)
-            .replace(testInfoObj, v139Replaced)
-            .replace(testInfoObjReplaced, v139Replaced));
-}
+                let report = reporters[value.ctx.runId];
+
+                value.ctx.testId = reporters.length ? report.getId(value.test.name) : value.id;
+                if(value.ctx.testId === undefined) {
+                    report = reporters.find(rep => rep.getId(value.test.name) !== undefined);
+                    value.ctx.testId = report.getId(value.test.name);
+                }
+
+                report.addStep(value.ctx.testId, 'Url: ' + value?.test?.pageUrl);
+            } catch (err) {console.log(err)}
+        }
+
+        target[key] = value;
+        return value;
+    }
+});`;
+
+const oldVersions = [testInfoObj, testInfoObjReplaced, v137Replaced, v138Replaced, v139Replaced];
+
+if (oldVersions.some(v => testsContent.includes(v))) 
+    fs.writeFileSync(testsFile, oldVersions.reduce((val, ver) => val.replace(ver, v1312Replaced), testsContent));
+
 
 const concurencyBlockFile = 'node_modules/testcafe/lib/runner/browser-job.js';
 const concurencyContent = fs.readFileSync(concurencyBlockFile).toLocaleString();
