@@ -58,7 +58,7 @@ module.exports = function () {
         },
 
         getId (testName) {
-            return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.currentFixtureName).id;
+            return this.testsInfo.find(test => test.name === this.getTestName(testName) && test.fixture === this.currentFixtureName)?.id;
         },
 
         getTestRunId () {
