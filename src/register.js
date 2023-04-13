@@ -129,11 +129,34 @@ const runningTests = new Proxy(_runningTests, {
         return value;
     }
 });`;
+const v1314Replaced = `const _runningTests = {};
+const runningTests = new Proxy(_runningTests, {
+    set: function (target, key, value) {
+        if(value.ctx && value?.test?.name) {
+            try {
+                const tests = Object.values(target);
+                const reporters = require('testcafe-reporter-acd-html-reporter/lib/Logger').__reporters;
+                
+                value.ctx.runId = typeof value.testRunCtx?.runId === 'number' ? value.testRunCtx.runId : 
+                    reporters.findIndex(rep => rep.getId(value.test.name) !== undefined);
+                value.testRunCtx.runId = value.ctx.runId;
 
-const oldVersions = [testInfoObj, testInfoObjReplaced, v137Replaced, v138Replaced, v139Replaced, v1312Replaced];
+                let report = reporters[value.ctx.runId];
+
+                value.ctx.testId = reporters.length ? report.getId(value.test.name) : value.id;
+
+                report?.addStep(value.ctx.testId, 'Url: ' + value?.test?.pageUrl);
+            } catch (err) {console.log(err)}
+        }
+
+        target[key] = value;
+        return value;
+    }
+});`;
+const oldVersions = [testInfoObj, testInfoObjReplaced, v137Replaced, v138Replaced, v139Replaced, v1312Replaced, v1313Replaced];
 
 if (oldVersions.some(v => testsContent.includes(v))) 
-    fs.writeFileSync(testsFile, oldVersions.reduce((val, ver) => val.replace(ver, v1313Replaced), testsContent));
+    fs.writeFileSync(testsFile, oldVersions.reduce((val, ver) => val.replace(ver, v1314Replaced), testsContent));
 
 
 const concurencyBlockFile = 'node_modules/testcafe/lib/runner/browser-job.js';
