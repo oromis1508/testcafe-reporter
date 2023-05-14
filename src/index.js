@@ -199,51 +199,52 @@ module.exports = function () {
 
         getStackTraceAsStringsArray (errs) {
             const stackTrace = [];
-
+      
             for (let index = 0; index < errs.length; index++) {
                 const err = errs[index];
 
                 let errName;
+      
+                if (err.errMsg) errName = err.errMsg; else if (err.code) {
+                    const errorsTypes = require('testcafe/lib/errors/types');
+                    const errorMsgs = require('testcafe/lib/errors/test-run/templates');
+                    const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
+                    const testRunKey = Object.keys(errorsTypes.TEST_RUN_ERRORS).find(key => errorsTypes.TEST_RUN_ERRORS[key] === err.code);
 
-                try {
-                    const errorMarkup = err.getErrorMarkup();
-
-                    errName = />(.*?)\n/.exec(errorMarkup)[1].replace('</div>', '');
-                }
-                catch (ignoreErr) {
-                    console.log('getErrorMarkup not available. Will be used another name');
-                }
-
-                if (!errName) {
-                    if (err.errMsg) errName = err.errMsg; else if (err.code) {
-                        const errorsTypes = require('testcafe/lib/errors/types');
-
-                        const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
-                        const testRunKey = Object.keys(errorsTypes.TEST_RUN_ERRORS).find(key => errorsTypes.TEST_RUN_ERRORS[key] === err.code);
-
-                        errName = runtimeKey ? runtimeKey : testRunKey;
+                    errName = runtimeKey ? runtimeKey : testRunKey;
+                  
+                    if (errorMsgs[err.code]) errName += `: ${errorMsgs[err.code](err)}`;
+                    else {
+                        if (err.apiFnChain) errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
+                        if (err.filePaths) errName += `(Files: ${err.filePaths.join ? err.filePaths.join('') : err.filePaths})`;      
                     }
-                    else errName = 'Unknown error';
+                    errName = errName.trim().replace(/\n{2,}/g, '\n');
                 }
-
-                if (err.apiFnChain) errName += `: ${err.apiFnChain.join ? err.apiFnChain.join('') : err.apiFnChain}`;
-                if (err.filePaths) errName += `(Files: ${err.filePaths.join ? err.filePaths.join('') : err.filePaths})`;
+                else errName = 'Unknown error';
+      
                 stackTrace.push([]);
-
+      
                 if (errs[index].callsite) {
                     stackTrace[index].push(errName);
+      
                     errs[index].callsite.stackFrames.forEach(stackFrame => {
                         const msg = stackFrame.toString();
-
-                        if (!msg.includes('node_modules') && !msg.includes('process._tickCallback') && !msg.includes('__awaiter') && msg.includes(':')) stackTrace[index].push(msg);
+                        const filter = ['node:internal', 'node_modules', 'process._tickCallback', '__awaiter'];
+      
+                        if (filter.every(f => !msg.includes(f)) && msg.includes(':')) stackTrace[index].push(msg);
                     });
+      
+                    const errorFile = errs[index].callsite.filename + ':' + (errs[index].callsite.lineNum + 1);
+
+                    if (!stackTrace[index][1].includes(errorFile)) stackTrace[index].splice(1, 0, errorFile);
+      
                 }
                 else stackTrace[index].push(...errName.split('\n'));
             }
-
+      
             return stackTrace;
         },
-
+      
         getStartArgObject () {
             const obj = { odd: [] };
             const args = process.argv.slice(2);

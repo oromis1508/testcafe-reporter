@@ -8,6 +8,10 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 1.4:
+#### Added correct error messages for hooks (before, after, etc).
+#### Impoved errors text for all cases (added base TestCafe messages).
+
 ### New in 1.3:
 #### Added support of <a href="#concurrency">concurrency</a> (also for Logger)
 #### TS Logger moved from 'testcafe-reporter-acd-html-reporter/utils/Logger' to 'testcafe-reporter-acd-html-reporter/lib/Logger'

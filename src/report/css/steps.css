@@ -65,7 +65,7 @@
   position: absolute;
   bottom: 57vh;
   left: 4vw;
-  font-size: min(3vh, 1.5vw);
+  font-size: min(2.3vh, 1.25vw);
   font-family: cursive;
   color: floralwhite;
 }
@@ -136,7 +136,7 @@
   text-align: center;
   width: inherit;
   height: 100%;
-  font-size: 1.75vh;
+  font-size: 1.4vh;
 }
 
 .error-expanded .stack-line:nth-of-type(1) {
