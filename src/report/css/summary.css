@@ -150,3 +150,8 @@
 #searchFixture[enabled=false] {
     color: rgba(0,0,0,0.1);
 }
+
+img#sort {
+    position: absolute;
+    left: 0;
+}

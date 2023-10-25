@@ -133,7 +133,28 @@ function addSearchByFixtureListeners () {
     
     btnSearchByFixture.onclick = onSearchButtonClick;
     btnSearchByFixture.onmouseleave = onSearchButtonLeave;
-    btnSearchByFixture.onmousemove = onSearchButtonMove;
+    btnSearchByFixture.onmouseenter = onSearchButtonMove;
+}
+
+function onSortClick (event) {
+    // eslint-disable-next-line no-use-before-define
+    if (!this.originSort) {
+        this.originSort = document.querySelectorAll('.fixture');
+
+        this.sorted = [...this.originSort].sort((one, two) => one.querySelector('.fixtureName').textContent.localeCompare(two.querySelector('.fixtureName').textContent));    
+    }
+
+    const cl = event.target.getAttribute('class');
+
+    for (const el of this.originSort) el.remove();
+    if (cl === 'default') {
+        event.target.setAttribute('class', 'name');
+        document.querySelector('.fixtures').append(...this.sorted);
+    }
+    else {
+        event.target.setAttribute('class', 'default');
+        document.querySelector('.fixtures').append(...this.originSort);
+    }
 }
 
 /* eslint-enable no-undef */
