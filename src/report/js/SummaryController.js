@@ -30,6 +30,7 @@ function addSummary (elementWithTests, elementToAppend) {
             testStatuses[statusIndex].count++;
     });
     appendSummaryElement(testStatuses, elementToAppend ? elementToAppend : this.document.querySelector('body > .summary'), !elementToAppend);
+    this.document.querySelector('img[id=sort]').onclick = onSortClick;
 }
 
 function addFixtureSummary () {
