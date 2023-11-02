@@ -7,6 +7,7 @@ const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', d
     return currentdate.getDate() + dateSeparator + (currentdate.getMonth() + 1) + dateSeparator + currentdate.getFullYear() + dateTimeSeparator + currentdate.getHours() + timeSeparator + currentdate.getMinutes() + timeSeparator + currentdate.getSeconds();
 };
 
+const warnPrefix = 'WARN --- : ';
 const log = function (message, isStep, isBroken) {
     const ctx = require('testcafe').t.ctx;
     const isReportUsed = __reporters.length && typeof ctx.runId === 'number';
@@ -15,7 +16,7 @@ const log = function (message, isStep, isBroken) {
         if (isReportUsed) {
             __reporters[ctx.runId][isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
 
-            if (isBroken) __reporters[ctx.runId].setTestStatus(ctx.testId, null);
+            if (isBroken) __reporters[ctx.runId].setTestStatus(ctx.testId, null, message.replace(warnPrefix, ''));
         }
     }
     catch (err) {
@@ -47,7 +48,7 @@ class Logger {
     }
 
     static warn (message) {
-        log(`WARN --- : ${message}`, false, true);
+        log(`${warnPrefix}${message}`, false, true);
     }
 }
 

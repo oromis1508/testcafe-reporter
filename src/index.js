@@ -32,6 +32,7 @@ module.exports = function () {
         isScreensAsBase64:  false,
         appendLogs:         false,
         currentFixtureName: '',
+        warnError:          null,
 
         /**
      * @type {{id: number, fixture: string, name: string}[]}
@@ -138,8 +139,16 @@ module.exports = function () {
             return tests.find(test => test.id === id).status;
         },
 
-        setTestStatus (id, status) {
+        setTestStatus (id, status, brokenMessage) {
             if (status === this.testStatuses.failed || this.getTestStatus(id) !== this.testStatuses.broken) {
+                if (status === null) {
+                    try {
+                        throw new Error(brokenMessage);
+                    }
+                    catch (ex) {
+                        this.warnError = ex;
+                    }
+                }
                 this.setTestProperties(id, {
                     name:  this.reportUtil.jsonNames.testStatus,
                     value: status === null ? this.testStatuses.broken : status
@@ -205,7 +214,9 @@ module.exports = function () {
 
                 let errName;
       
-                if (err.errMsg) errName = err.errMsg; else if (err.code) {
+                if (err.errMsg) errName = err.errMsg; 
+                else if (err.message) errName = err.message; 
+                else if (err.code) {
                     const errorsTypes = require('testcafe/lib/errors/types');
                     const errorMsgs = require('testcafe/lib/errors/test-run/templates');
                     const runtimeKey = Object.keys(errorsTypes.RUNTIME_ERRORS).find(key => errorsTypes.RUNTIME_ERRORS[key] === err.code);
@@ -224,14 +235,23 @@ module.exports = function () {
       
                 stackTrace.push([]);
       
-                if (errs[index].callsite) {
-                    stackTrace[index].push(errName);
-      
+                const filterArr = ['node:internal', 'node_modules', 'process._tickCallback', '__awaiter'];
+                const isMessageSuite = (msg) => filterArr.every(f => !msg.includes(f)) && msg.includes(':');
+
+                stackTrace[index].push(errName);
+
+                if (errs[index].stack) {
+                    const stackArr = errs[index].stack.split('\n').slice(1);
+
+                    for (const stackStr of stackArr) 
+                        if (isMessageSuite(stackStr)) stackTrace[index].push(stackStr);
+          
+                }
+                else if (errs[index].callsite) {
                     errs[index].callsite.stackFrames.forEach(stackFrame => {
                         const msg = stackFrame.toString();
-                        const filter = ['node:internal', 'node_modules', 'process._tickCallback', '__awaiter'];
-      
-                        if (filter.every(f => !msg.includes(f)) && msg.includes(':')) stackTrace[index].push(msg);
+
+                        if (isMessageSuite(msg)) stackTrace[index].push(msg);
                     });
       
                     const errorFile = errs[index].callsite.filename + ':' + (errs[index].callsite.lineNum + 1);
@@ -418,13 +438,12 @@ module.exports = function () {
         reportTestDone (name, testRunInfo) {
             try {
                 const errorsCount = testRunInfo.errs.length;
-                const hasErr = !!errorsCount;
+                const hasErr = !!errorsCount || !!this.warnError;
                 const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - errorsCount].screenshotPath : null;
-                const stackTrace = this.getStackTraceAsStringsArray(testRunInfo.errs);
+                const stackTrace = hasErr ? this.getStackTraceAsStringsArray(errorsCount ? testRunInfo.errs : [this.warnError]) : [];
                 const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
 
                 let result = hasErr ? this.testStatuses.failed : this.testStatuses.passed;
-                const chalkColor = this.chalkStyles[result];
                 const testId = this.getId(name);
                 const testAgent = testRunInfo?.browsers?.map(b => b.prettyUserAgent)?.join();
 
@@ -434,10 +453,11 @@ module.exports = function () {
                     var base64screenshot = `data:image/png;base64,${base64}`;
                 }
 
-                if (this.getTestStatus(testId) === this.testStatuses.broken && !hasErr) {
+                if (this.getTestStatus(testId) === this.testStatuses.broken && !errorsCount) {
                     result = this.testStatuses.broken;
                     this.brokenCount++;
                 }
+                const chalkColor = this.chalkStyles[result];
 
                 this.logBorder(`Test ${testId} done`);
                 console.log(`Duration: ${duration}`);
@@ -450,9 +470,12 @@ module.exports = function () {
                 else {
                     let msg = this.chalk[chalkColor](`Test ${result}: ${this.currentFixtureName} - ${name}\n`);
 
-                    for (const error of stackTrace) 
-                        for (let index = 0; index < error.length; index++) msg += this.chalk.rgb(...this.chalkStyles.stackTrace)(' '.repeat(index) + error[index] + '\n');
-          
+                    for (const error of stackTrace) {
+                        for (let index = 0; index < error.length; index++) {
+                            msg += 
+                            (result === this.testStatuses.broken ? this.chalk[this.chalkStyles.broken] : this.chalk.rgb(...this.chalkStyles.stackTrace))(' '.repeat(index) + error[index] + '\n');
+                        }
+                    }
 
                     if (screenPath) msg += this.chalk[this.chalkStyles.screenPath](`Screenshot: ${screenPath}`);
                     console.log(msg);
