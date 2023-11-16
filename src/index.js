@@ -416,6 +416,7 @@ module.exports = function () {
 
         reportTestStart (name) {
             try {
+                this.warnError = null;
                 this.testName = name;
                 this.testStartTime = new Date().valueOf();
                 const time = this.moment(this.testStartTime).format('M/DD/YYYY HH:mm:ss');
