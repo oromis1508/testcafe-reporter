@@ -19,7 +19,6 @@ function screenOnLeave () {
 function errorOnClick (event) {
     const errorBlock = event.target.parentElement;
     const body = document.querySelector('body');
-    const testInfo = document.querySelector('.test-info');
     const errorHeight = errorBlock.getBoundingClientRect().height;
     const isExpanded = errorBlock.classList.contains('error-expanded');
 
@@ -29,7 +28,6 @@ function errorOnClick (event) {
     const errorOffset = errorBlock.getBoundingClientRect().height - errorHeight;
 
     body.style.height = expandedErrorBlock ? `${errorOffset + body.getBoundingClientRect().height}px` : '';
-    testInfo.style.height = expandedErrorBlock ? `${errorOffset + testInfo.getBoundingClientRect().height}px` : '';
 }
 
 function stepOnClick (stepNameElement) {
@@ -39,9 +37,6 @@ function stepOnClick (stepNameElement) {
     else stepBlock.setAttribute('hiddenInfo', '');
 } 
 
-function selectOnSelect (event) {
-    testOnClick(document.querySelector('.test.selected'), +event.target.value);
-}
 
 /* eslint-enable no-undef */
 /* eslint-enable no-unused-vars */

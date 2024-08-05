@@ -1,10 +1,22 @@
 /* eslint-disable no-unused-vars */
 
-function onFixtureClick (element) {
-    const isCurrentFixtureSelected = element.parentElement.classList.contains('selected');
+function onFixtureClick (element, expand, collapse) {
+    const fixtureElement = element.parentElement;
+    const isSelected = fixtureElement.classList.contains('selected');
+    
+    if((isSelected && expand) || (!isSelected && collapse)) return;
 
-    element.parentElement.classList[isCurrentFixtureSelected ? 'remove' : 'add']('selected');
-    if (!isCurrentFixtureSelected) this.setTagsPosition(element.parentElement);
+    if(isSelected) {
+        element.parentElement.classList.remove('selected');
+        removeRunsForFixture(fixtureElement);
+    } else {
+        element.parentElement.classList.add('selected');
+        this.setTagsPosition(element.parentElement);
+        if(isShowDateStats() || isShowTimeStats()) {
+            if (isShowAsTable()) onShowAsSwitch();
+            else addRunsForFixture(fixtureElement, isShowTimeStats(), isShowPassed());
+        }
+    }
 }
 
 function setTagsPosition (fixture) {
@@ -105,51 +117,52 @@ function addTestInfo (testData) {
     this.document.querySelector('#run-info').appendChild(result);    
 }
 
-function clearTestInfo (testInfoElement) {
+function clearTestInfo (notDeleteRuns) {
+    const testInfoElement = this.document.querySelector('.test-info');
+
     this.document.querySelector('body').style.height = '';
     testInfoElement.style.height = '';
     testInfoElement.classList.remove('error-expanded');
     testInfoElement.classList.remove('selected');
 
-    this.document.querySelectorAll('.test.selected').forEach(el => {
-        el.classList.remove('selected');
+    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *, table').forEach(el => {
+        el.remove();
     });
-    this.document.querySelectorAll('div.stepsContent, #screenshot img, #run-info *, #error-info *, select option').forEach(el => {
+
+    if(!notDeleteRuns) this.document.querySelectorAll('runs').forEach(el => {
         el.remove();
     });
 }
 
-function testOnClick (element, indexToShow) {
-    if (!indexToShow && element.classList.contains('selected')) return;
+function testOnClick (element, indexToShow, forceShow) {
+    const isTheSameTest = element.classList.contains('selected');
+    if(typeof indexToShow == "undefined") indexToShow = getSelectedRun(element);
+    if (isTheSameTest && getSelectedRun(element) === indexToShow && !forceShow) return;
+    
+    this.document.querySelectorAll('.test.selected').forEach(el => el.classList.remove('selected'));
+    if(!element.classList.contains('selected')) element.classList.add('selected');
+    
+    if(isShowDateStats() || isShowTimeStats()) return;
 
     const testInfo = this.document.querySelector('.test-info');
-    const status = element.getAttribute('status');
 
-    this.clearTestInfo(testInfo);
-    element.classList.add('selected');
-    if (status === 'skipped') return;
+    this.clearTestInfo(isTheSameTest && !forceShow);
 
     const child = this.document.createElement('div');
     const elementData = this.stepsData.find(data => data.id === element.id);
     const testRuns = this.stepsData.filter(data => data.t === elementData.t && data.f === elementData.f);
     const testData = indexToShow ? testRuns[indexToShow - 1] : elementData;
-    const select = this.document.querySelector('select');
+    const status = testData.status;
 
-    for (let i = 0; i < testRuns.length; i++) {
-        const option = this.document.createElement('option');
+    if(!isTheSameTest || forceShow) this.addTestRuns(element);
 
-        option.textContent = (i + 1).toString();
-        if (!indexToShow && i === 0 || i + 1 === indexToShow) option.selected = true;
-        select.appendChild(option);
-    }
+    this.addTestInfo(testData);
+    if (status === 'skipped') return;
 
-    testData.status = status;
     child.classList.add('stepsContent');
     child.innerHTML = testData.steps;
     testInfo.appendChild(child);
     testInfo.classList.add('selected');
-
-    this.addTestInfo(testData);
 }
 
 function tagOnClick (element) {

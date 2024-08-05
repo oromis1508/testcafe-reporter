@@ -31,6 +31,7 @@ function addSummary (elementWithTests, elementToAppend) {
     });
     appendSummaryElement(testStatuses, elementToAppend ? elementToAppend : this.document.querySelector('body > .summary'), !elementToAppend);
     this.document.querySelector('img[id=sort]').onclick = onSortClick;
+    this.addRadioEvents();
 }
 
 function addFixtureSummary () {
@@ -104,36 +105,47 @@ function filterByTag (element) {
     });
 }
 
-function onSearchButtonMove (event) {
-    if (!document.querySelector('#searchFixtureTooltip')) {
+function addTooltip (id, text, positionX, positionY) {
+    if (!document.querySelector(`#${id}`)) {
         const tooltip = document.createElement('div');
 
-        tooltip.id = 'searchFixtureTooltip';
+        tooltip.id = id;
         document.querySelector('body > .summary').appendChild(tooltip);
     }
-    const tooltip = document.querySelector('#searchFixtureTooltip');
+    const tooltip = document.querySelector(`#${id}`);
 
-    tooltip.textContent = document.querySelector('#searchFixture').getAttribute('enabled') === 'false' ? 'Search by fixture and test' : 'Search only by test';
-    tooltip.style.top = `${event.clientY}px`;
-    tooltip.style.left = `${event.clientX}px`;
+    tooltip.style.position = 'absolute';
+    tooltip.textContent = text;
+    tooltip.style.top = `${positionY}px`;
+    tooltip.style.left = `${positionX}px`;
+
+    const setOpacity = (value) => {
+        if(value <= 1) {
+            tooltip.style.opacity = value;
+            value += 0.1;
+            setTimeout(() => setOpacity(value), 25);
+        }
+    }
+
+    setOpacity(0.1);
 }
 
-function onSearchButtonLeave () {
-    const tooltip = document.querySelector('#searchFixtureTooltip');
-
-    if (tooltip) tooltip.remove();
-}
-
-function onSearchButtonClick (event) {
-    event.target.setAttribute('enabled', event.target.getAttribute('enabled') !== 'true');
-    this.onSearchButtonMove(event);
+function onSearchButtonMove (event) {
+    addTooltip('searchFixtureTooltip', document.querySelector('#searchFixture').getAttribute('enabled') === 'false' ? 'Search by fixture and test' : 'Search only by test', event.clientX, event.clientY)
 }
 
 function addSearchByFixtureListeners () {
     const btnSearchByFixture = document.querySelector('#searchFixture');
     
-    btnSearchByFixture.onclick = onSearchButtonClick;
-    btnSearchByFixture.onmouseleave = onSearchButtonLeave;
+    btnSearchByFixture.onclick = (event) => {
+        event.target.setAttribute('enabled', event.target.getAttribute('enabled') !== 'true');
+        this.onSearchButtonMove(event);
+    };
+    btnSearchByFixture.onmouseleave = () => {
+        const tooltip = document.querySelector('#searchFixtureTooltip');
+    
+        if (tooltip) tooltip.remove();
+    };
     btnSearchByFixture.onmouseenter = onSearchButtonMove;
 }
 
@@ -158,5 +170,68 @@ function onSortClick (event) {
     }
 }
 
+function onRadioSwitch (event, isPassed) {
+    clearTestInfo();
+
+    const showTypeForm = document.querySelector('#runsShowType');
+    const dateField = document.querySelector('#time');
+    const showPassed = document.querySelector('#linePassShow');
+
+    showPassed.style.visibility = 'hidden';
+    if(event.target.id.includes('single')) {
+        const testElement = document.querySelector('.test.selected');
+
+        dateField.style.visibility = 'visible';
+        showTypeForm.style.visibility = 'hidden';
+        if(testElement) testOnClick(testElement, +testElement.getAttribute('selected-run'), true);
+    } else {
+        dateField.style.visibility = 'hidden';
+        showTypeForm.style.visibility = 'visible';
+        
+        if(event.target.id.includes('time')) showPassed.style.visibility = 'visible';
+
+        if (isShowAsTable()) onShowAsSwitch();
+        else document.querySelectorAll('.fixture.selected:not([class*=hidden])').forEach(fix => {
+            addRunsForFixture(fix, event.target.id.includes('time'), isPassed);
+        });
+    }
+}
+
+function addRadioEvents() {
+    document.querySelectorAll('[name=showInfo]').forEach(el => el.onchange = this.onRadioSwitch);
+}
+
+function isShowDateStats() {
+    return document.querySelector("#dateShow").checked;
+}
+
+function isShowTimeStats() {
+    return document.querySelector("#timeShow").checked;
+}
+
+function isShowPassed() {
+    return document.querySelector('#linePassShow').checked;
+}
+
+function onExpandCollapseButtonMove (event) {
+    addTooltip('collexFixtureTooltip', document.querySelector('#expandFixtures').style.transform ? 'Collapse all fixtures' : 'Expand all fixtures', event.clientX, event.clientY)
+}
+
+function addExpandCollapseAllFixturesListeners() {
+    const btnExpandCollapseFixtures = document.querySelector('#expandFixtures');
+        
+    btnExpandCollapseFixtures.onclick = (event) => {
+        document.querySelectorAll('.fixture:not([class*=hidden]) .fixtureName').forEach(fix => onFixtureClick(fix, !event.target.style.transform, event.target.style.transform))
+        event.target.style.transform = event.target.style.transform ? "" : "rotate(180deg)";
+
+        this.onExpandCollapseButtonMove(event);
+    };
+    btnExpandCollapseFixtures.onmouseleave = () => {
+        const tooltip = document.querySelector('#collexFixtureTooltip');
+        
+        if (tooltip) tooltip.remove();
+    };
+    btnExpandCollapseFixtures.onmouseenter = onExpandCollapseButtonMove;
+}
 /* eslint-enable no-undef */
 /* eslint-enable no-unused-vars */

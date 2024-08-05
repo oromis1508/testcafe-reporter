@@ -46,15 +46,17 @@ module.exports = {
     getFormattedDate: function () {
         const month = this.startTime.getMonth() < 9 ? `0${this.startTime.getMonth() + 1}` : this.startTime.getMonth() + 1;
         
-        return `${this.startTime.getDate()}.${month}`;
+        return `${this.startTime.getFullYear()}.${this.startTime.getDate()}.${month}`;
     },
 
     getResultFileName: function () {       
         return console.resultFileName ? console.resultFileName : `${this.getReportPath()}/report_${this.getFormattedDate()}.json`;
     },
 
-    getReportPath: function () {        
-        return console.reportPath ? console.reportPath : `test-results/report_${this.getFormattedDate()}`;
+    testResultsPath: "test-results",
+
+    getReportPath: function () {
+      return console.reportPath ? console.reportPath : `${this.testResultsPath}/report_${this.getFormattedDate()}`;
     },
 
     getOriginalReportPath: function () {
@@ -152,7 +154,9 @@ module.exports = {
 
                     stackTrace: test[this.jsonNames.testStackTrace],
 
-                    time: test[this.jsonNames.testTime]
+                    time: test[this.jsonNames.testTime],
+
+                    status: test[this.jsonNames.testStatus],
                 });
             });
             generatedReport += '</div></div>';
@@ -161,7 +165,7 @@ module.exports = {
         generatedReport += '<div steps style="display: none;">';
         stepsArray.forEach(stepsData => {
             generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixtureId="${stepsData.id}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" time="${stepsData.time}" f="${stepsData.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${stepsData.test.replace(/([\t\n\f />"'=]+)/, '')}">`);
+                `<div fixtureId="${stepsData.id}" status="${stepsData.status}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" time="${stepsData.time}" f="${stepsData.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${stepsData.test.replace(/([\t\n\f />"'=]+)/, '')}">`);
             if (stepsData.stackTrace && stepsData.stackTrace.length)
                 generatedReport += `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
         });

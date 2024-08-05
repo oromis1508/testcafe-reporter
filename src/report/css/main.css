@@ -16,6 +16,10 @@ body {
     height: 100%;
 }
 
+.fixtures:nth-last-child(3) {
+    overflow: hidden;
+}
+
 .fixtureName {
     background-image: radial-gradient(#aaaaff, #5555ff);
     margin: 1%;

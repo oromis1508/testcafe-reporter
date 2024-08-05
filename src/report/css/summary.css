@@ -19,13 +19,13 @@
     background-image: none;
 }
 
-.summary div[class] {
+.summary div[class]:not([class*='tag']) {
     font-size: 1.25vw;
 }
 
-.summary div[class]:hover {
+.summary div[class]:not([class*='tag']):hover {
     cursor: pointer;
-    border: 2px dotted grey;
+    border: 1px dotted grey;
 }
 
 .summary div.filtered:hover {
@@ -103,8 +103,13 @@
 #time {
     position: absolute;
     left: 50vw;
-    top: -1vh;
-    font-size: min(1.5vw, 2vh);
+    top: -0.75vh;
+    font-size: min(1vw, 2.5vh);
+    border: darkgrey 2px solid;
+}
+
+#time span {
+    color: black;
 }
 
 #search {
@@ -116,24 +121,21 @@
     font-style: oblique;
     font-size: 1.5vw;
     color: maroon;
-    padding-right: 1vw;}
+    padding-right: 1vw;
+}
 
 .summary .tag {
-    background-color: #551155;
+    background-color: #3e78ff;
     color: #dbcfc3;
     position: absolute;
-    left: 31vw;
+    left: 31.5vw;
     top: -0.3vh;
+    font-size: 1vw;
 }
 
 .summary .tag.filtered {
     background-color: #dbcfc3;
-    color: #551155;
-}
-
-#searchFixtureTooltip {
-    position: absolute;
-    left: 44vw;
+    color: #3e78ff;
 }
 
 #searchFixture {
@@ -154,4 +156,32 @@
 img#sort {
     position: absolute;
     left: 0;
+}
+
+fieldset {
+    position: fixed;
+    top: 0vh;
+    right: 0vw;
+    padding: 0;
+    border: none;
+}
+
+legend {
+    float: left;
+}
+
+#expandFixtures {
+    position: absolute;
+    left: 30.3vw;
+    width: 1vw;
+    background-color: #3e78ff;
+    border-radius: 4vw;
+    padding: 0.24vw;
+    top: 0.4vh;
+}
+
+.summary .tag:hover, .summary #expandFixtures:hover {
+    cursor: pointer;
+    border: none;
+    opacity: 0.7;
 }

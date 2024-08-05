@@ -380,7 +380,7 @@ module.exports = function () {
 
         reportTaskStart (startTime, userAgents, testsCount) {
             try {
-                const time = this.moment(startTime).format('YYYY-MM-DDTHH:mm:ss');
+                const time = this.moment(startTime).format('YYYY/MM/DD HH:mm:ss');
 
                 this.reportUtil.startTime = new Date(startTime);
                 require('./Logger').__reporters.push(this);
@@ -502,18 +502,27 @@ module.exports = function () {
                 const path = require('path');
                 const reportPath = `${this.reportUtil.getReportPath()}/${fileName}`;
 
-                let summary = this.chalk[this.chalkStyles.passed](`${passed - this.brokenCount}/${this.testsCount} ${this.testStatuses.passed}`);
+                passed -= this.brokenCount;
 
-                if (passed !== this.testsCount) 
-                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount ? this.brokenCount : 0} ${this.testStatuses.broken}`) + ', ' + this.chalk[this.chalkStyles.failed](`${this.testsCount - passed - this.skippedCount}/${this.testsCount} ${this.testStatuses.failed}`) + ', ' + this.chalk[this.chalkStyles.skipped](`${this.skippedCount ? this.skippedCount : 0} ${this.testStatuses.skipped}`);
-        
+                let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
+
+                if (this.brokenCount) 
+                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount}/${this.testsCount} ${this.testStatuses.broken}`) 
+                    
+                const failedCount = this.testsCount - passed - this.skippedCount - this.brokenCount;
+
+                if (failedCount)
+                    summary +=  ', ' + this.chalk[this.chalkStyles.failed](`${failedCount}/${this.testsCount} ${this.testStatuses.failed}`)
+                    
+                if (this.skippedCount) 
+                    summary +=  ', ' + this.chalk[this.chalkStyles.skipped](`${this.skippedCount}/${this.testsCount} ${this.testStatuses.skipped}`);
 
                 this.logBorder('Task done');
                 console.log(`Test run${this.getTestRunId()} finished: ${time}`);
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
                 if (this.logWarnings && warnings.length) console.log(warnings);
-                if (this.appendLogs) require('child_process').execSync(`npx acd-html-combine ${path.dirname(this.getResultFileName())} --dest ${reportPath}`);
+                if (this.appendLogs) require('child_process').execSync(`npx acd-html-combine ${this.reportUtil.testResultsPath} --dest ${reportPath} --last ${this.getResultFileName()}`);
                 else if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
                 console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
             }

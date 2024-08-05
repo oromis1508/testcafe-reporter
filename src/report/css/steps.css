@@ -63,7 +63,7 @@
 
 #run-info {
   position: absolute;
-  bottom: 57vh;
+  bottom: 76vh;
   left: 4vw;
   font-size: min(2.3vh, 1.25vw);
   font-family: cursive;
@@ -71,13 +71,13 @@
 }
 
 #run-info:nth-child(1) {
-  bottom: 70vh;
+  bottom: 69vh;
   font-size: min(4.5vh, 2vw);
 }
 
 #error-info {
   position: inherit;
-  top: 6vh;
+  top: 14vh;
   margin: 3.5vh 6.5vw 0;
   width: 35vw;
 }
@@ -183,13 +183,6 @@
 }
 .error-expanded .stack-line:nth-of-type(15) {
   padding-left: 15vw;
-}
-
-select {
-  position: absolute;
-  right: 3vw;
-  top: 0.5vw;
-  font-size: min(2vw, 6vh);
 }
 
 #run-info span.passed {

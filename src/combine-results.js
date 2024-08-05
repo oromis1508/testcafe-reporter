@@ -5,17 +5,18 @@ const fs = require('fs');
 const path = require('path');
 const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
+const last = args.last;
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
 
 function parseFilesAndGenerateReport (files) {
-    const json = { startTime: new Date().toString(), fixtures: [] };
+    const json = { startTime: new Date("1999/01/01").toString(), fixtures: [] };
 
     for (const file of files) {
         const content = JSON.parse(fs.readFileSync(file).toLocaleString());
 
-        if (new Date(content.startTime) < new Date(json.startTime)) 
+        if (new Date(content.startTime) > new Date(json.startTime)) 
             json.startTime = content.startTime;
         
         const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
@@ -33,6 +34,17 @@ function parseFilesAndGenerateReport (files) {
                 json.fixtures.push(fixture);
         }
     }
+
+    if (typeof last === 'string') {
+        const lastRunFixtures = JSON.parse(fs.readFileSync(last).toLocaleString()).fixtures;
+
+        json.fixtures = json.fixtures.filter(f => lastRunFixtures.find(lastF => f.name == lastF.name));
+
+        for(const f of json.fixtures) {
+            f.tests = f.tests.filter(t => lastRunFixtures.find(lastF => f.name == lastF.name).tests.find(lastT => lastT.name == t.name));
+        }
+    }
+
     const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));
 
     console.log(resultHtml);

@@ -23,6 +23,8 @@ function onLoad () {
                 t: el.getAttribute('t'),
 
                 f: el.getAttribute('f'),
+
+                status: el.getAttribute('status'),
             });
         });
         
@@ -38,11 +40,13 @@ function onLoad () {
                 }
             }
         }
+        stepsData.sort((data1, data2) => new Date(data2.time).valueOf() - new Date(data1.time).valueOf());
     }
     this.addSummary();
     this.addFixtureSummary();
     this.addSearchByFixtureListeners();
-    this.document.querySelector('select').onchange = this.selectOnSelect;
+    this.addExpandCollapseAllFixturesListeners();
+    this.addShowAsListeners();
 }
 
 /* eslint-enable no-unused-vars */
