@@ -120,18 +120,18 @@ function addTooltip (id, text, positionX, positionY) {
     tooltip.style.left = `${positionX}px`;
 
     const setOpacity = (value) => {
-        if(value <= 1) {
+        if (value <= 1) {
             tooltip.style.opacity = value;
             value += 0.1;
             setTimeout(() => setOpacity(value), 25);
         }
-    }
+    };
 
     setOpacity(0.1);
 }
 
 function onSearchButtonMove (event) {
-    addTooltip('searchFixtureTooltip', document.querySelector('#searchFixture').getAttribute('enabled') === 'false' ? 'Search by fixture and test' : 'Search only by test', event.clientX, event.clientY)
+    addTooltip('searchFixtureTooltip', document.querySelector('#searchFixture').getAttribute('enabled') === 'false' ? 'Search by fixture and test' : 'Search only by test', event.clientX, event.clientY);
 }
 
 function addSearchByFixtureListeners () {
@@ -175,54 +175,59 @@ function onRadioSwitch (event, isPassed) {
 
     const showTypeForm = document.querySelector('#runsShowType');
     const dateField = document.querySelector('#time');
-    const showPassed = document.querySelector('#linePassShow');
+    const showPassed = document.querySelector('#linePassShow').parentElement;
 
     showPassed.style.visibility = 'hidden';
-    if(event.target.id.includes('single')) {
+    if (event.target.id.includes('single')) {
         const testElement = document.querySelector('.test.selected');
 
         dateField.style.visibility = 'visible';
         showTypeForm.style.visibility = 'hidden';
-        if(testElement) testOnClick(testElement, +testElement.getAttribute('selected-run'), true);
-    } else {
+        if (testElement) testOnClick(testElement, +testElement.getAttribute('selected-run'), true);
+    }
+    else {
         dateField.style.visibility = 'hidden';
         showTypeForm.style.visibility = 'visible';
         
-        if(event.target.id.includes('time')) showPassed.style.visibility = 'visible';
+        if (event.target.id.includes('time')) showPassed.style.visibility = 'visible';
 
         if (isShowAsTable()) onShowAsSwitch();
-        else document.querySelectorAll('.fixture.selected:not([class*=hidden])').forEach(fix => {
-            addRunsForFixture(fix, event.target.id.includes('time'), isPassed);
-        });
+        else {
+            document.querySelectorAll('.fixture.selected:not([class*=hidden])').forEach(fix => {
+                addRunsForFixture(fix, event.target.id.includes('time'), isPassed);
+            });
+        }
     }
 }
 
-function addRadioEvents() {
-    document.querySelectorAll('[name=showInfo]').forEach(el => el.onchange = this.onRadioSwitch);
+function addRadioEvents () {
+    document.querySelectorAll('[name=showInfo]').forEach(el => {
+        el.onchange = this.onRadioSwitch;
+    });
 }
 
-function isShowDateStats() {
-    return document.querySelector("#dateShow").checked;
+function isShowDateStats () {
+    return document.querySelector('#dateShow').checked;
 }
 
-function isShowTimeStats() {
-    return document.querySelector("#timeShow").checked;
+function isShowTimeStats () {
+    return document.querySelector('#timeShow').checked;
 }
 
-function isShowPassed() {
+function isShowPassed () {
     return document.querySelector('#linePassShow').checked;
 }
 
 function onExpandCollapseButtonMove (event) {
-    addTooltip('collexFixtureTooltip', document.querySelector('#expandFixtures').style.transform ? 'Collapse all fixtures' : 'Expand all fixtures', event.clientX, event.clientY)
+    addTooltip('collexFixtureTooltip', document.querySelector('#expandFixtures').style.transform ? 'Collapse all fixtures' : 'Expand all fixtures', event.clientX, event.clientY);
 }
 
-function addExpandCollapseAllFixturesListeners() {
+function addExpandCollapseAllFixturesListeners () {
     const btnExpandCollapseFixtures = document.querySelector('#expandFixtures');
         
     btnExpandCollapseFixtures.onclick = (event) => {
-        document.querySelectorAll('.fixture:not([class*=hidden]) .fixtureName').forEach(fix => onFixtureClick(fix, !event.target.style.transform, event.target.style.transform))
-        event.target.style.transform = event.target.style.transform ? "" : "rotate(180deg)";
+        document.querySelectorAll('.fixture:not([class*=hidden]) .fixtureName').forEach(fix => onFixtureClick(fix, !event.target.style.transform, event.target.style.transform));
+        event.target.style.transform = event.target.style.transform ? '' : 'rotate(180deg)';
 
         this.onExpandCollapseButtonMove(event);
     };

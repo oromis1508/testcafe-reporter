@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars, no-undef */
 
 function screenOnHover () {
     document.querySelector('#screenshot img').classList.add('increased');
@@ -37,6 +36,4 @@ function stepOnClick (stepNameElement) {
     else stepBlock.setAttribute('hiddenInfo', '');
 } 
 
-
-/* eslint-enable no-undef */
-/* eslint-enable no-unused-vars */
+/* eslint-enable no-unused-vars, no-undef */

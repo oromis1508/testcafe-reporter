@@ -11,7 +11,7 @@ if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
 
 function parseFilesAndGenerateReport (files) {
-    const json = { startTime: new Date("1999/01/01").toString(), fixtures: [] };
+    const json = { startTime: new Date('1999/01/01').toString(), fixtures: [] };
 
     for (const file of files) {
         const content = JSON.parse(fs.readFileSync(file).toLocaleString());
@@ -38,11 +38,11 @@ function parseFilesAndGenerateReport (files) {
     if (typeof last === 'string') {
         const lastRunFixtures = JSON.parse(fs.readFileSync(last).toLocaleString()).fixtures;
 
-        json.fixtures = json.fixtures.filter(f => lastRunFixtures.find(lastF => f.name == lastF.name));
+        json.fixtures = json.fixtures.filter(f => lastRunFixtures.find(lastF => f.name === lastF.name));
 
-        for(const f of json.fixtures) {
-            f.tests = f.tests.filter(t => lastRunFixtures.find(lastF => f.name == lastF.name).tests.find(lastT => lastT.name == t.name));
-        }
+        for (const f of json.fixtures) 
+            f.tests = f.tests.filter(t => lastRunFixtures.find(lastF => f.name === lastF.name).tests.find(lastT => lastT.name === t.name));
+        
     }
 
     const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));

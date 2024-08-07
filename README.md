@@ -4,10 +4,16 @@
 This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
 <p align="center">
-    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/preview.png" alt="Reporter view" />
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Main.png" alt="Main view" />
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Date.png" alt="Date view" />
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Time.png" alt="Time view" />
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Passtime.png" alt="Passtime view" />
 </p>
 
 ## About
+### New in 1.5:
+#### Added statistics about previous tests runs.
+
 ### New in 1.4:
 #### Added correct error messages for hooks (before, after, etc).
 #### Impoved errors text for all cases (added base TestCafe messages).

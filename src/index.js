@@ -507,12 +507,12 @@ module.exports = function () {
                 let summary = this.chalk[this.chalkStyles.passed](`${passed}/${this.testsCount} ${this.testStatuses.passed}`);
 
                 if (this.brokenCount) 
-                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount}/${this.testsCount} ${this.testStatuses.broken}`) 
+                    summary += ', ' + this.chalk[this.chalkStyles.broken](`${this.brokenCount}/${this.testsCount} ${this.testStatuses.broken}`); 
                     
                 const failedCount = this.testsCount - passed - this.skippedCount - this.brokenCount;
 
                 if (failedCount)
-                    summary +=  ', ' + this.chalk[this.chalkStyles.failed](`${failedCount}/${this.testsCount} ${this.testStatuses.failed}`)
+                    summary +=  ', ' + this.chalk[this.chalkStyles.failed](`${failedCount}/${this.testsCount} ${this.testStatuses.failed}`);
                     
                 if (this.skippedCount) 
                     summary +=  ', ' + this.chalk[this.chalkStyles.skipped](`${this.skippedCount}/${this.testsCount} ${this.testStatuses.skipped}`);

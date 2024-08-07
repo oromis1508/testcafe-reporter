@@ -153,19 +153,46 @@ const runningTests = new Proxy(_runningTests, {
         return value;
     }
 });`;
-const oldVersions = [testInfoObj, testInfoObjReplaced, v137Replaced, v138Replaced, v139Replaced, v1312Replaced, v1313Replaced];
+const oldVersions = [
+    testInfoObj,
+    testInfoObjReplaced,
+    v137Replaced,
+    v138Replaced,
+    v139Replaced,
+    v1312Replaced,
+    v1313Replaced,
+];
 
-if (oldVersions.some(v => testsContent.includes(v))) 
-    fs.writeFileSync(testsFile, oldVersions.reduce((val, ver) => val.replace(ver, v1314Replaced), testsContent));
-
+if (oldVersions.some((v) => testsContent.includes(v))) {
+    fs.writeFileSync(
+        testsFile,
+        oldVersions.reduce(
+            (val, ver) => val.replace(ver, v1314Replaced),
+            testsContent
+        )
+    );
+}
 
 const concurencyBlockFile = 'node_modules/testcafe/lib/runner/browser-job.js';
 const concurencyContent = fs.readFileSync(concurencyBlockFile).toLocaleString();
-const concurencyBlockStr = 'isBlocked || (hasIncompleteTestRuns || needWaitLastTestInFixture) && !isConcurrency';
-const concurencyBlockReplace = 'isBlocked || (hasIncompleteTestRuns && needWaitLastTestInFixture)';
+const concurencyBlockStr =
+    'isBlocked || (hasIncompleteTestRuns || needWaitLastTestInFixture) && !isConcurrency';
+const concurencyBlockReplace =
+    'isBlocked || (hasIncompleteTestRuns && needWaitLastTestInFixture)';
 
-const featureCheckText = 'this._reportsPending.some(controller => controller.test.fixture !== testRunController.test.fixture)';
-const featureCheckReplace = 'this._reportsPending.some(controller => controller.test.fixture.name !== testRunController.test.fixture.name)';
+const featureCheckText =
+    'this._reportsPending.some(controller => controller.test.fixture !== testRunController.test.fixture)';
+const featureCheckReplace =
+    'this._reportsPending.some(controller => controller.test.fixture.name !== testRunController.test.fixture.name)';
 
-if (concurencyContent.includes(concurencyBlockStr) || concurencyContent.includes(featureCheckText)) 
-    fs.writeFileSync(concurencyBlockFile, concurencyContent.replace(concurencyBlockStr, concurencyBlockReplace).replace(featureCheckText, featureCheckReplace));
+if (
+    concurencyContent.includes(concurencyBlockStr) ||
+    concurencyContent.includes(featureCheckText)
+) {
+    fs.writeFileSync(
+        concurencyBlockFile,
+        concurencyContent
+            .replace(concurencyBlockStr, concurencyBlockReplace)
+            .replace(featureCheckText, featureCheckReplace)
+    );
+}

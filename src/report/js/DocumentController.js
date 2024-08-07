@@ -4,7 +4,7 @@ var stepsData = [];
 
 function onLoad () {
     if (stepsData.length === 0) {
-        this.document.querySelectorAll('div[fixtureId]').forEach(el => {
+        this.document.querySelectorAll('div[fixtureId]').forEach((el) => {
             stepsData.push({
                 id: el.getAttribute('fixtureId'),
 
@@ -27,31 +27,39 @@ function onLoad () {
                 status: el.getAttribute('status'),
             });
         });
-        
+
         for (let index = 0; index < stepsData.length; index++) {
-            const stackTraceElement = this.document.querySelector(`div[traceId='${stepsData[index].id}']`);
-            
+            const stackTraceElement = this.document.querySelector(
+                `div[traceId='${stepsData[index].id}']`
+            );
+
             if (stackTraceElement) {
                 try {
-                    stepsData[index].stackTrace = JSON.parse(stackTraceElement.textContent);
+                    stepsData[index].stackTrace = JSON.parse(
+                        stackTraceElement.textContent
+                    );
                 }
                 catch (e) {
-                    console.log(`Error of parsing ${stackTraceElement.textContent} as JSON`);
+                    console.log(
+                        `Error of parsing ${stackTraceElement.textContent} as JSON`
+                    );
                 }
             }
         }
-        stepsData.sort((data1, data2) => new Date(data2.time).valueOf() - new Date(data1.time).valueOf());
+        stepsData.sort(
+            (data1, data2) =>
+                new Date(data2.time).valueOf() - new Date(data1.time).valueOf()
+        );
     }
     this.addSummary();
     this.addFixtureSummary();
     this.addSearchByFixtureListeners();
     this.addExpandCollapseAllFixturesListeners();
     this.addShowAsListeners();
+    this.addTreeScrollListener();
 }
 
 /* eslint-enable no-unused-vars */
 
-if (this.window.onload) 
-    this.window.onload += onLoad;
-else
-    this.window.onload = onLoad;
+if (this.window.onload) this.window.onload += onLoad;
+else this.window.onload = onLoad;

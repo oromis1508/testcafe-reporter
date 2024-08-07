@@ -53,10 +53,10 @@ module.exports = {
         return console.resultFileName ? console.resultFileName : `${this.getReportPath()}/report_${this.getFormattedDate()}.json`;
     },
 
-    testResultsPath: "test-results",
+    testResultsPath: 'test-results',
 
     getReportPath: function () {
-      return console.reportPath ? console.reportPath : `${this.testResultsPath}/report_${this.getFormattedDate()}`;
+        return console.reportPath ? console.reportPath : `${this.testResultsPath}/report_${this.getFormattedDate()}`;
     },
 
     getOriginalReportPath: function () {
