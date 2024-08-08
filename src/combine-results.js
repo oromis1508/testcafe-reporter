@@ -6,9 +6,20 @@ const path = require('path');
 const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
 const last = args.last;
+const thread = args.threadId;
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
+function getFilteredTests (fileFilterBy, fixtures) {
+    const filterByFixtures = JSON.parse(fs.readFileSync(fileFilterBy).toLocaleString()).fixtures;
+
+    const filter = JSON.parse(JSON.stringify(fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name))));
+
+    for (const f of filter) 
+        f.tests = f.tests.filter(t => filterByFixtures.find(fbf => f.name === fbf.name).tests.find(fbf => fbf.name === t.name));    
+
+    return filter;
+}
 
 function parseFilesAndGenerateReport (files) {
     const json = { startTime: new Date('1999/01/01').toString(), fixtures: [] };
@@ -43,12 +54,34 @@ function parseFilesAndGenerateReport (files) {
     }
 
     if (typeof last === 'string') {
-        const lastRunFixtures = JSON.parse(fs.readFileSync(last).toLocaleString()).fixtures;
+        /**
+         * @type Array
+         */
+        let filteredFixtures;
 
-        json.fixtures = json.fixtures.filter(f => lastRunFixtures.find(lastF => f.name === lastF.name));
+        if (thread) {
+            for (const file of fs.readdirSync(path.dirname(last))) {
+                if (file.endsWith('t.json')) {
+                    if (!filteredFixtures) filteredFixtures = getFilteredTests(file, json.fixtures);
+                    else {
+                        const newFilter = getFilteredTests(file, json.fixtures);
 
-        for (const f of json.fixtures) 
-            f.tests = f.tests.filter(t => lastRunFixtures.find(lastF => f.name === lastF.name).tests.find(lastT => lastT.name === t.name));
+                        for (const newFix of newFilter) {
+                            const fix = filteredFixtures.find(f => f.name === newFix.name);
+
+                            if (fix) {
+                                for (const newTst of newFix.tests) 
+                                    if (!fix.tests.find(t => t.name === newTst.name)) fix.tests.push(newTst);
+                            }
+                            else filteredFixtures.push(newFix);
+                        }
+                    }
+                }
+            }
+            json.fixtures = filteredFixtures;
+        }
+        else 
+            json.fixtures = getFilteredTests(last, json.fixtures);
         
     }
 

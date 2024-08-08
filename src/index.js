@@ -31,6 +31,7 @@ module.exports = function () {
         isSaveAsFile:       false,
         isScreensAsBase64:  false,
         appendLogs:         false,
+        threadArg:          false,
         currentFixtureName: '',
         warnError:          null,
 
@@ -43,7 +44,7 @@ module.exports = function () {
 
         getResultFileName () {
             const fileName = this.reportUtil.getResultFileName();
-            const getNewName = () => fileName.replace('.json', `_${this.testRunId}.json`);
+            const getNewName = () => fileName.replace('.json', `_${this.testRunId}${this.appendLogs && this.threadArg ? 't' : ''}.json`);
 
             if (!this.appendLogs) return fileName;
             if (this.testRunId === Infinity) {
@@ -295,6 +296,7 @@ module.exports = function () {
             const reportFileArg = args.reportFile ? args.reportFile : true;
             const base64screens = args.base64screens;
 
+            this.threadArg = args.threadId;
             this.appendLogs = args.appendLogs;
             this.logWarnings = args.logWarnings;
             if (base64screens) this.isScreensAsBase64 = true;

@@ -11,6 +11,11 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 1.5.*:
+#### Some fixes & impovements.
+#### Tests in the report are only tests from the last run.
+#### <a href="#someJ">If to need to show tests from different jsons</a>
+
 ### New in 1.5:
 #### Added statistics about previous tests runs.
 
@@ -27,6 +32,11 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 #### Added argument --logWarnings. If used, warnings will be logged to console after test run.
 
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
+
+### show tests from some jsons
+<p id="someJ">
+Use argument threadId with or without value and <a href="#appendLogs">--appendLogs</a>
+</p>
 
 ### concurrency
 <p id="concurrency">

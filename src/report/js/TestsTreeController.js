@@ -116,7 +116,10 @@ function addTestInfo (testData) {
     const el = this.document.querySelector('#error-info');
 
     if (el) el.remove();
-    if (testData.stackTrace) this.addStackTrace(testData.stackTrace);
+
+    const trace = testData.stackTrace();
+
+    if (trace) this.addStackTrace(trace);
 
     const duration = this.document.createElement('div');
     const userAgent = this.document.createElement('div');

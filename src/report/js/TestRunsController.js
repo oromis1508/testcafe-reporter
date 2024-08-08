@@ -29,7 +29,7 @@ function addTestRuns (testElement, isDuration, notClickable, isShowPassed) {
 
     if (isShowPassed) {
         testRuns = testRuns.filter(r => r.status === 'passed');
-        minTime = Math.min(...testRuns.map(r => r.runtime));
+        minTime = Math.min(...testRuns.map(r => r.runtime).filter(r => r));
     }
 
     for (let i = 1; i <= testRuns.length; i++) {
