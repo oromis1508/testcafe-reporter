@@ -2,6 +2,15 @@ var stepsData = [];
 
 /* eslint-disable no-unused-vars */
 
+function getRunTimeSeconds (durationMs) {
+    const time = /((\d+)h )?((\d+)m )?(\d+)s/.exec(durationMs);
+
+    if (!time) return 0;
+    const minutes = time[4] ?? 0 * 60;
+
+    return time[2] ?? 0 * 3600 + minutes + +time[5];
+}
+
 function onLoad () {
     if (stepsData.length === 0) {
         this.document.querySelectorAll('div[fixtureId]').forEach((el) => {
@@ -25,6 +34,8 @@ function onLoad () {
                 f: el.getAttribute('f'),
 
                 status: el.getAttribute('status'),
+
+                runtime: getRunTimeSeconds(el.getAttribute('durationMs'))
             });
         });
 
@@ -57,6 +68,7 @@ function onLoad () {
     this.addExpandCollapseAllFixturesListeners();
     this.addShowAsListeners();
     this.addTreeScrollListener();
+    this.addSingleModeListeners();
 }
 
 /* eslint-enable no-unused-vars */

@@ -10,7 +10,7 @@ function addTestRuns (testElement, isDuration, notClickable, isShowPassed) {
     const selectedRun = getSelectedRun(testElement);
     const fixturesRight = document.querySelector('.fixtures').getBoundingClientRect().right;
 
-    const testRuns = this.stepsData.filter(data => data.t === elementData.t && data.f === elementData.f);
+    let testRuns = this.stepsData.filter(data => data.t === elementData.t && data.f === elementData.f);
 
     runsBlock.id = testElement.id;
 
@@ -25,26 +25,15 @@ function addTestRuns (testElement, isDuration, notClickable, isShowPassed) {
         }
     });
 
-    let runsTimeData = testRuns.map(r => {
-        const time = /((\d+)h )?((\d+)m )?(\d+)s/.exec(r.durationMs);
-
-        return {
-            durationMs:  r.durationMs,
-            durationSec: time[2] ?? 0 * 3600 + time[4] ?? 0 * 60 + time[5],
-            time:        r.time,
-            status:      r.status
-        };
-    });
-
     let minTime = 0; 
 
     if (isShowPassed) {
-        runsTimeData = runsTimeData.filter(r => r.status === 'passed');
-        minTime = Math.min(...runsTimeData.map(r => r.durationSec));
+        testRuns = testRuns.filter(r => r.status === 'passed');
+        minTime = Math.min(...testRuns.map(r => r.runtime));
     }
 
-    for (let i = 1; i <= runsTimeData.length; i++) {
-        const runData = runsTimeData[i - 1];
+    for (let i = 1; i <= testRuns.length; i++) {
+        const runData = testRuns[i - 1];
         const runStatus = runData.status;
 
         const run = document.createElement('button');
@@ -53,7 +42,7 @@ function addTestRuns (testElement, isDuration, notClickable, isShowPassed) {
 
         if (!isShowPassed) run.classList.add(runStatus);
         else {
-            const overtimePercent = Math.min(Math.floor(100 * (runData.durationSec - minTime) / minTime), 100);
+            const overtimePercent = Math.min(Math.floor(100 * (runData.runtime - minTime) / minTime), 100);
             const red = Math.floor(2.55 * overtimePercent);
 
             run.style.backgroundColor = `rgb(${red}, ${255 - red}, 0)`;
