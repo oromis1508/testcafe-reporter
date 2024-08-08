@@ -20,9 +20,17 @@ function onLoad () {
             stepsData.push({
                 id: el.getAttribute('fixtureId'),
 
-                steps: el.outerHTML,
+                steps: function () {
+                    return document.querySelector(
+                        `div[fixtureId='${this.id}']`
+                    ).outerHTML; 
+                },
 
-                screenshot: el.getAttribute('screenshot'),
+                screenshot: function () {
+                    return document.querySelector(
+                        `div[fixtureId='${this.id}']`
+                    ).getAttribute('screenshot'); 
+                },
 
                 durationMs: el.getAttribute('durationMs'),
 

@@ -103,10 +103,12 @@ function setErrorFont () {
 }
 
 function addTestInfo (testData) {
-    if (testData.screenshot) {
+    const screenshot = testData.screenshot();
+
+    if (screenshot) {
         const screen = this.document.createElement('img');
 
-        screen.src = testData.screenshot;
+        screen.src = screenshot;
         screen.onclick = this.screenOnClick;
         screen.onmouseover = this.screenOnHover;
         screen.onmouseleave = this.screenOnLeave;
@@ -194,7 +196,7 @@ function testOnClick (element, indexToShow, forceShow) {
     if (status === 'skipped') return;
 
     child.classList.add('stepsContent');
-    child.innerHTML = testData.steps;
+    child.innerHTML = testData.steps();
     testInfo.appendChild(child);
     testInfo.classList.add('selected');
 }
