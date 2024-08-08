@@ -14,7 +14,14 @@ function parseFilesAndGenerateReport (files) {
     const json = { startTime: new Date('1999/01/01').toString(), fixtures: [] };
 
     for (const file of files) {
-        const content = JSON.parse(fs.readFileSync(file).toLocaleString());
+        let content;
+
+        try {
+            content = JSON.parse(fs.readFileSync(file).toLocaleString());
+        }
+        catch {
+            continue;
+        }
 
         if (new Date(content.startTime) > new Date(json.startTime)) 
             json.startTime = content.startTime;
