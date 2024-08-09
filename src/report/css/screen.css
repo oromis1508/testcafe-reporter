@@ -22,9 +22,9 @@
 }
 
 #screenshot img.increased {
-    width: 80vw;
+    width: 77%;
     bottom: 1vh;
-    height: auto;
+    height: 100%;
     left: 10vw;
     z-index: 1;
     position: fixed;

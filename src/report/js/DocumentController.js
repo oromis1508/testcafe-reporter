@@ -56,7 +56,7 @@ function onLoad () {
 
                 if (stackTraceElement) {
                     try {
-                        JSON.parse(
+                        return JSON.parse(
                             stackTraceElement.textContent.replace(/\n/g, '').replace(/\\/g, '\\\\').replace(/="(.*?)"/g, '=\\"$1\\"')
                         );        
                     }
@@ -64,8 +64,9 @@ function onLoad () {
                         console.log(
                             `Error of parsing ${stackTraceElement.textContent} as JSON`
                         );
-                    }            
+                    }
                 }
+                return [];
             };
         });
 
@@ -80,7 +81,7 @@ function onLoad () {
     this.addExpandCollapseAllFixturesListeners();
     this.addShowAsListeners();
     this.addTreeScrollListener();
-    this.addSingleModeListeners();
+    //this.addSingleModeListeners();
 }
 
 /* eslint-enable no-unused-vars, no-undef */

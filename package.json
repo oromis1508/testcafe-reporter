@@ -1,12 +1,11 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "v1.5.4",
+  "version": "v1.5.5",
   "description": "HTML TestCafe reporter plugin",
   "repository": "https://github.com/oromis1508/testcafe-reporter",
   "author": {
     "name": "Alex Chernik",
-    "email": "alex.chernik.upwork@gmail.com",
-    "url": "https://www.upwork.com/o/profiles/users/~0184dd6e81b7e5f37b/"
+    "email": "aleks.4ernik.91@gmail.com"
   },
   "main": "lib/index",
   "files": [

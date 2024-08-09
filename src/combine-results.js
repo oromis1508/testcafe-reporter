@@ -6,7 +6,7 @@ const path = require('path');
 const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
 const last = args.last;
-const thread = args.threadId;
+const single = args.single;
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
@@ -59,13 +59,15 @@ function parseFilesAndGenerateReport (files) {
          */
         let filteredFixtures;
 
-        if (thread) {
-            for (const file of fs.readdirSync(path.dirname(last))) {
-                if (file.endsWith('t.json')) {
-                    if (!filteredFixtures) filteredFixtures = getFilteredTests(file, json.fixtures);
-                    else {
-                        const newFilter = getFilteredTests(file, json.fixtures);
+        if (!single) {
+            const dirPath = path.dirname(last);
 
+            for (let file of fs.readdirSync(dirPath)) {
+                if (file.endsWith('t.json')) {
+                    file = path.resolve(dirPath, file);
+                    if (!filteredFixtures) filteredFixtures = getFilteredTests(file, json.fixtures); else {
+                        const newFilter = getFilteredTests(file, json.fixtures);
+      
                         for (const newFix of newFilter) {
                             const fix = filteredFixtures.find(f => f.name === newFix.name);
 

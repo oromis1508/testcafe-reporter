@@ -16,7 +16,7 @@ function screenOnLeave () {
 }
 
 function errorOnClick (event) {
-    const errorBlock = event.target.parentElement;
+    const errorBlock = event.target.classList.contains('error') ? event.target : event.target.parentElement;
     const body = document.querySelector('body');
     const errorHeight = errorBlock.getBoundingClientRect().height;
     const isExpanded = errorBlock.classList.contains('error-expanded');

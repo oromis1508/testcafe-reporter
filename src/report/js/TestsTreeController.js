@@ -55,7 +55,7 @@ function addStackTrace (stackTrace) {
         errorBlock.classList.add('error');
         errorName.classList.add('error-name');
         errorName.innerHTML = error[0].replace(/\n/g, '<br>');
-        errorName.onclick = this.errorOnClick;
+        errorBlock.onclick = this.errorOnClick;
         errorBlock.appendChild(errorName);
 
         for (let index = 1; index < error.length; index++) {

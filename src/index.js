@@ -28,10 +28,8 @@ module.exports = function () {
         userAgent:          '',
         skippedCount:       0,
         brokenCount:        0,
-        isSaveAsFile:       false,
         isScreensAsBase64:  false,
         appendLogs:         false,
-        threadArg:          false,
         currentFixtureName: '',
         warnError:          null,
 
@@ -44,7 +42,7 @@ module.exports = function () {
 
         getResultFileName () {
             const fileName = this.reportUtil.getResultFileName();
-            const getNewName = () => fileName.replace('.json', `_${this.testRunId}${this.appendLogs && this.threadArg ? 't' : ''}.json`);
+            const getNewName = () => fileName.replace('.json', `_${this.testRunId}${this.appendLogs ? 't' : ''}.json`);
 
             if (!this.appendLogs) return fileName;
             if (this.testRunId === Infinity) {
@@ -292,26 +290,14 @@ module.exports = function () {
 
         parseStartArguments () {
             const args = this.getStartArgObject();
-            const reportPathArg = args.reportPath;
-            const reportFileArg = args.reportFile ? args.reportFile : true;
+            const reportFileArg = args.reportFile ? args.reportFile : '';
             const base64screens = args.base64screens;
 
-            this.threadArg = args.threadId;
             this.appendLogs = args.appendLogs;
             this.logWarnings = args.logWarnings;
             if (base64screens) this.isScreensAsBase64 = true;
 
-            if (reportPathArg) {
-                if (this.fs.existsSync(reportPathArg) && this.fs.statSync(reportPathArg).isFile()) {
-                    console.log(this.chalk.red(`Report warning: ${reportPathArg} - is file! The report will be generated in the base directory.`));
-                    return;
-                }
-
-                console.resultFileName = `${reportPathArg}.json`;
-                console.reportPath = reportPathArg;
-            }
-            else if (reportFileArg) {
-                this.isSaveAsFile = true;
+            if (reportFileArg) {
                 if (typeof reportFileArg !== 'string') return;
                 let reportPath = reportFileArg;
 
@@ -442,7 +428,7 @@ module.exports = function () {
             try {
                 const errorsCount = testRunInfo.errs.length;
                 const hasErr = !!errorsCount || !!this.warnError;
-                const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? testRunInfo.screenshots[testRunInfo.screenshots.length - errorsCount].screenshotPath : null;
+                const screenPath = hasErr && testRunInfo.screenshots && testRunInfo.screenshots.length ? (testRunInfo.screenshots[testRunInfo.screenshots.length - errorsCount] ?? testRunInfo.screenshots[0]).screenshotPath : null;
                 const stackTrace = hasErr ? this.getStackTraceAsStringsArray(errorsCount ? testRunInfo.errs : [this.warnError]) : [];
                 const duration = this.moment.duration(testRunInfo.durationMs).format('h[h] mm[m] ss[s]');
 
@@ -500,9 +486,8 @@ module.exports = function () {
                 const time = this.moment(endTime).format('M/DD/YYYY HH:mm:ss');
                 const durationMs = endTime - this.taskStartTime;
                 const durationStr = this.moment.duration(durationMs).format('h[h] mm[m] ss[s]');
-                const fileName = this.isSaveAsFile ? this.reportUtil.singleHtmlFileName : 'index.html';
                 const path = require('path');
-                const reportPath = `${this.reportUtil.getReportPath()}/${fileName}`;
+                const reportPath = `${this.reportUtil.getReportPath()}/${this.reportUtil.singleHtmlFileName}`;
 
                 passed -= this.brokenCount;
 
@@ -524,8 +509,7 @@ module.exports = function () {
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
                 if (this.logWarnings && warnings.length) console.log(warnings);
-                if (this.appendLogs) require('child_process').execSync(`npx acd-html-combine ${this.reportUtil.testResultsPath} --dest ${reportPath} --last ${this.getResultFileName()}`);
-                else if (this.isSaveAsFile) this.reportUtil.generateReportAsHtml(); else this.reportUtil.generateReport();
+                require('child_process').execSync(`npx acd-html-combine ${this.reportUtil.testResultsPath} --dest ${reportPath} --last ${this.getResultFileName()} ${this.appendLogs ? '' : '--single'}`);
                 console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
             }
             catch (err) {

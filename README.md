@@ -14,7 +14,7 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 ### New in 1.5.*:
 #### Some fixes & impovements.
 #### Tests in the report are only tests from the last run.
-#### <a href="#someJ">If to need to show tests from different jsons</a>
+#### <a href="#appendLogs">If to need to show tests from different jsons</a>
 
 ### New in 1.5:
 #### Added statistics about previous tests runs.
@@ -33,11 +33,6 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 
 Reporter in .html format, for seeing it, you don't need to start any server. Except reporting to file, test run info duplicates in console.
 
-### show tests from some jsons
-<p id="someJ">
-Use argument threadId with or without value and <a href="#appendLogs">--appendLogs</a>
-</p>
-
 ### concurrency
 <p id="concurrency">
 <b>WARN: next line is required, concurrency with the reporter doesn't work without it!</b>
@@ -49,7 +44,7 @@ Use argument threadId with or without value and <a href="#appendLogs">--appendLo
 With that tag report always will be generated to one file.<br>
 Result files saved like `report_3.02_34138.json`, where 34138 - run id. Result will be formed as by <a href="#acd-html-combine">npx acd-html-combine</a> command (with combined json).
 
-With definition <a href="#saveToFile">--reportFile</a> can be used to write results in one file for different runs.
+With definition <a href="#saveToFile">--reportFile</a> can be used to write results in one file with new name.
 </p>
 
 ### acd-html-combine
@@ -71,12 +66,12 @@ In that case report-combined.json will be in the same folder.
 
 ### baseReportDir
 <p id="baseReportDir">
-The report generates in base folder: {project}/test-results/report_{current date} as report.html (html + js/css/img files in case <a href="#changeDirectory">saving as folder</a>.)<br>
+The report generates in base folder: {project}/test-results/report_{current date} as report.html<br>
 Also reporter generates json file with test run info, it places in: {report_directory}/report.json.
 </p>
 
 If you need to run some times a day, save report, because old version with same date will be rewrited.<br>
-You can <a href="#changeDirectory">change the report saving directory</a> or <a href="#saveToFile">save report to single file</a> (without css, js and img files).
+You can <a href="#saveToFile">save report to single file with a new name</a>.
 
 For extended test run information you can use Logger, implemented in the reporter.<br>
 Method Logger.warn automatically sets status of a test: 'broken'.
@@ -120,23 +115,11 @@ If you want to have screenshots in report, use `-s` option:
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter -s takeOnFails=true
 ```
 
-<p id="changeDirectory">
-If you want to save report to another folder, you can use `--reportPath` argument:
-</p>
-
-```
-testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportPath path/to/my/report
-```
-
 <p id="saveToFile">
 If you want to save report as single file, use `--reportFile` argument. If you don't passed argument value, it saved to <a href="#baseReportDir">base report folder</a> as report.html and report.json:
 </p>
 
-```
-testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile
-```
-
-or you can add folder name to report (report will be saved as path/to/html/report.html and path/to/html/report.json):
+you can add folder name to report (report will be saved as path/to/html/report.html and path/to/html/report.json):
 
 ```
 testcafe chrome 'path/to/test/file.js' --reporter acd-html-reporter --reportFile path/to/html

@@ -53,7 +53,9 @@ module.exports = {
         return console.resultFileName ? console.resultFileName : `${this.getReportPath()}/report_${this.getFormattedDate()}.json`;
     },
 
-    testResultsPath: 'test-results',
+    get testResultsPath () {
+        return console.reportPath ? console.reportPath.split(/[/\\]/g)[0] : 'test-results'; 
+    },
 
     getReportPath: function () {
         return console.reportPath ? console.reportPath : `${this.testResultsPath}/report_${this.getFormattedDate()}`;

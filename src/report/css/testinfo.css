@@ -133,6 +133,11 @@
   opacity: 1;
 }
 
+.error.error-expanded, .error.error-expanded div {
+  z-index: 101;
+  position: relative;
+}
+
 .error:hover::after {
   background: rgba(150, 50, 50, 0.5);
 }
