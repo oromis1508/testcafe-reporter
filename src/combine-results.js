@@ -16,9 +16,11 @@ function getFilteredTests (fileFilterBy, fixtures) {
     let filter = [];
 
     try {
-        filter = JSON.parse(JSON.stringify(fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name))));
+        //eslint-disable-next-line no-undef
+        filter = structuredClone(fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name)));
     }
-    catch {
+    catch (err) {
+        console.log(err.message);
         return filter;
     }
 
@@ -80,7 +82,7 @@ function parseFilesAndGenerateReport (files) {
 
                             if (fix) {
                                 for (const newTst of newFix.tests) 
-                                    if (!fix.tests.find(t => t.name === newTst.name)) fix.tests.push(newTst);
+                                    fix.tests.push(newTst);
                             }
                             else filteredFixtures.push(newFix);
                         }

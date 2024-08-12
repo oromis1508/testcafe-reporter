@@ -219,9 +219,7 @@ function tagOnClick (element) {
     }
 }
 
-function addTreeScrollListener () {
-    const fixturesObj = document.querySelector('.fixtures');
-    const setRunsPostition = () =>
+function setRunsPostition () {
         document
             .querySelectorAll('.tests-tree runs')
             .forEach(
@@ -231,6 +229,10 @@ function addTreeScrollListener () {
                         .querySelector(`.test[id='${run.id}']`)
                         .getBoundingClientRect().top + 'px';
                 });
+}
+
+function addTreeScrollListener () {
+    const fixturesObj = document.querySelector('.fixtures');
     const resizeObj = new ResizeObserver(setRunsPostition);
 
     fixturesObj.onscroll = setRunsPostition;

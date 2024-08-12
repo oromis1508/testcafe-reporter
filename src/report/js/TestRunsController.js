@@ -65,16 +65,15 @@ function addTestRuns (testElement, isDuration, notClickable, isShowPassed) {
         runsBlock.appendChild(run);
     }
 
+    document.querySelector(notClickable ? '.tests-tree' : '.test-info').appendChild(runsBlock);
     if (notClickable) {
         const testRect = testElement.getBoundingClientRect();
 
+        setRunsPostition();
         runsBlock.style.left = `${fixturesRight + 10}px`;
         runsBlock.style.width = '47vw';
-        runsBlock.style.top = `${testRect.top}px`;
         runsBlock.style.height = `${testRect.height}px`;
     }
-
-    document.querySelector(notClickable ? '.tests-tree' : '.test-info').appendChild(runsBlock);
 }
 
 function addRunsForFixture (fixture, isDuration, isShowPassed) {
