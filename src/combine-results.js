@@ -13,7 +13,14 @@ if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 function getFilteredTests (fileFilterBy, fixtures) {
     const filterByFixtures = JSON.parse(fs.readFileSync(fileFilterBy).toLocaleString()).fixtures;
 
-    const filter = JSON.parse(JSON.stringify(fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name))));
+    let filter = [];
+
+    try {
+        filter = JSON.parse(JSON.stringify(fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name))));
+    }
+    catch {
+        return filter;
+    }
 
     for (const f of filter) 
         f.tests = f.tests.filter(t => filterByFixtures.find(fbf => f.name === fbf.name).tests.find(fbf => fbf.name === t.name));    
@@ -65,7 +72,7 @@ function parseFilesAndGenerateReport (files) {
             for (let file of fs.readdirSync(dirPath)) {
                 if (file.endsWith('t.json')) {
                     file = path.resolve(dirPath, file);
-                    if (!filteredFixtures) filteredFixtures = getFilteredTests(file, json.fixtures); else {
+                    if (!filteredFixtures || !filteredFixtures.length) filteredFixtures = getFilteredTests(file, json.fixtures); else {
                         const newFilter = getFilteredTests(file, json.fixtures);
       
                         for (const newFix of newFilter) {
