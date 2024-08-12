@@ -220,15 +220,15 @@ function tagOnClick (element) {
 }
 
 function setRunsPostition () {
-        document
-            .querySelectorAll('.tests-tree runs')
-            .forEach(
-                (run) => {
-                    run.style.top =
+    document
+        .querySelectorAll('.tests-tree runs')
+        .forEach(
+            (run) => {
+                run.style.top =
                     document
                         .querySelector(`.test[id='${run.id}']`)
                         .getBoundingClientRect().top + 'px';
-                });
+            });
 }
 
 function addTreeScrollListener () {
