@@ -7,27 +7,40 @@ const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
 const last = args.last;
 const single = args.single;
+const daysToShow = args.days ?? 14;
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
 function getFilteredTests (fileFilterBy, fixtures) {
-    const filterByFixtures = JSON.parse(fs.readFileSync(fileFilterBy).toLocaleString()).fixtures;
-
-    let filter = [];
+    let filterByFixtures = [];
+    const filter = fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name));
+    const result = [];
 
     try {
-        //eslint-disable-next-line no-undef
-        filter = structuredClone(fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name)));
+        filterByFixtures = JSON.parse(fs.readFileSync(fileFilterBy).toLocaleString()).fixtures;
     }
     catch (err) {
         console.log(err.message);
         return filter;
     }
 
-    for (const f of filter) 
-        f.tests = f.tests.filter(t => filterByFixtures.find(fbf => f.name === fbf.name).tests.find(fbf => fbf.name === t.name));    
+    for (const f of filter) {
+        let copy = {};
 
-    return filter;
+        try {
+        //eslint-disable-next-line no-undef
+            copy = structuredClone(f);
+        }
+        catch (err) {
+            console.log(err.message);
+            return filter;
+        }
+
+        result.push(copy);
+        copy.tests = copy.tests.filter(t => filterByFixtures.find(fbf => copy.name === fbf.name).tests.find(fbf => fbf.name === t.name));
+    }
+    
+    return result;
 }
 
 function parseFilesAndGenerateReport (files) {
@@ -61,6 +74,13 @@ function parseFilesAndGenerateReport (files) {
                 json.fixtures.push(fixture);
         }
     }
+
+    for (const fixture of json.fixtures) 
+        fixture.tests = fixture.tests.filter(t => new Date(t.time) >= new Date().setDate(new Date().getDate() - +daysToShow));
+    
+    json.fixtures = json.fixtures.filter(f => f.tests.length);
+    console.log('Fixtures: ' + json.fixtures.length);
+    console.log('Tests: ' + json.fixtures.reduce((acc, f) => acc + f.tests.length, 0));
 
     if (typeof last === 'string') {
         /**

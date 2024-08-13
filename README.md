@@ -11,6 +11,9 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 1.5.8:
+#### --days <number X> - to show test runs for X last days (14 by default)
+
 ### New in 1.5.*:
 #### Some fixes & impovements.
 #### Tests in the report are only tests from the last run.

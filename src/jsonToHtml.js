@@ -106,7 +106,7 @@ module.exports = {
         const html = fs.readFileSync(`${originalReportPath}/index.html`).toLocaleString();
         const htmlHead = `<head>${this.getReportFilesAsHtmlTags(originalReportPath)}</head>`;
         const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`)
-            .replace('startTime', json.startTime)
+            .replace('startTime', json.startTime.replace(/\(.*?\)/, ''))
             .replace(/<head>.*<\/head>/gs, htmlHead);
         const path = args[1] ? args[1] : `${this.getReportPath()}/${this.singleHtmlFileName}`;
 
