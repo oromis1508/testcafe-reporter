@@ -13,11 +13,13 @@ if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
 function getFilteredTests (fileFilterBy, fixtures) {
     let filterByFixtures = [];
-    const filter = fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name));
+    
+    let filter;
     const result = [];
 
     try {
         filterByFixtures = JSON.parse(fs.readFileSync(fileFilterBy).toLocaleString()).fixtures;
+        filter = fixtures.filter(f => filterByFixtures.find(lastF => f.name === lastF.name));
     }
     catch (err) {
         console.log(err.message);
@@ -101,10 +103,11 @@ function parseFilesAndGenerateReport (files) {
                             const fix = filteredFixtures.find(f => f.name === newFix.name);
 
                             if (fix) {
-                                for (const newTst of newFix.tests) 
-                                    fix.tests.push(newTst);
+                                for (const newTst of newFix.tests) {
+                                    if (!fix.tests.find(t => t.id === newTst.id)) fix.tests.push(newTst);
+                                    else filteredFixtures.push(newFix);
+                                }
                             }
-                            else filteredFixtures.push(newFix);
                         }
                     }
                 }
