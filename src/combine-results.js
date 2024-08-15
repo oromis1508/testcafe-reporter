@@ -102,12 +102,14 @@ function parseFilesAndGenerateReport (files) {
                         for (const newFix of newFilter) {
                             const fix = filteredFixtures.find(f => f.name === newFix.name);
 
+                            //eslint-dlisable-next-line
                             if (fix) {
                                 for (const newTst of newFix.tests) {
-                                    if (!fix.tests.find(t => t.id === newTst.id)) fix.tests.push(newTst);
-                                    else filteredFixtures.push(newFix);
+                                    if (!fix.tests.find(t => t.id === newTst.id)) 
+                                        fix.tests.push(newTst);
                                 }
                             }
+                            else filteredFixtures.push(newFix);
                         }
                     }
                 }

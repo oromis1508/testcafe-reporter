@@ -105,29 +105,58 @@ module.exports = {
         const originalReportPath = this.getOriginalReportPath();
         const html = fs.readFileSync(`${originalReportPath}/index.html`).toLocaleString();
         const htmlHead = `<head>${this.getReportFilesAsHtmlTags(originalReportPath)}</head>`;
-        const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`)
-            .replace('startTime', json.startTime.replace(/\(.*?\)/, ''))
-            .replace(/<head>.*<\/head>/gs, htmlHead);
         const path = args[1] ? args[1] : `${this.getReportPath()}/${this.singleHtmlFileName}`;
 
-        fs.writeFileSync(path, generatedReport);
+        let htmlData = this.getJsonAsHtml(json);
+
+        if (typeof htmlData === 'string') {
+            try {
+                const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${htmlData}</div>`)
+                    .replace('startTime', json.startTime)
+                    .replace(/<head>.*<\/head>/gs, htmlHead);
+                
+                fs.writeFileSync(path, generatedReport);
+                
+                return path;
+            } 
+            catch {
+                //ignore and write by parts
+                htmlData = [htmlData];
+            }
+        } 
+        
+        for (let index = 0; index < htmlData.length; index++) {
+            const data = htmlData[index];
+            const strLen = Math.floor(data.length / 2);
+
+            htmlData[index] = [data.substring(0, strLen), data.substring(strLen)];
+        }
+        
+        const lastHtmlPartFlag = 'html-next-replace-flag';
+        const replacedHtml = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${htmlData[0][0]}${lastHtmlPartFlag}</div>`)
+            .replace('startTime', json.startTime)
+            .replace(/<head>.*<\/head>/gs, htmlHead);
+        const flagIndex = replacedHtml.indexOf(lastHtmlPartFlag);
+        const firstReportPart = replacedHtml.substring(0, flagIndex);
+        const secondReportPart = replacedHtml.substring(flagIndex);
+
+        fs.writeFileSync(path, firstReportPart);
+
+        for (let index = 0; index < htmlData.length; index++) {
+            for (let index2 = 0; index2 < htmlData[index].length; index2++) {
+                if (index === 0 && index2 === 0) continue;
+
+                //eslint-disable-next-line no-extra-parens
+                if ((index === (htmlData.length - 1)) && (index2 === (htmlData[index].length - 1)))
+                    fs.appendFileSync(path, secondReportPart.replace(lastHtmlPartFlag, htmlData[index][index2]));
+                else
+                    fs.appendFileSync(path, htmlData[index][index2]);
+            }
+        }
+        
         return path;
     },
     
-    generateReport: function () {
-        const copydir = require('copy-dir');
-        const json = JSON.parse(fs.readFileSync(this.getResultFileName()).toLocaleString());
-        const newReportDir = this.getReportPath();
-        const originalReportPath = this.getOriginalReportPath();
-        
-        copydir.sync(originalReportPath, newReportDir, { utimes: true, mode: true, cover: true });
-        
-        const html = fs.readFileSync(`${newReportDir}/index.html`).toLocaleString();
-        const generatedReport = html.replace('<div class="tests-tree"></div>', `<div class="tests-tree">${this.getJsonAsHtml(json)}</div>`).replace('startTime', json.startTime);
-
-        fs.writeFileSync(`${newReportDir}/index.html`, generatedReport);
-    },
-
     getJsonAsHtml: function (json) {
         let generatedReport = '';
 
@@ -165,15 +194,46 @@ module.exports = {
         }); 
         generatedReport += '</div>';
         generatedReport += '<div steps style="display: none;">';
-        stepsArray.forEach(stepsData => {
-            generatedReport += stepsData.steps.replace('<step>', 
-                `<div fixtureId="${stepsData.id}" status="${stepsData.status}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" time="${stepsData.time}" f="${stepsData.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${stepsData.test.replace(/([\t\n\f />"'=]+)/, '')}">`);
-            if (stepsData.stackTrace && stepsData.stackTrace.length)
-                generatedReport += `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
-        });
-        generatedReport += '</div>';
 
-        return generatedReport;
+        const reportParts = [];
+
+        stepsArray.forEach((stepsData, i) => {
+            const testData = `<div fixtureId="${stepsData.id}" status="${stepsData.status}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" time="${stepsData.time}" f="${stepsData.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${stepsData.test.replace(/([\t\n\f />"'=]+)/, '')}">`;
+            const replacedData = stepsData.steps.replace('<step>', testData);
+            
+            let curentString = generatedReport;
+            
+            try {
+                curentString += replacedData;
+                generatedReport = curentString;
+            }
+            catch {
+                reportParts.push(generatedReport);
+                curentString = replacedData;
+            }
+                
+            if (stepsData.stackTrace && stepsData.stackTrace.length) {
+                const trace = `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
+
+                try {
+                    curentString += trace;
+                    generatedReport = curentString;
+                }
+                catch {
+                    reportParts.push(generatedReport);
+                    curentString = trace;
+                }
+            }
+
+            if (i === stepsArray.length - 1 && reportParts.length) reportParts.push(curentString);
+        });
+
+        if (reportParts.length) {
+            reportParts.push('</div>');
+            return reportParts;
+        }
+
+        return generatedReport + '</div>';
     },
 
 
