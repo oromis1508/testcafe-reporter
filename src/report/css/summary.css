@@ -5,7 +5,7 @@
     height: 2.4vh;
 }
 
-.summary div {
+.summary div:not([class*=radios]) {
     display: inline;
     margin: 0.75vh 0.5vw;
     padding: 0.6vh 0.4vw;
@@ -19,11 +19,11 @@
     background-image: none;
 }
 
-.summary div[class]:not([class*='tag']) {
+.summary div[class]:not([class*='tag']):not([class*=radios]) {
     font-size: 1.25vw;
 }
 
-.summary div[class]:not([class*='tag']):hover {
+.summary div[class]:not([class*='tag']):not([class*=radios]):hover {
     cursor: pointer;
     border: 1px dotted grey;
 }
@@ -158,16 +158,24 @@ img#sort {
     left: 0;
 }
 
-fieldset {
-    position: fixed;
-    top: 0vh;
-    right: 0vw;
+.summary fieldset {
     padding: 0;
     border: none;
+    padding-bottom: 1vh;
 }
 
-legend {
+.summary legend {
     float: left;
+}
+
+.summary .radios {
+    right: 0vw;
+    position: fixed;
+}
+
+#runsShowType {
+    right: 0vw;
+    top: 4vh;
 }
 
 #expandFixtures {

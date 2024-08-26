@@ -437,9 +437,14 @@ module.exports = function () {
                 const testAgent = testRunInfo?.browsers?.map(b => b.prettyUserAgent)?.join();
 
                 if (this.isScreensAsBase64 && screenPath) {
-                    const bitmap = this.fs.readFileSync(screenPath);
-                    const base64 = Buffer.from(bitmap).toString('base64');
-                    var base64screenshot = `data:image/png;base64,${base64}`;
+                    try {
+                        const bitmap = this.fs.readFileSync(screenPath);
+                        const base64 = Buffer.from(bitmap).toString('base64');
+                        var base64screenshot = `data:image/png;base64,${base64}`;
+                    }
+                    catch { 
+                        //skip and continue
+                    }
                 }
 
                 if (this.getTestStatus(testId) === this.testStatuses.broken && !errorsCount) {

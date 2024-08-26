@@ -23,26 +23,22 @@
       <button id="searchFixture" enabled="false">F</button>
       <div class="tag" onclick="filterByTag(this)">T</div>
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB3SURBVDiN3dC7CsJQEIThz+Lgy9lbCHm4FIIRYhF9uhRauMVySI5iI2SrWebfC8OmqsOA0mAKrsEumiPu2P/gN6Gvhmv4EXDBbW14l3SHA07RX5L/xDH0GRP6tctj6OId6pD67Dff/08G9ZKlDOZP1+slOYOt1gtUBB32Td/gNAAAAABJRU5ErkJggg==" id="expandFixtures">
-      <fieldset>
+      <div class="radios">
+        <fieldset id="infoType">
         <legend>Show tests info:</legend>
         <div>
           <input type="radio" id="singleShow" name="showInfo" checked />
           <label for="singleShow">Single test</label>
         </div>
-      
         <div>
           <input type="radio" id="dateShow" name="showInfo" />
           <label for="dateShow">Status by date</label>
         </div>
-      
         <div>
           <input type="radio" id="timeShow" name="showInfo" />
           <label for="timeShow">Status by pass time</label>
         </div>
       </fieldset>
-    </div>
-    <div class="tests-tree"></div>
-    <div class="test-info">
       <fieldset id="runsShowType">
         <legend>Show as:</legend>
         <div>
@@ -56,6 +52,21 @@
         <div style="visibility: hidden;">
           <input type="radio" id="linePassShow" name="showType" />
           <label for="linePassShow">Passed/Time</label>
+        </div>
+      </fieldset>
+      </div>
+    </div>
+    <div class="tests-tree"></div>
+    <div class="test-info">
+      <fieldset id="singleType" style="visibility: hidden;">
+        <legend>Show single:</legend>
+        <div>
+          <input type="radio" id="singleInfo" name="singleShow" checked />
+          <label for="singleInfo">Info</label>
+        </div>
+        <div>
+          <input type="radio" id="singleChart" name="singleShow" />
+          <label for="singleChart">Time chart</label>
         </div>
       </fieldset>
       <div id="run-info"></div>

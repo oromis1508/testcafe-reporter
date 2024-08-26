@@ -47,14 +47,6 @@ runs {
     border-color: blue;
   }
 
-  #runsShowType {
-    left: 50vw;
-    top: 0.2vw;
-    display: flex;
-    visibility: hidden;
-    width: fit-content;
-  }
-
   table {
     position: fixed;
     left: 50vw;

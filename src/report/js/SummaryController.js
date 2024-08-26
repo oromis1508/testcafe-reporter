@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars, no-undef */
 
 function appendSummaryElement (testStatuses, elementToAppend, withName) {
     ['passed', 'failed', 'broken', 'skipped'].forEach(statusName => {
@@ -39,8 +39,6 @@ function addFixtureSummary () {
         addSummary(fixture, fixture.querySelector('.summary'));
     });
 }
-
-/* eslint-disable no-undef */
 
 function onSearch (searchValue) {
     const isSearchByFixtureEnabled = document.querySelector('#searchFixture').getAttribute('enabled') === 'true';
@@ -170,23 +168,24 @@ function onSortClick (event) {
     }
 }
 
-function onRadioSwitch (event, isPassed) {
+function onShowInfoSwitch (event, isPassed) {
     clearTestInfo();
+    document.querySelector('#singleType').style.visibility = 'hidden';
 
     const showTypeForm = document.querySelector('#runsShowType');
-    const dateField = document.querySelector('#time');
     const showPassed = document.querySelector('#linePassShow').parentElement;
+
+    if (!isShowTimeStats() && !isShowAsTable())
+        document.querySelector('#lineShow').checked = true;
 
     showPassed.style.visibility = 'hidden';
     if (event.target.id.includes('single')) {
         const testElement = document.querySelector('.test.selected');
 
-        dateField.style.visibility = 'visible';
         showTypeForm.style.visibility = 'hidden';
         if (testElement) testOnClick(testElement, +testElement.getAttribute('selected-run'), true);
     }
     else {
-        dateField.style.visibility = 'hidden';
         showTypeForm.style.visibility = 'visible';
         
         if (event.target.id.includes('time')) showPassed.style.visibility = 'visible';
@@ -202,7 +201,7 @@ function onRadioSwitch (event, isPassed) {
 
 function addRadioEvents () {
     document.querySelectorAll('[name=showInfo]').forEach(el => {
-        el.onchange = this.onRadioSwitch;
+        el.onchange = this.onShowInfoSwitch;
     });
 }
 
@@ -238,5 +237,109 @@ function addExpandCollapseAllFixturesListeners () {
     };
     btnExpandCollapseFixtures.onmouseenter = onExpandCollapseButtonMove;
 }
-/* eslint-enable no-undef */
-/* eslint-enable no-unused-vars */
+
+function onShowAsSwitch (event) {
+    const isShowAsTime = isShowTimeStats();
+    const eventToSend = {
+        target: {
+            id: isShowAsTime ? '#timeShow' : '#dateShow'
+        }
+    };
+
+    if (event?.target?.id?.includes('line')) onShowInfoSwitch(eventToSend, event?.target?.id?.includes('Pass'));
+    else {
+        clearTestInfo();
+
+        let allRuns = [];
+
+        const table = document.createElement('table');
+        const makeForEachTest = (action) => {
+            document.querySelectorAll('.fixture.selected:not([class*=hidden])').forEach(fix => {
+                fix.querySelectorAll('.test:not([class*=hidden])').forEach(tst => {
+                    action(tst);
+                });
+            });
+        };
+
+        makeForEachTest((tst) => allRuns.push(...stepsData.filter(data => data.f === stepsData.find(d => d.id === tst.id).f && data.t === stepsData.find(d => d.id === tst.id).t)));
+        allRuns = Object.assign([], allRuns);
+        allRuns.forEach(r => {
+            r.time = new Date(r.time).toDateString();
+        });
+        allRuns.sort((r1, r2) => r2.time.valueOf() - r1.time.valueOf());
+
+        let column;
+
+        let colRuns = [];
+
+        allRuns.forEach((itm, i) => {
+            if (itm.time !== allRuns[i - 1]?.time) {
+                colRuns.forEach(run => column.appendChild(run));
+                if (column) table.appendChild(column);
+                column = document.createElement('col');
+                colRuns = [];
+                const header = document.createElement('th');
+
+                header.textContent = itm.time;
+                column.appendChild(header);
+            }
+            let curRun = colRuns.find(el => el.f === itm.f && el.t === itm.t);
+
+            if (!curRun) {
+                curRun = document.createElement('runs');
+                curRun.f = itm.f;
+                curRun.t = itm.t;
+                colRuns.push(curRun);
+            }
+            const button = document.createElement('button');
+
+            // button.style.height = `${testRect.height - 8}px`;
+            
+            button.classList.add(itm.status);
+            button.textContent = isShowAsTime ? itm.durationMs : '';
+            curRun.appendChild(button);
+
+        });
+        // table.appendChild(headerRow);
+
+        // makeForEachTest((tst) => {
+        //     const testRuns = allRuns.filter(data => data.f === stepsData.find(d => d.id === tst.id).f && data.t === stepsData.find(d => d.id === tst.id).t);
+        //     const testRow = document.createElement('tr');
+        //     const testRect = tst.getBoundingClientRect();
+
+        //     for (let index = 0; index < headerRow.children.length; index++) {
+        //         const head = headerRow.children[index];
+        //         const curDateItems = testRuns.filter(r => r.time === head.textContent);
+        //         const cell = document.createElement('td');
+        //         const runsElement = document.createElement('runs');
+
+        //         for (let index2 = 0; index2 < curDateItems.length; index2++) {
+        //             const button = document.createElement('button');
+
+        //             button.style.height = `${testRect.height - 8}px`;
+                    
+        //             button.classList.add(curDateItems[index2].status);
+        //             button.textContent = isShowAsTime ? curDateItems[index2].durationMs : "";
+
+        //             runsElement.appendChild(button);
+        //         }
+        //         cell.appendChild(runsElement);
+        //         testRow.appendChild(cell);
+        //     }
+
+        //     testRow.style.top = `${testRect.top + 4}px`;
+        //     table.appendChild(testRow);
+        // });
+
+        document.querySelector('.tests-tree').appendChild(table);
+
+    }
+}
+
+function addShowAsListeners () {
+    document.querySelectorAll('[name=showType]').forEach(el => {
+        el.onchange = onShowAsSwitch;
+    });
+}
+
+/* eslint-enable no-unused-vars, no-undef */
