@@ -1,162 +1,195 @@
+/* General Styles */
+html {
+    overflow: hidden;
+}
+
 body {
     margin: 0;
     background-color: #dbcfc3;
-    height: 99vh;
-    overflow: hidden;
+    font-family: Arial, sans-serif;
 }
 
+/* Layout adjustments */
 .tests-tree {
-    width: 49vw;
-    padding: 0 0.7vw;
-    margin-top: 2.9vh;
-    height: 96.5%;
-}
-
-.fixtures {
-    overflow: auto;
+    width: 51%;
+padding: 0 1em;
+box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
 }
 
-.fixtures:nth-last-child(3) {
-    overflow: hidden;
+.fixtures {
+    overflow-y: auto;
+    max-height: 80vh;
+    flex-grow: 1;
 }
 
-.fixtureName {
-    background-image: radial-gradient(#aaaaff, #5555ff);
-    margin: 1%;
-    border-radius: 1vw;
-    font-weight: bold;
-    font-size: 1.5vw;
-    padding-right: 5.3vw;
+/* Base fixture style */
+.fixture {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Align elements to occupy available space */
+    width: calc(100% - 1em);
+    padding: 0.5em;
+    background-color: #e0e0e0; /* Light background */
+    border-radius: 0.5em;
+    margin-bottom: 0.5em;
 }
+
+/* Ensure .test elements stack below .fixtureName when .fixture is selected */
+.fixture.selected {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Styling for .fixtureName */
+.fixtureName {
+    background: linear-gradient(to right, #8884d8, #6b62cc);
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #000;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
 
 .fixtureName::before {
-    content: "";
-    background: url(../img/expand.png);
-    background-repeat: no-repeat;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: 100% 100%;
+    content: "\25BA"; /* Unicode character for right-pointing triangle (►) */
+    font-size: 1em;
+    margin-right: 0.5em;
     opacity: 0.5;
-    height: 1.2vw;
-    width: 1.2vw;
-    display: inline-block;
-    margin: 0.3vw 1vw 0 0.75vw;
 }
 
 .selected .fixtureName::before {
-    background: url(../img/collapse.png);
-    background-repeat: no-repeat;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: 100% 100%;
+    opacity: 1;
 }
 
-.selected .fixtureName {
-    background-image: radial-gradient(#bbbbff, #775577);
-    cursor: auto;
+.fixture.selected .fixtureName {
+    width: 100%; /* Ensure .fixtureName fills full width in selected mode */
 }
 
-.fixtureName:hover {
-    background-image: radial-gradient(#aaaaff, #5555aa);
-    cursor: pointer;
+/* .summary placed on the right side */
+.fixture .summary {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    padding-left: 1em;
 }
 
+/* Styling the summary badges */
+.fixture .summary div {
+    margin-left: 0.5em;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #333;
+}
+
+.fixture .summary .passed {
+    background-color: #a8e6a1;
+}
+
+.fixture .summary .failed {
+    background-color: #f6a1a1;
+}
+
+.fixture .summary .broken {
+    background-color: #f3e99f;
+}
+
+.fixture .summary .skipped {
+    background-color: #cccccc;
+}
+
+/* Tests Styles */
 .tests {
-    overflow: auto;
-    margin-top: -0.4vw;
+    margin-left: 1em;
 }
 
 .test {
-    padding: 0.2vw;
-    visibility: hidden;
-    margin: 0;
-    padding-left: 1vw;
-    padding-right: 2vw;
-    text-align: center;
-    border-radius: 1.5vw;
+    display: none;
+    padding: 0.5em 1em;
+    margin: 0.5em 0;
+    border-radius: 0.5em;
     font-weight: bold;
+    font-size: 1em;
     white-space: pre-line;
-    font-size: 1.2vw;
-    position: absolute;
-    top: 0;
+    transition: background 0.3s;
+    position: relative;
 }
 
+/* .test styling */
+.fixture.selected .test {
+    display: block;
+    width: calc(100% - 2em);
+    margin: 0.5em 1em;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Status-based colors for .test elements */
+.fixture.selected .test[status="passed"] {
+    background-color: #a8e6a1;
+}
+
+.fixture.selected .test[status="failed"] {
+    background-color: #f6a1a1;
+}
+
+.fixture.selected .test[status="broken"] {
+    background-color: #f3e99f;
+}
+
+.fixture.selected .test[status="skipped"] {
+    background-color: #cccccc;
+}
+
+/* Hover effects */
+.fixtureName:hover,
 .test:hover {
+    background: linear-gradient(#bbb, #888);
+    color: #fff;
     cursor: pointer;
-}
-
-.test[status='passed']{
-    background-image: radial-gradient(rgba(85,126,85,0.5), rgba(0,221,0,0.75));
-}
-
-.test[status='failed']{
-    background-image: radial-gradient(rgb(136,85,85, 0.4), rgba(251, 0, 0, 0.8));
-}
-
-.test[status='broken']{
-    background-image: radial-gradient(rgba(221,221,0,0.5), rgba(126,126,0,0.8));
-}
-
-.test[status='skipped']{
-    background-image: radial-gradient(rgba(221,221,221), rgba(126,126,126));
-}
-
-.test[status='passed']:hover{
-    background-image: radial-gradient(#558855, #00dd00, #558855);
-}
-
-.test[status='failed']:hover{
-    background-image: radial-gradient(#885555, rgba(221,0,0, 0.7), #885555);
-}
-
-.test[status='broken']:hover{
-    background-image: radial-gradient(#aabb11, #dddd00, #888800);
-}
-
-.test[status='skipped']:hover{
-    background-image: radial-gradient(#555555, #dddddd, #888888);
-}
-
-.selected .test{
-    visibility: visible;
-    margin: 0.5%;
-    position: initial;
-}
-
-.test.visible {
-    visibility: visible;
-    margin: 1%;
-    position: initial;
-}
-
-.test.hidden, .fixture.hidden, .test.search-hidden, .fixture.search-hidden, .test.tag-hidden, .fixture.tag-hidden {
-    visibility: hidden;
-    position: absolute;
-    top: 0;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .test.selected {
-    border: slateblue ridge 0.2vw;
-    font-size: 1.35vw;
-    padding-top: 0.45vw;
+    border: 2px ridge slateblue;
+    font-size: 1.1em;
+    padding-top: 0.5em;
 }
 
+/* Tag Icon Styles */
 .test .tag {
-    position: relative;
-    left: 1.8vw;
-    width: 1.5vw;
-    float: right;
-    content: url(../img/tag_on.png);
+    width: auto;
+    height: auto;
+    margin-left: 0.5em;
+    cursor: pointer;
+    display: inline-block;
 }
 
-.test .tag.hidden {
-    content: url(../img/tag_off.png);
+.test .tag::before {
+    content: "\2605"; /* Unicode character for a star */
+    font-size: 1em;
 }
 
-img.tag:hover {
+.test .tag.filtered::before {
+    content: "\2606"; /* Unicode character for an empty star (☆) */
+}
+
+.test .tag:hover {
     border: 1px double black;
-    border-radius: 4vw;
+    border-radius: 0.5em;
+}
+
+/* Hidden Elements */
+.fixture.selected .test.hidden, .fixture.selected .test.tag-hidden, .fixture.selected .test.search-hidden, .fixture.selected .test.stable-hidden, .fixture.hidden {
+    display: none;
 }

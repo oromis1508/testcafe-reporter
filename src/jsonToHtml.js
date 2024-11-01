@@ -146,8 +146,10 @@ module.exports = {
             for (let index2 = 0; index2 < htmlData[index].length; index2++) {
                 if (index === 0 && index2 === 0) continue;
 
-                //eslint-disable-next-line no-extra-parens
-                if ((index === (htmlData.length - 1)) && (index2 === (htmlData[index].length - 1)))
+                const isLastIndex = index === htmlData.length - 1;
+                const isInnerLastIndex = index2 === htmlData[index].length - 1;
+                
+                if (isLastIndex && isInnerLastIndex)
                     fs.appendFileSync(path, secondReportPart.replace(lastHtmlPartFlag, htmlData[index][index2]));
                 else
                     fs.appendFileSync(path, htmlData[index][index2]);
@@ -157,17 +159,49 @@ module.exports = {
         return path;
     },
     
+    compressImageSync (inputBuffer, quality = 80) {
+        try {
+            // Create a temporary input file path
+            const tempInputPath = require('path').join(require('os').tmpdir(), 'input_image.jpg');
+            const tempOutputPath = require('path').join(require('os').tmpdir(), 'output_image.jpg');
+    
+            // Write the input buffer to the temporary input file
+            fs.writeFileSync(tempInputPath, inputBuffer);
+    
+            // Call the imageProcessor.js script and capture its output (base64-encoded image)
+            require('child_process').execFileSync(
+                'node', 
+                ['node_modules/testcafe-reporter-acd-html-reporter/lib/imageProcessor.js', tempInputPath, tempOutputPath, quality],
+                { encoding: 'utf-8' } // Capture stdout as string (base64-encoded image)
+            );
+    
+            // Convert the base64 output back to a Buffer (bitmap)
+            const compressedBuffer = fs.readFileSync(tempOutputPath);
+    
+            // Clean up the temporary input file
+            fs.unlinkSync(tempInputPath);
+            fs.unlinkSync(tempOutputPath);
+            
+            return compressedBuffer;
+        }
+        catch (error) {
+            console.error('Error compressing image synchronously:', error);
+            return inputBuffer;
+        }
+    },
+    
+
     getJsonAsHtml: function (json) {
         let generatedReport = '';
 
         generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
-            generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName" onclick="onFixtureClick(this)">${fixture.name}</div>`;
+            generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName">${fixture.name}</div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
                 const isLastTestRun = !fixture.tests.find(another => test.name === another.name && new Date(another[this.jsonNames.testTime]) > new Date(test[this.jsonNames.testTime]));
 
-                if (test[this.jsonNames.testTime] && isLastTestRun) generatedReport += `<div id="${test.id}" class="test" status="${test.status}" onclick="testOnClick(this)">${test.name}<img class="tag" onclick="tagOnClick(this)"></div>`;
+                if (test[this.jsonNames.testTime] && isLastTestRun) generatedReport += `<div id="${test.id}" class="test" status="${test.status}">${test.name}<div class="tag"></div></div>`;
                 stepsArray.push({
                     id: test.id,
 
@@ -177,7 +211,23 @@ module.exports = {
 
                     steps: this.stepsToString(test.steps),
 
-                    screenshot: test[this.jsonNames.screenshotOnFail] ? test[this.jsonNames.screenshotOnFail] : '',
+                    screenshot: (() => {
+                        const screenValue = test[this.jsonNames.screenshotOnFail];
+                        const base64prefix = 'data:image/png;base64,';
+
+                        if (screenValue) {
+                            if (screenValue.startsWith(base64prefix)) {
+                                const buffer = Buffer.from(screenValue.replace(base64prefix, ''), 'base64');
+                                const compressedBuffer = this.compressImageSync(buffer, 50); // Compress with 50% quality
+                                const base64 = compressedBuffer.toString('base64');
+
+                                return `data:image/png;base64,${base64}`;
+                            }
+
+                            return screenValue;
+                        }
+                        return '';
+                    })(),
 
                     durationMs: test[this.jsonNames.testDuration],
 
@@ -243,7 +293,7 @@ module.exports = {
         steps.forEach(step => {
             stepsString += '<div class="step" hiddeninfo>';
             if (step.name)
-                stepsString += `<div class="stepName" onclick="stepOnClick(this)">${step.name}</div>`;
+                stepsString += `<div class="stepName">${step.name}</div>`;
             step.actions.forEach(action => {
                 stepsString += `<div class="subStep">${action}</div>`;
             });

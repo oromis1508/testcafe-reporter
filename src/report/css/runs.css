@@ -1,67 +1,67 @@
-runs {
-    position: absolute;
-    left: 10vw;
-    width: 30vw;
-    overflow: auto;
-    height: 1.11vw;
-    top: 5vh;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-  }
-  
-  runs button {
-    height: inherit;
-  }
-
-  runs button:not(.selected) {
-    border-width: 1px;
-    }
-  
-  runs button:hover {
-    opacity: 0.7;
-    cursor: pointer;
-  }
-  
-  runs::-webkit-scrollbar {
-    display: none;
-  }
-  
-  runs button.passed {
-    background-image: radial-gradient(#00dd00, #00ff00);
-  }
-  
-  runs button.failed {
-    background-image: radial-gradient(#ff0000, #dd0000);
-  }
-  
-  runs button.broken {
-    background-image: radial-gradient(#dddd00, #ffff00);
-  }
-  
-  runs button.skipped {
-    background-image: radial-gradient(#dddddd, #aaaaaa);
+.runs {
+  position: absolute;
+  left: 10vw;
+  width: 30vw;
+  overflow: auto;
+  height: 1.11vw;
+  top: 5vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
 }
 
-  runs button.selected {
-    border-color: blue;
+.runs button {
+  height: inherit;
+}
+
+.runs button:not(.selected) {
+  border-width: 1px;
   }
 
-  table {
-    position: fixed;
-    left: 50vw;
-    width: 49vw;
-    top: 4vh;
-    overflow: auto;
-    display: block;
-    white-space: nowrap;
-  }
+.runs button:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
 
-  table runs, table button {
-    position: unset;
-  }
+.runs::-webkit-scrollbar {
+  display: none;
+}
 
-  th, td {
-    border: 2px black solid;
-    padding: 2px;
-  }
+.runs button.passed {
+  background-color: #a8e6a1;
+}
+
+.runs button.failed {
+  background-color: #f6a1a1;
+}
+
+.runs button.broken {
+  background-color: #f3e99f;
+}
+
+.runs button.skipped {
+  background-color: #cccccc;
+}
+
+.runs button.selected {
+  border-color: blue;
+}
+
+table {
+  position: fixed;
+  left: 50vw;
+  width: 49vw;
+  top: 4vh;
+  overflow: auto;
+  display: block;
+  white-space: nowrap;
+}
+
+table runs, table button {
+  position: unset;
+}
+
+th, td {
+  border: 2px black solid;
+  padding: 2px;
+}

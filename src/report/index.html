@@ -1,30 +1,32 @@
 <!doctype html>
 <html>
-  <head>
-    <link rel="stylesheet" type="text/css" href="css/main.css"> 
-    <link rel="stylesheet" type="text/css" href="css/runs.css"> 
-    <link rel="stylesheet" type="text/css" href="css/screen.css"> 
-    <link rel="stylesheet" type="text/css" href="css/testinfo.css"> 
-    <link rel="stylesheet" type="text/css" href="css/summary.css">
-    <script src="js/TestRunsController.js" ></script>
-    <script src="js/SummaryController.js" ></script>
-    <script src="js/TestsTreeController.js" ></script>
-    <script src="js/TestInfoController.js" ></script>
-    <script src="js/DocumentController.js" ></script>
-  </head>
-  <body>
-    <div class="summary">
-      <img id="sort" class="default" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAFASURBVEhL7Za9LgVBHEeXjig8g55K6wEoJVqJQqJTeQbR6EWpppSrEjyCykugECof5+zdkclmdz4KzY1fcrLz3+y9ZyeZ+c82M585OIYnWPdGIivgc0dtVRgFp/Dd8QIp0Q743G1bFaQvCDzDmKhKEgs+4bUbK/A6NqNiSV+wD/7Ieg/uu/HQjIolJxALTJD4J0sQRM5oDUKykvnuugtfcADn3ujlDbbgAZZhE6qzChvT4W/imYQswjYstNU0xTN5BN8yl3e4go+2KkyQ/Gn+JVWplbiqXF2uslxcra7aaskhXMIE3KBjcUPfwY1FreQa3PG+peMhkYIzsFVdeCOVoc1o7F2hadpq7G1hMyqwc1jbC7MZk5hY5My82rXtfcUCk5KYWBRTLDA5iemLqgTGM9uz2zM8FUU+5zfBTKdpfgBJ72kPNgLJbwAAAABJRU5ErkJggg==">
-      <div id="time">
-        Start time: 
-        <span>startTime</span>
-      </div>
-      <input id="search" type="text" placeholder="Search..." oninput="onSearch(this.value)">
-      <button id="searchFixture" enabled="false">F</button>
-      <div class="tag" onclick="filterByTag(this)">T</div>
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB3SURBVDiN3dC7CsJQEIThz+Lgy9lbCHm4FIIRYhF9uhRauMVySI5iI2SrWebfC8OmqsOA0mAKrsEumiPu2P/gN6Gvhmv4EXDBbW14l3SHA07RX5L/xDH0GRP6tctj6OId6pD67Dff/08G9ZKlDOZP1+slOYOt1gtUBB32Td/gNAAAAABJRU5ErkJggg==" id="expandFixtures">
+<head>
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <link rel="stylesheet" type="text/css" href="css/runs.css">
+  <link rel="stylesheet" type="text/css" href="css/screen.css">
+  <link rel="stylesheet" type="text/css" href="css/testinfo.css">
+  <link rel="stylesheet" type="text/css" href="css/summary.css">
+  <link rel="stylesheet" type="text/css" href="css/chart.css">
+  <script src="js/DocumentController.js"></script>
+</head>
+<body>
+  <div class="summary">
+    <div id="time">
+      Start time:
+      <span>startTime</span>
+    </div>
+    <input id="search" type="text" placeholder="Search..." oninput="onSearch(this.value)">
+    <div id="searchFixture" enabled="true">F</div>
+    <div class="tag">T</div>
+    <img
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB3SURBVDiN3dC7CsJQEIThz+Lgy9lbCHm4FIIRYhF9uhRauMVySI5iI2SrWebfC8OmqsOA0mAKrsEumiPu2P/gN6Gvhmv4EXDBbW14l3SHA07RX5L/xDH0GRP6tctj6OId6pD67Dff/08G9ZKlDOZP1+slOYOt1gtUBB32Td/gNAAAAABJRU5ErkJggg=="
+      id="expandFixtures">
+    <img id="sort" class="default"
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAFASURBVEhL7Za9LgVBHEeXjig8g55K6wEoJVqJQqJTeQbR6EWpppSrEjyCykugECof5+zdkclmdz4KzY1fcrLz3+y9ZyeZ+c82M585OIYnWPdGIivgc0dtVRgFp/Dd8QIp0Q743G1bFaQvCDzDmKhKEgs+4bUbK/A6NqNiSV+wD/7Ieg/uu/HQjIolJxALTJD4J0sQRM5oDUKykvnuugtfcADn3ujlDbbgAZZhE6qzChvT4W/imYQswjYstNU0xTN5BN8yl3e4go+2KkyQ/Gn+JVWplbiqXF2uslxcra7aaskhXMIE3KBjcUPfwY1FreQa3PG+peMhkYIzsFVdeCOVoc1o7F2hadpq7G1hMyqwc1jbC7MZk5hY5My82rXtfcUCk5KYWBRTLDA5iemLqgTGM9uz2zM8FUU+5zfBTKdpfgBJ72kPNgLJbwAAAABJRU5ErkJggg==">
+      <div id="filter-icon" class="filter-icon" title="Hide tests with stable result by passed runs count">S</div>
+      <input type="number" id="run-count" min="2" max="9" value="3" title="Minimum test runs with the same status" />  
       <div class="radios">
-        <fieldset id="infoType">
+      <fieldset id="infoType">
         <legend>Show tests info:</legend>
         <div>
           <input type="radio" id="singleShow" name="showInfo" checked />
@@ -39,38 +41,43 @@
           <label for="timeShow">Status by pass time</label>
         </div>
       </fieldset>
-      <fieldset id="runsShowType">
-        <legend>Show as:</legend>
-        <div>
-          <input type="radio" id="lineShow" name="showType" checked />
-          <label for="lineShow">Lines/State</label>
-        </div>
-        <div style="visibility: hidden; position: absolute;">
-          <input type="radio" id="tableShow" name="showType" />
-          <label for="tableShow">Table</label>
-        </div>
-        <div style="visibility: hidden;">
-          <input type="radio" id="linePassShow" name="showType" />
-          <label for="linePassShow">Passed/Time</label>
-        </div>
-      </fieldset>
+      	<!-- Container for toggling visibility between #runsShowType and #singleType -->
+	    <div id="showTypeContainer">
+        <fieldset id="runsShowType" style="display: none;">
+          <legend>Show as:</legend>
+          <div>
+            <input type="radio" id="lineShow" name="showType" checked />
+            <label for="lineShow">Lines/State</label>
+          </div>
+          <div style="visibility: hidden; position: absolute;">
+            <input type="radio" id="tableShow" name="showType" />
+            <label for="tableShow">Table</label>
+          </div>
+          <div style="display: none;">
+            <input type="radio" id="linePassShow" name="showType" />
+            <label for="linePassShow">Passed/Time</label>
+          </div>
+        </fieldset>
+        <fieldset id="singleType">
+          <legend>Show single:</legend>
+          <div>
+            <input type="radio" id="singleInfo" name="singleShow" checked />
+            <label for="singleInfo">Info</label>
+          </div>
+          <div>
+            <input type="radio" id="singleChart" name="singleShow" />
+            <label for="singleChart">Time chart</label>
+          </div>
+        </fieldset>
       </div>
     </div>
-    <div class="tests-tree"></div>
-    <div class="test-info">
-      <fieldset id="singleType" style="visibility: hidden;">
-        <legend>Show single:</legend>
-        <div>
-          <input type="radio" id="singleInfo" name="singleShow" checked />
-          <label for="singleInfo">Info</label>
-        </div>
-        <div>
-          <input type="radio" id="singleChart" name="singleShow" />
-          <label for="singleChart">Time chart</label>
-        </div>
-      </fieldset>
-      <div id="run-info"></div>
-      <div id="screenshot"></div>
-    </div>
-  </body>
+  </div>
+  <div class="tests-tree"></div>
+  <div class="test-info">
+    <span class="info-icon"></span>
+    <div id="run-info"></div>
+    <div id="screenshot"></div>
+       </div>
+</body>
+
 </html>

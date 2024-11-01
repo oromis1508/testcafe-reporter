@@ -1,195 +1,165 @@
 .summary {
-    position: inherit;
-    margin: 1vh 0 -1.9vh;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 1vh 0;
     padding-left: 1vw;
-    height: 2.4vh;
-}
-
-.summary div:not([class*=radios]) {
-    display: inline;
-    margin: 0.75vh 0.5vw;
-    padding: 0.6vh 0.4vw;
-    border-radius: 4vw;
-    font-weight: bold;
-    color: #333388;
-}
-
-.summary div.filtered {
-    background-color: white;
-    background-image: none;
-}
-
-.summary div[class]:not([class*='tag']):not([class*=radios]) {
-    font-size: 1.25vw;
-}
-
-.summary div[class]:not([class*='tag']):not([class*=radios]):hover {
-    cursor: pointer;
-    border: 1px dotted grey;
-}
-
-.summary div.filtered:hover {
-    background-color: sandybrown;
-    background-image: none;
-}
-
-.summary .passed {
-    background-image: radial-gradient(#00dd00, #00ff00);
-}
-
-.summary .failed {
-    background-image: radial-gradient(#ff0000, #dd0000);
-}
-
-.summary .broken {
-    background-image: radial-gradient(#dddd00, #ffff00);
-}
-
-.summary .skipped {
-    background-image: radial-gradient(#dddddd, #aaaaaa);
-}
-
-.summary .passed.filtered {
-    color: #007700;
-}
-
-.summary .failed.filtered {
-    color: #770000;
-}
-
-.summary .broken.filtered {
-    color: #777700;
-}
-
-.summary .skipped.filtered {
-    color: #777777;
-}
-
-.summary .passed:hover {
-    background-image: radial-gradient(#00ff00, #00dd00);
-}
-
-.summary .failed:hover {
-    background-image: radial-gradient(#dd0000, #ff0000);
-}
-
-.summary .broken:hover {
-    background-image: radial-gradient(#ffff00, #dddd00);
-}
-
-.summary .skipped:hover {
-    background-image: radial-gradient(#ffffff, #dddddd);
-}
-
-.fixture .summary {
-    position: relative;
-    padding: 0.7vw;
-    left: -1.6vw;
-    top: 0.9vw;
-    margin: -1.4vw;
-    float: right;
-    width: fit-content;
-}
-
-.fixture .summary div {
-    display: inline;
-    margin: 0.1vw;
-    padding: 0vw;
-    border-radius: 4vw;
-    font-weight: bold;
-    color: black;
 }
 
 #time {
-    position: absolute;
-    left: 50vw;
-    top: -0.75vh;
-    font-size: 0.8vw;
-    border: darkgrey 2px solid;
+    position: relative;
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #f4f4f9;
+    color: #333;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Styling for the date/time text */
 #time span {
-    color: black;
+    color: #444;
+    font-weight: normal;
+    font-style: italic;
 }
 
-#search {
-    position: absolute;
-    left: 34vw;
-    width: 14.1vw;
-    height: 2.8vh;
-    top: 0.4vh;
+/* Hover effect for interactivity */
+#time:hover {
+    background-color: #e8e8ef;
+    color: #222;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
+}
+
+.summary #search {
+    margin-left: 1vw;
+    padding: 0.5em;
     font-style: oblique;
-    font-size: 1.5vw;
+    font-size: 1em;
     color: maroon;
-    padding-right: 1vw;
 }
 
-.summary .tag {
+.summary .tag, .summary #searchFixture, .summary #expandFixtures, .summary img#sort, .summary #filter-icon {
     background-color: #3e78ff;
-    color: #dbcfc3;
-    position: absolute;
-    left: 31.5vw;
-    top: -0.3vh;
-    font-size: 1vw;
+    color: #333;
+    margin-left: 1vw;
+    padding: 0.5em;
+    font-size: 1em;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 0.8vw;
+    height: 1em;
+    text-align: center;
 }
 
-.summary .tag.filtered {
-    background-color: #dbcfc3;
-    color: #3e78ff;
-}
-
-#searchFixture {
-    left: 48.73vw;
-    margin: 0;
-    padding: 0;
-    height: 3.4vh;
-    top: 0.4vh;
-    position: absolute;
-    font-weight: 1000;
-    z-index: 1;
-}
-
-#searchFixture[enabled=false] {
-    color: rgba(0,0,0,0.1);
-}
-
-img#sort {
-    position: absolute;
-    left: 0;
-}
-
-.summary fieldset {
-    padding: 0;
-    border: none;
-    padding-bottom: 1vh;
-}
-
-.summary legend {
-    float: left;
+/* Numeric Input Styling */
+#run-count {
+    width: 40px;
+    margin-left: 5px;
+    text-align: center;
+    font-size: 16px;
 }
 
 .summary .radios {
-    right: 0vw;
-    position: fixed;
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 1vw;
+    align-items: center;
 }
 
-#runsShowType {
-    right: 0vw;
-    top: 4vh;
-}
-
-#expandFixtures {
-    position: absolute;
-    left: 30.3vw;
-    width: 1vw;
-    background-color: #3e78ff;
-    border-radius: 4vw;
-    padding: 0.24vw;
-    top: 0.4vh;
-}
-
-.summary .tag:hover, .summary #expandFixtures:hover {
-    cursor: pointer;
+.summary fieldset {
     border: none;
-    opacity: 0.7;
+    margin: 0 1em;
+    padding: 0;
+}
+
+.summary legend {
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.summary .radios div {
+    margin-bottom: 0.5em;
+}
+
+#showTypeContainer {
+    position: relative;
+}
+
+.summary .passed, .summary .failed, .summary .broken, .summary .skipped {
+    margin: 0.5em;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+.summary .passed.filtered, .summary .failed.filtered, .summary .broken.filtered, .summary .skipped.filtered, .summary .tag.filtered, .summary #searchFixture[enabled="false"], img[style]:not([style=""]), .summary #filter-icon.active {
+    color: #aaa;
+	opacity: 0.8;
+}
+
+.summary .passed {
+    background-color: #a8e6a1;
+}
+
+.summary .failed {
+    background-color: #f6a1a1;
+}
+
+.summary .broken {
+    background-color: #f3e99f;
+}
+
+.summary .skipped {
+    background-color: #cccccc;
+}
+
+.summary .passed:hover {
+    background-color: #8ed081;
+}
+
+.summary .failed:hover {
+    background-color: #e68f8f;
+}
+
+.summary .broken:hover {
+    background-color: #e0d17e;
+}
+
+.summary .skipped:hover {
+    background-color: #b3b3b3;
+}
+
+/* Tooltip styling */
+.tooltip {
+    position: absolute;
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    white-space: break-spaces;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+/* Tooltip visible state */
+.tooltip.show {
+    opacity: 1;
+}
+
+/* Button rotation with smooth transition */
+#expandFixtures, #sort {
+    transition: transform 0.3s ease;
+}
+
+#sort[class="name"] {
+	transform: rotate(90deg);
 }

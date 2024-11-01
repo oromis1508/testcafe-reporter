@@ -5,12 +5,19 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 
 <p align="center">
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Main.png" alt="Main view" />
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Chart.png" alt="Chart view" />
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Date.png" alt="Date view" />
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Time.png" alt="Time view" />
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Passtime.png" alt="Passtime view" />
 </p>
 
 ## About
+### New in 2.0.0:
+#### Changed style of the reporter
+#### Added test runs chart feature for single test
+#### Added stable tests filter feature
+#### Some bugs fixed
+
 ### New in 1.5.8:
 #### --days <number X> - to show test runs for X last days (14 by default)
 

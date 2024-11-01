@@ -1,24 +1,25 @@
+/* Style for screenshot if present within .test-info.selected */
+.test-info.selected #screenshot img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow for emphasis */
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
 
+/* Increase screenshot size on hover for clarity */
+.test-info.selected #screenshot img:hover {
+    transform: scale(1.05);
+}
 #screenshot {
     width: 20vw;
     position: absolute;
     left: 14.4vw;
-    bottom: 22vh;
+    top: 52vh;
 }
 
-#screenshot img {
-    width: inherit;
-    height: 20vh;
-    position: inherit;
-    border-radius: 5vw;
-}
-
-#screenshot img.increased:hover {
-    cursor: zoom-out;
-}
-
-#screenshot img:hover {
-    cursor: zoom-in;
+#screenshot:empty {
+display: none;
 }
 
 #screenshot img.increased {
