@@ -163,3 +163,9 @@
 #sort[class="name"] {
 	transform: rotate(90deg);
 }
+
+.statuses {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    display: grid;
+}

@@ -29,7 +29,8 @@
     const getShowChartRadio = () => document.querySelector('#singleChart');
     const getFilterIcon = () => document.getElementById('filter-icon');
     const getRunCountInput = () => document.getElementById('run-count');
-
+    const getContextMenu = () => document.querySelector('.context-menu');
+    
     // Tooltip element
     let tooltip;
 
@@ -115,7 +116,7 @@
     const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
     // Append summary elements to a container
-    const appendSummaryElements = (statuses, container, includeName) => {
+    const appendSummaryElements = (statuses, container, includeName, id) => {
         STATUS_CLASSES.forEach((statusName) => {
             const count = statuses[statusName] || 0;
 
@@ -123,9 +124,20 @@
                 const statusElement = document.createElement('div');
 
                 statusElement.classList.add(statusName);
-                statusElement.textContent = includeName
-                    ? `${capitalize(statusName)}: ${count}`
-                    : count.toString();
+                if (includeName) statusElement.textContent = `${capitalize(statusName)}: ${count}`;
+                else {
+                    container.id = id.toString();
+                    const style = document.createElement('style');
+
+                    document.head.appendChild(style);
+            
+                    // Add a CSS rule for the ::after pseudo-element dynamically
+                    style.sheet.insertRule(`
+                        .summary[id='${id}'] .${statusName}::after {
+                            content: '${count}'
+                        }
+                    `, style.sheet.cssRules.length);
+                }
                 statusElement.addEventListener('click', filterTests);
                 container.appendChild(statusElement);
             }
@@ -134,7 +146,7 @@
 
     // Add summary elements to the page
     const addSummary = () => {
-        const summaryElement = document.querySelector('body > .summary');
+        const summaryElement = document.querySelector('body > .summary > .statuses');
         const testStatuses = calculateStatuses(document);
 
         appendSummaryElements(testStatuses, summaryElement, true);
@@ -144,11 +156,11 @@
 
     // Add summary for each fixture
     const addFixtureSummary = () => {
-        document.querySelectorAll(QUERY_FIXTURE).forEach((fixture) => {
+        document.querySelectorAll(QUERY_FIXTURE).forEach((fixture, id) => {
             const testStatuses = calculateStatuses(fixture);
             const fixtureSummary = fixture.querySelector('.summary');
 
-            appendSummaryElements(testStatuses, fixtureSummary, false);
+            appendSummaryElements(testStatuses, fixtureSummary, false, id);
         });
     };
 
@@ -186,7 +198,7 @@
         new ResizeObserver(setRunsPosition).observe(getFixturesContainer());
 
         document.querySelectorAll(QUERY_FIXTURE_NAME).forEach((fixtureName) => {
-            fixtureName.addEventListener('click', () => onFixtureClick(fixtureName));
+            fixtureName.addEventListener('click', (event) => onFixtureClick(fixtureName, event));
         });
 
         document.querySelectorAll(QUERY_TEST).forEach((test) => {
@@ -202,28 +214,64 @@
         });
 
         // Add event listeners for info interactions
-        // eslint-disable-next-line no-unused-expressions
+         
         document.querySelector(QUERY_TEST_INFO)?.addEventListener('click', (event) => {
-            if (event.target.classList.contains('error') || event.target.closest('.error')) 
+            if (event.target.closest('.error')) 
                 errorOnClick(event);
-            else if (event.target.classList.contains('step-name')) 
+            else if (event.target.closest('.step')) 
                 stepOnClick(event.target);
             else if (event.target.matches('#screenshot img')) 
                 screenOnClick();
             
         });
 
-        // eslint-disable-next-line no-unused-expressions
+        document.querySelector(QUERY_TEST_INFO)?.addEventListener('contextmenu', function (event) {
+            if (!event.target.closest('.error')) return;
+            event.preventDefault();
+            const contextMenu = getContextMenu();
+
+            contextMenu.style.top = `${event.clientY}px`;
+            contextMenu.style.left = `${event.clientX}px`;
+            contextMenu.style.display = 'block';
+        });
+    
+        // Close the context menu when clicking outside
+        document.addEventListener('click', function () {
+            getContextMenu().style.display = 'none';
+        });
+
+        document.getElementById('copy-name').addEventListener('click', function () {
+            const nameText = document.querySelector('.error-name').textContent.trim();
+
+            navigator.clipboard.writeText(nameText).then(() => {
+                alert('Error name copied to clipboard!');
+            });
+        });
+    
+        // Copy Full Error content to clipboard with newlines between tags
+        document.getElementById('copy-full').addEventListener('click', function () {
+            let errorText = '';
+
+            document.querySelector('.error').childNodes.forEach((child) => {
+                if (child.nodeType === Node.ELEMENT_NODE) 
+                    errorText += child.textContent.trim() + '\n';
+                
+            });
+            navigator.clipboard.writeText(errorText.trim()).then(() => {
+                alert('Full error content copied to clipboard!');
+            });
+        });
+    
+        // Show error in context (modal)
+        document.getElementById('show-context').addEventListener('click', function () {
+            showDialog(document.querySelector('.error'));
+        });
+
         document.querySelector('body')?.addEventListener('wheel', (event) => {
-            if (event.target.closest('.runs') || event.target.closest('.chart-wrapper')) {
-                try {
-                    event.preventDefault();
-                }
-                catch {
-                    //ignore
-                }
-                document.querySelector('.runs, .chart-wrapper').scrollLeft += event.deltaY;
-            }
+            if (event.target.closest('.runs')) 
+                event.target.closest('.runs').scrollLeft += event.deltaY;
+            else if (event.target.closest('.chart-wrapper')) 
+                document.querySelector('.chart-wrapper').scrollLeft += event.deltaY;
         });
 		
         // Toggle filter on icon click
@@ -251,6 +299,38 @@
             if (getFilterIcon().classList.contains('active')) 
                 applyStableFilter();
 			
+        });
+    };
+
+    const showDialog = (errorContent) => {
+        // Create overlay and dialog elements
+        const overlay = document.createElement('div');
+
+        overlay.classList.add('dialog-overlay');
+        const dialogBox = document.createElement('div');
+
+        dialogBox.classList.add('dialog-box');
+        dialogBox.innerHTML = `
+            <button class="close-button">&times;</button>
+            <h3>Error Context</h3>
+            <pre class="error-expanded">${errorContent.innerHTML}</pre>
+        `;
+        
+        overlay.appendChild(dialogBox);
+        document.body.appendChild(overlay);
+
+        // Show dialog
+        overlay.style.display = 'block';
+
+        // Close the dialog on close button click
+        dialogBox.querySelector('.close-button').addEventListener('click', function () {
+            overlay.remove();
+        });
+
+        // Close the dialog when clicking outside of the dialog box
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) 
+                overlay.remove();
         });
     };
 
@@ -308,14 +388,14 @@
     const filterTests = (event) => {
         const status = event.currentTarget.classList[0];
         const isFiltered = event.currentTarget.classList.contains(CLASS_FILTERED);
-        const isFixture = event.currentTarget.parentElement.parentElement.classList.contains('fixture');
-        const fixtures = isFixture ? [event.currentTarget.parentElement.parentElement] : document.querySelectorAll(QUERY_FIXTURE);
+        const closestFixture = event.currentTarget.closest(QUERY_FIXTURE);
+        const fixtures = closestFixture ? [closestFixture] : document.querySelectorAll(QUERY_FIXTURE);
 		
         fixtures.forEach((fixture) => {
             fixture.querySelectorAll(`${QUERY_TEST}[status='${status}']`).forEach((test) => {
                 if (isFiltered) {
                     test.classList.remove(CLASS_HIDDEN);
-                    if (!isFixture) document.querySelectorAll(`.fixture .summary .${status}.${CLASS_FILTERED}`).forEach(el => el.classList.remove(CLASS_FILTERED));
+                    if (!closestFixture) document.querySelectorAll(`.fixture .summary .${status}.${CLASS_FILTERED}`).forEach(el => el.classList.remove(CLASS_FILTERED));
                 }
                 else test.classList.add(CLASS_HIDDEN);
             });
@@ -456,7 +536,9 @@
     };
 
     // Handle fixture click
-    const onFixtureClick = (fixtureName) => {
+    const onFixtureClick = (fixtureName, event) => {
+        if (!event.target.classList.contains(QUERY_FIXTURE_NAME.substring(1))) return;
+        
         const fixture = fixtureName.parentElement;
         const isSelected = fixture.classList.contains(CLASS_SELECTED);
 
@@ -669,9 +751,9 @@
         const runIcon = document.querySelector('.info-icon');
         const content = Array.from(document.querySelector('#run-info').children).map(child => child.textContent);
 
-        // eslint-disable-next-line no-unused-expressions
+         
         runIcon?.addEventListener('mouseenter', event => showTooltip(content.join('\n'), event));
-        // eslint-disable-next-line no-unused-expressions
+         
         runIcon?.addEventListener('mouseleave', removeTooltip);
 
         testInfoContainer.classList.add(CLASS_SELECTED);
@@ -753,7 +835,7 @@
 
     // Screen hover effect
     const screenOnHover = () => {
-        // eslint-disable-next-line no-unused-expressions
+         
         document.querySelector('#screenshot img')?.classList.add('increased');
     };
 
@@ -770,7 +852,7 @@
 
     // Screen leave effect
     const screenOnLeave = () => {
-        // eslint-disable-next-line no-unused-expressions
+         
         document.querySelector('#screenshot img')?.classList.remove('increased');
     };
 
@@ -799,7 +881,7 @@
 
     // Step click handler
     const stepOnClick = (stepNameElement) => {
-        const stepBlock = stepNameElement.parentElement;
+        const stepBlock = stepNameElement.closest('.step');
         const isHidden = stepBlock.hasAttribute('hiddenInfo');
 
         if (isHidden) 
@@ -977,14 +1059,15 @@
 
     // Set runs position (placeholder function, implementation needed)
     const setRunsPosition = () => {
+        if (!window.tests) window.tests = [];
+        
         document
             .querySelectorAll('.tests-tree > .runs')
             .forEach(
                 (run) => {
-                    run.style.top =
-                    document
-                        .querySelector(`${QUERY_TEST}[id='${run.id}']`)
-                        .getBoundingClientRect().top - window.summaryBottom + 'px';
+                    const test = window.tests[run.id] ?? (window.tests[run.id] = document.querySelector(`${QUERY_TEST}[id='${run.id}']`));
+
+                    run.style.top = test.getBoundingClientRect().top - window.summaryBottom + 'px';
                 });
     };
 
@@ -1091,6 +1174,7 @@
     window.setRunsPosition = setRunsPosition;
     window.checkAndHideFixture = checkAndHideFixture;
     window.applyStableFilter = applyStableFilter;
+    window.showDialog = showDialog;
 
     
     // Initialization function

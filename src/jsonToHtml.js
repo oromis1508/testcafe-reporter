@@ -196,7 +196,7 @@ module.exports = {
 
         generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
-            generatedReport += `<div class="fixture"><div class="summary"></div><div class="fixtureName">${fixture.name}</div>`;
+            generatedReport += `<div class="fixture"><div class="fixtureName">${fixture.name}<div class="summary"></div></div>`;
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
                 const isLastTestRun = !fixture.tests.find(another => test.name === another.name && new Date(another[this.jsonNames.testTime]) > new Date(test[this.jsonNames.testTime]));
@@ -275,15 +275,18 @@ module.exports = {
                 }
             }
 
-            if (i === stepsArray.length - 1 && reportParts.length) reportParts.push(curentString);
+            const lastItem = i === stepsArray.length - 1;
+            const haveLength = reportParts.length;
+            
+            if (lastItem && haveLength) reportParts.push(curentString);
         });
 
         if (reportParts.length) {
-            reportParts.push('</div>');
+            reportParts.push('</div></div>');
             return reportParts;
         }
 
-        return generatedReport + '</div>';
+        return generatedReport + '</div></div>';
     },
 
 

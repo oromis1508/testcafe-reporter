@@ -24,8 +24,8 @@ display: none;
 
 #screenshot img.increased {
     width: 77%;
-    bottom: 1vh;
-    height: 100%;
+    bottom: 2vh;
+    height: 96%;
     left: 10vw;
     z-index: 1;
     position: fixed;

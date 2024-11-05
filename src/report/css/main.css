@@ -47,7 +47,7 @@ box-sizing: border-box;
 /* Styling for .fixtureName */
 .fixtureName {
     background: linear-gradient(to right, #8884d8, #6b62cc);
-    padding: 0.5em 1em;
+    padding: 0.25em 1em;
     border-radius: 0.5em;
     font-weight: bold;
     font-size: 1.2em;
@@ -56,7 +56,6 @@ box-sizing: border-box;
     align-items: center;
     flex-grow: 1;
 }
-
 
 .fixtureName::before {
     content: "\25BA"; /* Unicode character for right-pointing triangle (►) */
@@ -75,7 +74,7 @@ box-sizing: border-box;
 
 /* .summary placed on the right side */
 .fixture .summary {
-    display: flex;
+    display: contents;
     gap: 0.5em;
     align-items: center;
     padding-left: 1em;
