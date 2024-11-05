@@ -243,9 +243,7 @@
         document.getElementById('copy-name').addEventListener('click', function () {
             const nameText = document.querySelector('.error-name').textContent.trim();
 
-            navigator.clipboard.writeText(nameText).then(() => {
-                alert('Error name copied to clipboard!');
-            });
+            navigator.clipboard.writeText(nameText);
         });
     
         // Copy Full Error content to clipboard with newlines between tags
@@ -257,9 +255,7 @@
                     errorText += child.textContent.trim() + '\n';
                 
             });
-            navigator.clipboard.writeText(errorText.trim()).then(() => {
-                alert('Full error content copied to clipboard!');
-            });
+            navigator.clipboard.writeText(errorText.trim());
         });
     
         // Show error in context (modal)
