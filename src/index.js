@@ -89,7 +89,7 @@ module.exports = function () {
             try {
                 this.fs.writeFileSync(this.getResultFileName(), JSON.stringify(object, null, 2));
             }
-            catch (err) { /** ignore */}
+            catch { /** ignore */}
         },
 
         getJsonAsObject () {
@@ -338,7 +338,7 @@ module.exports = function () {
                 else if (this.fs.existsSync(this.getResultFileName())) 
                     maxTestId = this.getMaxTestId();
             }
-            catch (e) {
+            catch {
             /*file doesn't exist*/
             }  
         },

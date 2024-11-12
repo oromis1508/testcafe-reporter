@@ -280,7 +280,7 @@
             else {
                 // Show all tests when filter is deactivated
                 getFilterIcon().title = 'Hide tests with stable result by passed runs count';
-                document.querySelectorAll(`.test.${CLASS_STABLE_HIDDEN}`).forEach(testEl => {
+                document.querySelectorAll(`.${CLASS_STABLE_HIDDEN}`).forEach(testEl => {
                     testEl.classList.remove(CLASS_STABLE_HIDDEN);
                 });
                 document.querySelectorAll(QUERY_FIXTURE).forEach(f => checkAndHideFixture(f));
@@ -589,9 +589,8 @@
 
         clearTestInfo(isSelected);
 
-        const testData = stepsData.find((data) => data.id === testElement.id);
-        const testRuns = stepsData.filter((data) => data.t === testData.t && data.f === testData.f);
-        const selectedRunData = indexToShow ? testRuns[indexToShow - 1] : testData;
+        const testData = getTestRuns(testElement);
+        const selectedRunData = indexToShow ? testData.runs[indexToShow - 1] : testData.data;
 
         if (!isSelected || forceShow) addTestRuns(testElement);
 
@@ -614,9 +613,7 @@
 
     // Add test runs to a test element
     const addTestRuns = (testElement, isDuration = false, notClickable = false, isShowPassed = false) => {
-        const testData = stepsData.find((data) => data.id === testElement.id);
-
-        let testRuns = stepsData.filter((data) => data.t === testData.t && data.f === testData.f);
+        let testRuns = getTestRuns(selectedTest).runs;
 		
         const runsBlock = document.createElement('div');
 
@@ -1025,14 +1022,7 @@
         const selectedTest = document.querySelector(`${QUERY_TEST}.${CLASS_SELECTED}`);
 
         if (selectedTest) {
-            if (event.target.id === 'singleChart') {
-                const elementData = stepsData.find((data) => data.id === selectedTest.id);
-                const testRuns = stepsData.filter(
-                    (data) => data.t === elementData.t && data.f === elementData.f
-                );
-
-                drawBarChart(testRuns);
-            }
+            if (event.target.id === 'singleChart') drawBarChart(getTestRuns(selectedTest).runs);
             // eslint-disable-next-line no-undefined
             else testOnClick(selectedTest, undefined, true);
         }
@@ -1140,17 +1130,37 @@
 
         // Show only tests that meet the criteria
         document.querySelectorAll('.test').forEach(testElement => {
-            const testData = stepsData.find((data) => data.id === testElement.id);
-            const testRuns = stepsData.filter((data) => data.t === testData.t && data.f === testData.f);
-			
+            const testData = getTestRuns(testElement);
+
             if (testRuns.length >= minRuns) {
                 for (let i = 0; i < minRuns; i++) {
-                    if (testData.status !== testRuns[i].status || testData.stackTrace()[0]?.at(0) !== testRuns[i].stackTrace()[0]?.at(0)) break;
+                    if (testData.data.status !== testData.runs[i].status || testData.data.stackTrace()[0]?.at(0) !== testData.runs[i].stackTrace()[0]?.at(0)) break;
                     if (i === minRuns - 1) testElement.classList.add(CLASS_STABLE_HIDDEN);
                 }
             }
         });
         document.querySelectorAll(QUERY_FIXTURE).forEach(f => checkAndHideFixture(f));
+    };
+
+    const getTestRuns = (testElement) => {
+        if (!window.runs) window.runs = [];
+        if (!window.tdata) window.tdata = [];
+
+        if (window.runs[testElement.id]) {
+            return {
+                runs: window.runs[testElement.id],
+                data: window.tdata[testElement.id]
+            };
+        }
+
+        window.tdata[testElement.id] = stepsData.find((data) => data.id === testElement.id);
+        
+        window.runs[testElement.id] = stepsData.filter((data) => data.t === testData.t && data.f === testData.f);
+
+        return {
+            runs: window.runs[testElement.id],
+            data: window.tdata[testElement.id]
+        };
     };
 
     window.onFixtureClick = onFixtureClick;
@@ -1171,6 +1181,7 @@
     window.checkAndHideFixture = checkAndHideFixture;
     window.applyStableFilter = applyStableFilter;
     window.showDialog = showDialog;
+    window.getTestRuns = getTestRuns;
 
     
     // Initialization function

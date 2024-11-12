@@ -159,118 +159,57 @@ module.exports = {
         return path;
     },
     
-    compressImageSync (inputBuffer, quality = 80) {
-        try {
-            // Create a temporary input file path
-            const tempInputPath = require('path').join(require('os').tmpdir(), 'input_image.jpg');
-            const tempOutputPath = require('path').join(require('os').tmpdir(), 'output_image.jpg');
-    
-            // Write the input buffer to the temporary input file
-            fs.writeFileSync(tempInputPath, inputBuffer);
-    
-            // Call the imageProcessor.js script and capture its output (base64-encoded image)
-            require('child_process').execFileSync(
-                'node', 
-                ['node_modules/testcafe-reporter-acd-html-reporter/lib/imageProcessor.js', tempInputPath, tempOutputPath, quality],
-                { encoding: 'utf-8' } // Capture stdout as string (base64-encoded image)
-            );
-    
-            // Convert the base64 output back to a Buffer (bitmap)
-            const compressedBuffer = fs.readFileSync(tempOutputPath);
-    
-            // Clean up the temporary input file
-            fs.unlinkSync(tempInputPath);
-            fs.unlinkSync(tempOutputPath);
-            
-            return compressedBuffer;
-        }
-        catch (error) {
-            console.error('Error compressing image synchronously:', error);
-            return inputBuffer;
-        }
-    },
-    
-
     getJsonAsHtml: function (json) {
-        let generatedReport = '';
+        //open fixtures tag
+        let generatedReport = '<div class="fixtures">';
 
-        generatedReport += '<div class="fixtures">';
         json.fixtures.forEach(fixture => {
-            generatedReport += `<div class="fixture"><div class="fixtureName">${fixture.name}<div class="summary"></div></div>`;
+            //open fixture tag
+            generatedReport += '<div class="fixture">';
+            //fixtureName content
+            generatedReport += `<div class="fixtureName">${fixture.name}<div class="summary"></div></div>`;
+            //open tests tag
             generatedReport += '<div class="tests">';
             fixture.tests.forEach(test => {
                 const isLastTestRun = !fixture.tests.find(another => test.name === another.name && new Date(another[this.jsonNames.testTime]) > new Date(test[this.jsonNames.testTime]));
-
+                
+                //test content
                 if (test[this.jsonNames.testTime] && isLastTestRun) generatedReport += `<div id="${test.id}" class="test" status="${test.status}">${test.name}<div class="tag"></div></div>`;
-                stepsArray.push({
-                    id: test.id,
-
-                    fixture: fixture.name,
-
-                    test: test.name,
-
-                    steps: this.stepsToString(test.steps),
-
-                    screenshot: (() => {
-                        const screenValue = test[this.jsonNames.screenshotOnFail];
-                        const base64prefix = 'data:image/png;base64,';
-
-                        if (screenValue) {
-                            if (screenValue.startsWith(base64prefix)) {
-                                const buffer = Buffer.from(screenValue.replace(base64prefix, ''), 'base64');
-                                const compressedBuffer = this.compressImageSync(buffer, 50); // Compress with 50% quality
-                                const base64 = compressedBuffer.toString('base64');
-
-                                return `data:image/png;base64,${base64}`;
-                            }
-
-                            return screenValue;
-                        }
-                        return '';
-                    })(),
-
-                    durationMs: test[this.jsonNames.testDuration],
-
-                    userAgent: test[this.jsonNames.testUserAgents],
-
-                    stackTrace: test[this.jsonNames.testStackTrace],
-
-                    time: test[this.jsonNames.testTime],
-
-                    status: test[this.jsonNames.testStatus],
-                });
+                stepsArray.push(new this.StepsData(test, fixture.name, this.jsonNames));
             });
+            //close tests tag, close fixture tag
             generatedReport += '</div></div>';
         }); 
+        //close fixtures tag
         generatedReport += '</div>';
+        //open steps tag
         generatedReport += '<div steps style="display: none;">';
 
         const reportParts = [];
+        const maxLength = 2 ** 27;
 
-        stepsArray.forEach((stepsData, i) => {
-            const testData = `<div fixtureId="${stepsData.id}" status="${stepsData.status}" screenshot="${stepsData.screenshot}" durationMs="${stepsData.durationMs}" userAgent="${stepsData.userAgent}" time="${stepsData.time}" f="${stepsData.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${stepsData.test.replace(/([\t\n\f />"'=]+)/, '')}">`;
-            const replacedData = stepsData.steps.replace('<step>', testData);
-            
+        stepsArray.forEach((stepsData, i) => {           
             let curentString = generatedReport;
             
-            try {
-                curentString += replacedData;
+            if (maxLength - curentString.length > stepsData.steps.length) {
+                curentString += stepsData.steps;
                 generatedReport = curentString;
             }
-            catch {
-                reportParts.push(generatedReport);
-                curentString = replacedData;
+            else {
+                reportParts.push(curentString);
+                curentString = stepsData.steps;
             }
                 
             if (stepsData.stackTrace && stepsData.stackTrace.length) {
-                const trace = `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace)}</div>`;
+                //trace content
+                const trace = `<div traceId="${stepsData.id}">${JSON.stringify(stepsData.stackTrace).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
 
-                try {
+                if (maxLength - curentString.length > trace.length) {
                     curentString += trace;
                     generatedReport = curentString;
                 }
-                catch {
-                    reportParts.push(generatedReport);
+                else {
+                    reportParts.push(curentString);
                     curentString = trace;
                 }
             }
@@ -282,27 +221,112 @@ module.exports = {
         });
 
         if (reportParts.length) {
-            reportParts.push('</div></div>');
+            //close steps tag
+            reportParts.push('</div>');
             return reportParts;
         }
 
-        return generatedReport + '</div></div>';
+        //close steps tag
+        return generatedReport + '</div>';
     },
 
+    StepsData: function (test, fixtureName, jsonNames) {
+        const getContentAsString = function (str) {
+            return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        };
 
-    stepsToString: function (steps) {
-        let stepsString = '<step>';
+        this.id = test.id;
+        this.fixture = fixtureName;
+        this.test = test.name;
+        this.screenshot = (() => {
+            const screenValue = test[jsonNames.screenshotOnFail];
+            const base64prefix = 'data:image/png;base64,';
 
-        steps.forEach(step => {
-            stepsString += '<div class="step" hiddeninfo>';
-            if (step.name)
-                stepsString += `<div class="stepName">${step.name}</div>`;
-            step.actions.forEach(action => {
-                stepsString += `<div class="subStep">${action}</div>`;
+            if (screenValue) {
+                if (screenValue.startsWith(base64prefix)) {
+                    const buffer = Buffer.from(screenValue.replace(base64prefix, ''), 'base64');
+                    const compressedBuffer = (() => {
+                        try {
+                            // Create a temporary input file path
+                            const tempInputPath = require('path').join(require('os').tmpdir(), 'input_image.jpg');
+                            const tempOutputPath = require('path').join(require('os').tmpdir(), 'output_image.jpg');
+                    
+                            // Write the input buffer to the temporary input file
+                            fs.writeFileSync(tempInputPath, buffer);
+                    
+                            // Call the imageProcessor.js script and capture its output (base64-encoded image)
+                            require('child_process').execFileSync(
+                                'node', 
+                                ['node_modules/testcafe-reporter-acd-html-reporter/lib/imageProcessor.js', tempInputPath, tempOutputPath, 50],
+                                { encoding: 'utf-8' } // Capture stdout as string (base64-encoded image)
+                            );
+                    
+                            // Convert the base64 output back to a Buffer (bitmap)
+                            const innerCompressedBuffer = fs.readFileSync(tempOutputPath);
+                    
+                            // Clean up the temporary input file
+                            try { 
+                                fs.unlinkSync(tempInputPath);
+                            } 
+                            catch {
+                                //ignore
+                            }
+                            try { 
+                                fs.unlinkSync(tempOutputPath);
+                            } 
+                            catch {
+                                //ignore
+                            }
+                            
+                            return innerCompressedBuffer;
+                        }
+                        catch (error) {
+                            console.error('Error compressing image synchronously:', error);
+                            return buffer;
+                        }
+                    })();
+
+                    const base64 = compressedBuffer.toString('base64');
+
+                    return `data:image/png;base64,${base64}`;
+                }
+
+                return screenValue;
+            }
+            return '';
+        })();
+
+        this.durationMs = test[jsonNames.testDuration];
+
+        this.userAgent = test[jsonNames.testUserAgents];
+
+        this.stackTrace = test[jsonNames.testStackTrace];
+
+        this.time = test[jsonNames.testTime];
+
+        this.status = test[jsonNames.testStatus];
+
+        this.steps = (() => {
+            //open main steps tag
+            let stepsString = `<div fixtureId="${this.id}" status="${this.status}" screenshot="${this.screenshot}" durationMs="${this.durationMs}" userAgent="${this.userAgent}" time="${this.time}" f="${this.fixture.replace(/([\t\n\f />"'=]+)/, '')}" t="${this.test.replace(/([\t\n\f />"'=]+)/, '')}">`;
+    
+            test.steps.forEach(step => {
+                //open step tag
+                stepsString += '<div class="step" hiddeninfo>';
+                //stepName content 
+                if (step.name)
+                    stepsString += `<div class="stepName">${getContentAsString(step.name)}</div>`;
+
+                step.actions.forEach(action => {
+                    //subStep content 
+                    stepsString += `<div class="subStep">${getContentAsString(action)}</div>`;
+                });
+                //close step tag
+                stepsString += '</div>';
             });
-            stepsString += '</div>';
-        });
-        return stepsString + '</div>';
+            //close main steps tag
+            return stepsString + '</div>';
+        })();
     }
 };
 
