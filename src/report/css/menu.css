@@ -67,4 +67,14 @@
     border: 1px solid #ccc;
     padding: 10px;
     background-color: #f9f9f9;
+    max-height: 68vh;
+    overflow: auto;
+}
+
+.dialog-box pre .error-name {
+    overflow: auto;
+    max-width: inherit;
+    max-height: 30vh;
+    font-size: 1em;
+    border: 1px black solid;
 }

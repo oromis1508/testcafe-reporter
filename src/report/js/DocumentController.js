@@ -74,12 +74,12 @@
                 f:          fixtureTitle,
                 status,
                 runtime,
-                steps:      () => document.querySelector(`div[fixtureId='${id}']`)?.outerHTML ?? '',
-                screenshot: () => document.querySelector(`div[fixtureId='${id}']`)?.getAttribute('screenshot') ?? '',
+                steps:      () => el?.outerHTML ?? '',
+                screenshot: () => el?.getAttribute('screenshot') ?? '',
                 stackTrace: () => {
-                    const stackTraceElement = document.querySelector(`div[traceId='${id}']`);
+                    const stackTraceElement = el.nextElementSibling;
 
-                    if (stackTraceElement) {
+                    if (stackTraceElement.getAttribute('traceId') === id) {
                         try {
                             const textContent = stackTraceElement.textContent
                                 .replace(/\n/g, '')
@@ -589,8 +589,9 @@
 
         clearTestInfo(isSelected);
 
-        const testData = getTestRuns(testElement);
-        const selectedRunData = indexToShow ? testData.runs[indexToShow - 1] : testData.data;
+        let selectedRunData = stepsData.find((d) => d.id === testElement.id);
+
+        if (indexToShow) selectedRunData = stepsData.filter((run) => run.t === data.t && run.f === data.f)[indexToShow - 1];
 
         if (!isSelected || forceShow) addTestRuns(testElement);
 
@@ -613,8 +614,10 @@
 
     // Add test runs to a test element
     const addTestRuns = (testElement, isDuration = false, notClickable = false, isShowPassed = false) => {
-        let testRuns = getTestRuns(selectedTest).runs;
-		
+        const data = stepsData.find((d) => d.id === testElement.id);
+        
+        let testRuns = stepsData.filter((run) => run.t === data.t && run.f === data.f);
+
         const runsBlock = document.createElement('div');
 
         runsBlock.classList.add('runs');
@@ -781,28 +784,6 @@
         });
 
         document.querySelector(QUERY_TEST_INFO).insertBefore(errorInfo, document.querySelector(QUERY_TEST_INFO).firstChild);
-        adjustErrorFontSize();
-    };
-
-    // Adjust font size for error names based on content length
-    const adjustErrorFontSize = () => {
-        const errorNames = document.querySelectorAll('.error-name');
-
-        let totalLength = 0;
-
-        errorNames.forEach((errorName) => {
-            totalLength += errorName.textContent.trim().length;
-        });
-
-        const contentLengthOffset = totalLength / 550;
-
-        if (contentLengthOffset > 1) {
-            const fontSize = document.querySelector('#error-info').getBoundingClientRect().height / 14;
-
-            errorNames.forEach((errorName) => {
-                errorName.style.fontSize = `${Math.round(fontSize / contentLengthOffset)}px`;
-            });
-        }
     };
 
     // Add run info to test info
@@ -1022,7 +1003,10 @@
         const selectedTest = document.querySelector(`${QUERY_TEST}.${CLASS_SELECTED}`);
 
         if (selectedTest) {
-            if (event.target.id === 'singleChart') drawBarChart(getTestRuns(selectedTest).runs);
+            const data = stepsData.find((d) => d.id === selectedTest.id);
+            const runs = stepsData.filter((run) => run.t === data.t && run.f === data.f);
+
+            if (event.target.id === 'singleChart') drawBarChart(runs);
             // eslint-disable-next-line no-undefined
             else testOnClick(selectedTest, undefined, true);
         }
@@ -1126,41 +1110,24 @@
     // Filter function
     const applyStableFilter = () => {
         // Get the numeric value from the input
-        const minRuns = parseInt(getRunCountInput().value, 10);
-
-        // Show only tests that meet the criteria
+        const minRuns = parseInt(getRunCountInput().value, 10) - 1;
+		
         document.querySelectorAll('.test').forEach(testElement => {
-            const testData = getTestRuns(testElement);
+            const data = stepsData.find((d) => d.id === testElement.id);
+            const dataTrace = data.stackTrace()[0]?.at(0);
+            const runs = stepsData.filter((run) => run.t === data.t && run.f === data.f);
 
-            if (testRuns.length >= minRuns) {
-                for (let i = 0; i < minRuns; i++) {
-                    if (testData.data.status !== testData.runs[i].status || testData.data.stackTrace()[0]?.at(0) !== testData.runs[i].stackTrace()[0]?.at(0)) break;
-                    if (i === minRuns - 1) testElement.classList.add(CLASS_STABLE_HIDDEN);
+            if (runs.length >= minRuns) {
+                for (let i = 0; i <= minRuns; i++) {
+				    if (i === minRuns) {
+                        testElement.classList.add(CLASS_STABLE_HIDDEN);
+                        break;
+                    }
+                    if (data.status === runs[i].status && dataTrace === runs[i].stackTrace()[0]?.at(0)) continue;
                 }
             }
         });
         document.querySelectorAll(QUERY_FIXTURE).forEach(f => checkAndHideFixture(f));
-    };
-
-    const getTestRuns = (testElement) => {
-        if (!window.runs) window.runs = [];
-        if (!window.tdata) window.tdata = [];
-
-        if (window.runs[testElement.id]) {
-            return {
-                runs: window.runs[testElement.id],
-                data: window.tdata[testElement.id]
-            };
-        }
-
-        window.tdata[testElement.id] = stepsData.find((data) => data.id === testElement.id);
-        
-        window.runs[testElement.id] = stepsData.filter((data) => data.t === testData.t && data.f === testData.f);
-
-        return {
-            runs: window.runs[testElement.id],
-            data: window.tdata[testElement.id]
-        };
     };
 
     window.onFixtureClick = onFixtureClick;
@@ -1181,7 +1148,6 @@
     window.checkAndHideFixture = checkAndHideFixture;
     window.applyStableFilter = applyStableFilter;
     window.showDialog = showDialog;
-    window.getTestRuns = getTestRuns;
 
     
     // Initialization function
