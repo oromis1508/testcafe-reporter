@@ -1119,7 +1119,7 @@
 
             if (runs.length >= minRuns) {
                 for (let i = 0; i <= minRuns; i++) {
-				    if (i === minRuns) {
+                    if (i === minRuns) {
                         testElement.classList.add(CLASS_STABLE_HIDDEN);
                         break;
                     }
