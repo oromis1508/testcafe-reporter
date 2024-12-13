@@ -591,7 +591,7 @@
 
         let selectedRunData = stepsData.find((d) => d.id === testElement.id);
 
-        if (indexToShow) selectedRunData = stepsData.filter((run) => run.t === data.t && run.f === data.f)[indexToShow - 1];
+        if (indexToShow) selectedRunData = stepsData.filter((run) => run.t === selectedRunData.t && run.f === selectedRunData.f)[indexToShow - 1];
 
         if (!isSelected || forceShow) addTestRuns(testElement);
 

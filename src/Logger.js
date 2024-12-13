@@ -8,7 +8,7 @@ const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', d
 };
 
 const warnPrefix = 'WARN --- : ';
-const log = function (message, isStep, isBroken) {
+const log = function (message, isStep, isWarn, isBroken) {
     const ctx = require('testcafe').t.ctx;
     const isReportUsed = __reporters.length && typeof ctx.runId === 'number';
 
@@ -16,7 +16,7 @@ const log = function (message, isStep, isBroken) {
         if (isReportUsed) {
             __reporters[ctx.runId][isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
 
-            if (isBroken) __reporters[ctx.runId].setTestStatus(ctx.testId, null, message.replace(warnPrefix, ''));
+            if (isWarn) __reporters[ctx.runId].setTestStatus(ctx.testId, null, message.replace(warnPrefix, ''), isBroken);
         }
     }
     catch (err) {
@@ -49,6 +49,10 @@ class Logger {
 
     static warn (message) {
         log(`${warnPrefix}${message}`, false, true);
+    }
+
+    static broken (message) {
+        log(`${warnPrefix}${message}`, false, true, true);
     }
 }
 

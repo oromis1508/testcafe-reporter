@@ -9,5 +9,7 @@ declare module 'testcafe-reporter-acd-html-reporter/lib/Logger' {
             static cleanUp(): void;
             
             static warn(message: string): void;
+
+            static broken(message: string): void;
     }            
 }

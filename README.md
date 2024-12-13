@@ -12,6 +12,9 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 2.0.4:
+#### Logger.broken - test will be always broken if to use it (except skipped one)
+
 ### New in 2.0.1:
 #### Added context menu for errors
 

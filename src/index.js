@@ -138,7 +138,9 @@ module.exports = function () {
             return tests.find(test => test.id === id).status;
         },
 
-        setTestStatus (id, status, brokenMessage) {
+        setTestStatus (id, status, brokenMessage, isForceBroken) {
+            if (this.isForceBroken) return;
+
             if (status === this.testStatuses.failed || this.getTestStatus(id) !== this.testStatuses.broken) {
                 if (status === null) {
                     try {
@@ -153,6 +155,8 @@ module.exports = function () {
                     value: status === null ? this.testStatuses.broken : status
                 });
             }
+
+            this.isForceBroken = isForceBroken;
         },
 
         logBorder (info) {
