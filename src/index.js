@@ -139,7 +139,10 @@ module.exports = function () {
         },
 
         setTestStatus (id, status, brokenMessage, isForceBroken) {
-            if (this.isForceBroken) return;
+            if (this.isForceBroken) {
+                if (this.getTestStatus(id) !== this.testStatuses.broken) this.isForceBroken = false;
+                else return;
+            }
 
             if (status === this.testStatuses.failed || this.getTestStatus(id) !== this.testStatuses.broken) {
                 if (status === null) {
