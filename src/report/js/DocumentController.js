@@ -151,7 +151,7 @@
 
         appendSummaryElements(testStatuses, summaryElement, true);
         getSortButton().addEventListener('click', onSortClick);
-        window.summaryBottom = summaryElement.getBoundingClientRect().bottom;
+        window.summaryBottom = document.querySelector('.tests-tree').getBoundingClientRect().top;
     };
 
     // Add summary for each fixture
@@ -483,15 +483,28 @@
     };
 	
     // Show tooltip at mouse position
-    const showTooltip = (message, event) => {
+    const showTooltip = (message, event, runTooltip) => {
+        if (!message) return;
         if (!tooltip) {
             tooltip = document.createElement('div');
             tooltip.classList.add(CLASS_TOOLTIP);
             document.body.appendChild(tooltip);
         }
+        let left = event.clientX + 10;
+
+        let top = event.clientY + 10;
+
         tooltip.textContent = message;
-        tooltip.style.left = `${event.clientX + 10}px`;
-        tooltip.style.top = `${event.clientY + 10}px`;
+        if (runTooltip) {
+            const rect = event.target.getBoundingClientRect();
+
+            left = rect.left;
+            top = rect.top - 5 - tooltip.getBoundingClientRect().height;
+        }
+		
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
         tooltip.classList.add('show');
     };
 
@@ -517,15 +530,12 @@
             else if (!isExpanded && !isSelected) {
                 fixture.classList.add(CLASS_SELECTED);
                 setTagsPosition(fixture);
-                if (isShowDateStats() || isShowTimeStats()) {
-                    if (isShowAsTable()) onShowAsSwitch();
-                    else {
-                        addRunsForFixture(
-                            fixture,
-                            isShowTimeStats(),
-                            isShowPassed()
-                        );
-                    }
+                if (!isShowSingleTest()) {
+                    addRunsForFixture(
+                        fixture,
+                        isShowTimeStats(),
+                        isShowPassed()
+                    );
                 }
             }
         });
@@ -545,16 +555,12 @@
         else {
             fixture.classList.add(CLASS_SELECTED);
             setTagsPosition(fixture);
-            if (isShowDateStats() || isShowTimeStats()) {
-
-                if (isShowAsTable()) onShowAsSwitch();
-                else {
-                    addRunsForFixture(
-                        fixture,
-                        isShowTimeStats(),
-                        isShowPassed()
-                    );
-                }
+            if (!isShowSingleTest()) {
+                addRunsForFixture(
+                    fixture,
+                    isShowTimeStats(),
+                    isShowPassed()
+                );
             }
         }
     };
@@ -585,7 +591,7 @@
             onShowSingleSwitch({ target: getShowChartRadio() });
             return;
         }
-        if (isShowDateStats() || isShowTimeStats()) return;
+        if (!isShowSingleTest()) return;
 
         clearTestInfo(isSelected);
 
@@ -615,7 +621,8 @@
     // Add test runs to a test element
     const addTestRuns = (testElement, isDuration = false, notClickable = false, isShowPassed = false) => {
         const data = stepsData.find((d) => d.id === testElement.id);
-        
+        const isBoth = isShowBoth();
+
         let testRuns = stepsData.filter((run) => run.t === data.t && run.f === data.f);
 
         const runsBlock = document.createElement('div');
@@ -625,6 +632,7 @@
 
         let minTime = 0;
 
+        if (isBoth) isShowPassed = true;
         if (isShowPassed) {
             testRuns = testRuns.filter((run) => run.status === 'passed');
             minTime = Math.min(...testRuns.map((run) => run.runtime).filter((runtime) => runtime));
@@ -647,7 +655,18 @@
                 runButton.style.backgroundColor = `rgb(${red}, ${255 - red}, 0)`;
             }
 
-            runButton.textContent = isDuration ? runData.durationMs : runData.time;
+            if (isBoth) {
+                runButton.innerHTML = `${runData.durationMs}<br>${runData.time}`;
+                runButton.setAttribute('q', '');
+            } 
+            else if (isDuration) {
+                runButton.textContent = runData.durationMs;
+                runButton.setAttribute('q', runData.time);
+            }
+            else {
+                runButton.textContent = runData.time;
+                runButton.setAttribute('q', runData.durationMs);
+            }
 
             if (!notClickable) {
                 runButton.addEventListener('click', () => {
@@ -658,6 +677,8 @@
                     runButton.classList.add(CLASS_SELECTED);
                 });
             }
+            runButton.addEventListener('mouseenter', event => showTooltip(runButton.getAttribute('q'), event, true));
+            runButton.addEventListener('mouseleave', removeTooltip);
 
             runsBlock.appendChild(runButton);
         });
@@ -694,10 +715,9 @@
         });
     };
 
-    // Check if runs should be displayed as a table
-    const isShowAsTable = () => {
-        return document.querySelector('#runsShowType')?.style.visibility === 'visible' &&
-            document.querySelector('#tableShow')?.checked;
+    const isShowBoth = () => {
+        return document.querySelector('#runsShowType')?.style.display === 'unset' &&
+            document.querySelector('#passDateTime')?.checked;
     };
 
     // Clear test information
@@ -873,7 +893,7 @@
         const showPassed = document.querySelector('#linePassShow').parentElement;
         const singleType = document.querySelector('#singleType');
 
-        if (!isShowTimeStats() && !isShowAsTable())
+        if (!isShowTimeStats() && !isShowBoth())
             document.querySelector('#lineShow').checked = true;
 
         showPassed.style.display = 'none';
@@ -890,12 +910,9 @@
 
             if (event.target.id.includes('time')) showPassed.style.display = 'unset';
 
-            if (isShowAsTable()) onShowAsSwitch();
-            else {
-                document.querySelectorAll(`${QUERY_FIXTURE}.${CLASS_SELECTED}:not([class*=${CLASS_HIDDEN}])`).forEach(fix => {
-                    addRunsForFixture(fix, event.target.id.includes('time'), isPassed);
-                });
-            }
+            document.querySelectorAll(`${QUERY_FIXTURE}.${CLASS_SELECTED}:not([class*=${CLASS_HIDDEN}])`).forEach(fix => {
+                addRunsForFixture(fix, event.target.id.includes('time'), isPassed);
+            });
         }
     };
 
@@ -908,94 +925,7 @@
             }
         };
 
-        if (event?.target?.id?.includes('line')) onShowInfoSwitch(eventToSend, event?.target?.id?.includes('Pass'));
-        else {
-            clearTestInfo();
-
-            let allRuns = [];
-
-            const table = document.createElement('table');
-            const makeForEachTest = (action) => {
-                document.querySelectorAll(`${QUERY_FIXTURE}.${CLASS_SELECTED}:not([class*=${CLASS_HIDDEN}])`).forEach(fix => {
-                    fix.querySelectorAll(`${QUERY_TEST}:not([class*=${CLASS_HIDDEN}])`).forEach(tst => {
-                        action(tst);
-                    });
-                });
-            };
-
-            makeForEachTest((tst) => allRuns.push(...stepsData.filter(data => data.f === stepsData.find(d => d.id === tst.id).f && data.t === stepsData.find(d => d.id === tst.id).t)));
-            allRuns = Object.assign([], allRuns);
-            allRuns.forEach(r => {
-                r.time = new Date(r.time).toDateString();
-            });
-            allRuns.sort((r1, r2) => r2.time.valueOf() - r1.time.valueOf());
-
-            let column;
-
-            let colRuns = [];
-
-            allRuns.forEach((itm, i) => {
-                if (itm.time !== allRuns[i - 1]?.time) {
-                    colRuns.forEach(run => column.appendChild(run));
-                    if (column) table.appendChild(column);
-                    column = document.createElement('col');
-                    colRuns = [];
-                    const header = document.createElement('th');
-
-                    header.textContent = itm.time;
-                    column.appendChild(header);
-                }
-                let curRun = colRuns.find(el => el.f === itm.f && el.t === itm.t);
-
-                if (!curRun) {
-                    curRun = document.createElement('runs');
-                    curRun.f = itm.f;
-                    curRun.t = itm.t;
-                    colRuns.push(curRun);
-                }
-                const button = document.createElement('button');
-
-                // button.style.height = `${testRect.height - 8}px`;
-
-                button.classList.add(itm.status);
-                button.textContent = isShowAsTime ? itm.durationMs : '';
-                curRun.appendChild(button);
-
-            });
-            // table.appendChild(headerRow);
-
-            // makeForEachTest((tst) => {
-            //     const testRuns = allRuns.filter(data => data.f === stepsData.find(d => d.id === tst.id).f && data.t === stepsData.find(d => d.id === tst.id).t);
-            //     const testRow = document.createElement('tr');
-            //     const testRect = tst.getBoundingClientRect();
-
-            //     for (let index = 0; index < headerRow.children.length; index++) {
-            //         const head = headerRow.children[index];
-            //         const curDateItems = testRuns.filter(r => r.time === head.textContent);
-            //         const cell = document.createElement('td');
-            //         const runsElement = document.createElement('runs');
-
-            //         for (let index2 = 0; index2 < curDateItems.length; index2++) {
-            //             const button = document.createElement('button');
-
-            //             button.style.height = `${testRect.height - 8}px`;
-
-            //             button.classList.add(curDateItems[index2].status);
-            //             button.textContent = isShowAsTime ? curDateItems[index2].durationMs : "";
-
-            //             runsElement.appendChild(button);
-            //         }
-            //         cell.appendChild(runsElement);
-            //         testRow.appendChild(cell);
-            //     }
-
-            //     testRow.style.top = `${testRect.top + 4}px`;
-            //     table.appendChild(testRow);
-            // });
-
-            document.querySelector('.tests-tree').appendChild(table);
-
-        }
+        onShowInfoSwitch(eventToSend, event?.target?.id?.includes('Pass'));
     };
 
     // Handle show single switch (placeholder function, implementation needed)
@@ -1012,9 +942,8 @@
         }
     };
 
-    // Check if date stats should be shown
-    const isShowDateStats = () => {
-        return document.querySelector('#dateShow')?.checked;
+    const isShowSingleTest = () => {
+        return document.querySelector('#singleShow')?.checked;
     };
 
     // Check if time stats should be shown
@@ -1036,8 +965,10 @@
             .forEach(
                 (run) => {
                     const test = window.tests[run.id] ?? (window.tests[run.id] = document.querySelector(`${QUERY_TEST}[id='${run.id}']`));
+                    const topVal = test.getBoundingClientRect().top - window.summaryBottom;
 
-                    run.style.top = test.getBoundingClientRect().top - window.summaryBottom + 'px';
+                    if (topVal >= 0) run.style.top = topVal + 'px';
+                    else run.style.top = '-1000px';
                 });
     };
 
