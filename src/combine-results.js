@@ -63,8 +63,14 @@ function processFixtures (fixtures) {
             Object.values(testGroups).forEach(tests => {
                 tests.sort((a, b) => new Date(b.time) - new Date(a.time));
     
-                const uniqueDates = [...new Set(tests.map(test => new Date(test.time).toDateString()))]
-                    .slice(0, longDataToKeepCount);
+                const uniqueDates = [];
+
+                for (let i = 0; i < tests.length; i++) {
+                    const testDate = new Date(tests[i].time).toDateString();
+
+                    if (uniqueDates.indexOf(testDate) === -1) uniqueDates.push(testDate);
+                    if (uniqueDates.length === longDataToKeepCount) break;
+                }
     
                 tests.forEach(test => {
                     const testDate = new Date(test.time).toDateString();
