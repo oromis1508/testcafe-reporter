@@ -8,6 +8,7 @@ const dest = args.dest;
 const last = args.last;
 const single = args.single;
 const daysToShow = args.days ?? 14;
+const keepFullLogsCount = args.keepFullCount ?? 3;
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
@@ -43,6 +44,47 @@ function getFilteredTests (fileFilterBy, fixtures) {
     }
     
     return result;
+}
+
+function processFixtures (fixtures) {
+    const longDataToKeepCount = typeof last === 'string' ? +keepFullLogsCount - 1 : +keepFullLogsCount;
+
+    try {
+        return fixtures.map(fixture => {
+            const testGroups = {};
+    
+            fixture.tests.forEach(test => {
+                const testName = test.name;
+    
+                if (!testGroups[testName]) testGroups[testName] = [];
+                testGroups[testName].push(test);
+            });
+    
+            Object.values(testGroups).forEach(tests => {
+                tests.sort((a, b) => new Date(b.time) - new Date(a.time));
+    
+                const uniqueDates = [...new Set(tests.map(test => new Date(test.time).toDateString()))]
+                    .slice(0, longDataToKeepCount);
+    
+                tests.forEach(test => {
+                    const testDate = new Date(test.time).toDateString();
+    
+                    if (!uniqueDates.includes(testDate)) {
+                        test.screenshot = null;
+                        test.steps = [];
+                    }
+                });
+            });
+    
+            return fixture;
+        });    
+    }
+    catch (err) {
+        console.log(err.message);
+        console.log(err.stack);
+
+        return fixtures;
+    }
 }
 
 function parseFilesAndGenerateReport (files) {
@@ -83,6 +125,8 @@ function parseFilesAndGenerateReport (files) {
     json.fixtures = json.fixtures.filter(f => f.tests.length);
     console.log('Fixtures: ' + json.fixtures.length);
     console.log('Tests: ' + json.fixtures.reduce((acc, f) => acc + f.tests.length, 0));
+
+    json.fixtures = processFixtures(json.fixtures);
 
     if (typeof last === 'string') {
         /**

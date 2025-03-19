@@ -12,6 +12,9 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 2.0.7:
+#### Added keepFullCount argument (by default - 3): now old tests don't save big size data (tests logs and screenshots), keepFullCount - how much days to save (all tests data from last "keepFullCount" days will be saved, days are counted as run days, not calendar days). Example: --keepFullCount=10
+
 ### New in 2.0.6:
 #### Added Show as: Passed/Time/Date mode + time/date on runs button hover
 
