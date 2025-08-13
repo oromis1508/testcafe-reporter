@@ -110,7 +110,7 @@ function parseFilesAndGenerateReport (files) {
             json.startTime = content.startTime;
         
         const testIds = json.fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
-        const maxTestId = Math.max(0, ...testIds);
+        const maxTestId = testIds.reduce((max, id) => Math.max(max, id), 0);
         
         for (const fixture of content.fixtures) {
             fixture.tests.forEach(test => {

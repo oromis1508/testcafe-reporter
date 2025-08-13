@@ -332,7 +332,7 @@ module.exports = function () {
             try {
                 const testIds = this.getJsonAsObject().fixtures.map(fixture => fixture.tests.map(test => test.id)).flat();
 
-                return Math.max(maxTestId, ...testIds) + 1;
+                return testIds.reduce((max, id) => Math.max(max, id), 0);
             }
             catch {
                 return maxTestId;
