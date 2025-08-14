@@ -23,7 +23,8 @@ const log = function (message, isStep, isWarn, isBroken) {
         console.log(err.message ?? err.msg);
     }
     finally {
-        const testRunId = isReportUsed ? `${__reporters[ctx.runId].testRunId}/` : '';
+        const runId = __reporters[ctx.runId].testRunId;
+        const testRunId = isReportUsed && typeof runId !== 'undefined' && runId !== Infinity ? `${runId}/` : '';
 
         console.log(`${getCurrentDateTime()} ---- ${testRunId}${ctx.testId} ---- ${message}`);
     }
