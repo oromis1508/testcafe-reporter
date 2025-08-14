@@ -10,13 +10,14 @@ const getCurrentDateTime = function (dateSeparator = '/', timeSeparator = ':', d
 const warnPrefix = 'WARN --- : ';
 const log = function (message, isStep, isWarn, isBroken) {
     const ctx = require('testcafe').t.ctx;
+    const meta = require('testcafe').t.test.meta;
     const isReportUsed = __reporters.length && typeof ctx.runId === 'number';
 
     try {
         if (isReportUsed) {
-            __reporters[ctx.runId][isStep ? 'addStep' : 'addStepInfo'](ctx.testId, message);
+            __reporters[ctx.runId][isStep ? 'addStep' : 'addStepInfo'](meta, message);
 
-            if (isWarn) __reporters[ctx.runId].setTestStatus(ctx.testId, null, message.replace(warnPrefix, ''), isBroken);
+            if (isWarn) __reporters[ctx.runId].setTestStatus(meta, null, message.replace(warnPrefix, ''), isBroken);
         }
     }
     catch (err) {
