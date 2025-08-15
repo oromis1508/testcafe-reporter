@@ -1,6 +1,10 @@
 # testcafe-reporter-acd-html-reporter
 [![Build Status](https://travis-ci.org/Arg/testcafe-reporter-acd-html-reporter.svg)](https://github.com/oromis1508/testcafe-reporter)
 
+## About
+### Important!
+#### 2.0.11 version works correctly only after execution "npx acd-html-reporter"
+
 This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
 <p align="center">
