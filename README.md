@@ -3,7 +3,7 @@
 
 ## About
 ### Important!
-#### 2.0.11 version works correctly only after execution "npx acd-html-reporter"
+#### 2.0.11+ versions works correctly only after execution "npx acd-html-reporter"
 
 This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
