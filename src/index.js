@@ -84,7 +84,7 @@ module.exports = function () {
                 return true;
             }
             catch (err) { 
-                console.error(err);
+                console.error('writeToJson: ' + (err.message ? err.message : err.msg));
                 return false;
             }
         },
@@ -402,7 +402,7 @@ module.exports = function () {
                 }
             }
             catch (err) {
-                console.log(err.message ? err.message : err.msg);
+                console.log('reportTaskStart: ' + (err.message ? err.message : err.msg));
             }
         },
 
@@ -413,7 +413,7 @@ module.exports = function () {
                 this.doWithFixture(name, () => null);
             }
             catch (err) {
-                console.log(err.message ? err.message : err.msg);
+                console.log('reportFixtureStart: ' + (err.message ? err.message : err.msg));
             }
         },
 
@@ -434,7 +434,7 @@ module.exports = function () {
                 this.doWithTest(meta, () => null);
             }
             catch (err) {
-                console.log(err.message ? err.message : err.msg);
+                console.log('reportTestStart: ' + (err.message ? err.message : err.msg));
             }
         },
 
@@ -497,7 +497,7 @@ module.exports = function () {
                 this.testsInfo.splice(index, 1);
             }
             catch (err) {
-                console.log(err.message ? err.message : err.msg);
+                console.log('reportTestDone: ' + (err.message ? err.message : err.msg));
             }
         },
 
@@ -533,7 +533,7 @@ module.exports = function () {
                 console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
             }
             catch (err) {
-                console.log(err.message ? err.message : err.msg);
+                console.log('reportTaskDone: ' + (err.message ? err.message : err.msg));
             }
         }
 

@@ -203,12 +203,12 @@ const concurencyContent = fs.readFileSync(concurencyBlockFile).toLocaleString();
 const concurencyBlockStr =
     'isBlocked || (hasIncompleteTestRuns || needWaitLastTestInFixture) && !isConcurrency';
 const concurencyBlockReplace =
-    'isBlocked || (hasIncompleteTestRuns && needWaitLastTestInFixture)';
+    'isBlocked || (hasIncompleteTestRuns && needWaitLastTestInFixture) && !isConcurrency';
 
 const featureCheckText =
     'this._reportsPending.some(controller => controller.test.fixture !== testRunController.test.fixture)';
 const featureCheckReplace =
-    'this._reportsPending.some(controller => controller.test.fixture.meta !== testRunController.test.fixture.meta)';
+    'this._reportsPending.some(controller => controller.test.fixture.name !== testRunController.test.fixture.name)';
 const addTestMetaOriginal = `_createTestRunController(test, index) {
         const `;
 const addTestMetaNew = `_createTestRunController(test, index) {

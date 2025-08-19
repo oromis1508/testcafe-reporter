@@ -21,7 +21,7 @@ const log = function (message, isStep, isWarn, isBroken) {
         }
     }
     catch (err) {
-        console.log(err.message ?? err.msg);
+        console.log('logger: ' + (err.message ? err.message : err.msg));
     }
     finally {
         const runId = __reporters[ctx.runId]?.testRunId;
