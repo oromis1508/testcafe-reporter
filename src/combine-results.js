@@ -131,8 +131,10 @@ function parseFilesAndGenerateReport (files) {
         }
     }
 
-    for (const fixture of json.fixtures) 
+    for (const fixture of json.fixtures) {
         fixture.tests = fixture.tests.filter(t => new Date(t.time) >= new Date().setDate(new Date().getDate() - +daysToShow));
+        fixture.tests.sort((t1, t2) => new Date(t1.time) - new Date(t2.time));
+    }
     
     json.fixtures = json.fixtures.filter(f => f.tests.length);
     console.log('Fixtures: ' + json.fixtures.length);
