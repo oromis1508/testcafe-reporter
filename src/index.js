@@ -31,7 +31,7 @@ module.exports = function () {
         appendLogs:        false,
 
         /**
-     * @type {{meta: {fixtureName: string, id: number}, warnError: Error, isForceBroken: bool}[]}
+     * @type {{meta: {fixtureName: string, id: number, name: string}, warnError: Error, isForceBroken: bool}[]}
      */
         testsInfo: [],
 
