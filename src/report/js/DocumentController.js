@@ -216,9 +216,7 @@
         // Add event listeners for info interactions
          
         document.querySelector(QUERY_TEST_INFO)?.addEventListener('click', (event) => {
-            if (event.target.closest('.error')) 
-                errorOnClick(event);
-            else if (event.target.closest('.step')) 
+            if (event.target.closest('.step')) 
                 stepOnClick(event.target);
             else if (event.target.matches('#screenshot img')) 
                 screenOnClick();
@@ -295,6 +293,70 @@
             if (getFilterIcon().classList.contains('active')) 
                 applyStableFilter();
 			
+        });
+
+        document.querySelector('#showShortInfo').addEventListener('change', (ev) => {
+            document.querySelectorAll('.test[status="failed"]').forEach(testEl => {
+                const displayValue = ev.target.checked ? 'block' : 'none';
+                const shortInfo = testEl.querySelector('.shortInfo');
+
+                shortInfo.style.display = displayValue;
+            });
+        });
+
+        document.querySelectorAll('.shortInfo img').forEach(el => {
+            el.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                const existingOverlay = document.querySelector('.image-overlay');
+
+                if (existingOverlay) {
+                    existingOverlay.remove();
+                    return;
+                }
+                const overlay = document.createElement('div');
+                const bigImg = document.createElement('img');
+
+                overlay.className = 'image-overlay';
+                bigImg.src = stepsData.find((d) => d.id === ev.target.parentElement.parentElement.id).screenshot();
+                
+                overlay.appendChild(bigImg);
+                document.body.appendChild(overlay);
+                overlay.addEventListener('click', () => overlay.remove());
+            });
+        });
+        
+        document.querySelectorAll('.shortInfo span').forEach(el => {
+            el.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                const existingOverlay = document.querySelector('.info-overlay');
+
+                if (existingOverlay) {
+                    existingOverlay.remove();
+                    return;
+                }
+                const trace = stepsData.find((d) => d.id === ev.target.parentElement.parentElement.id).stackTrace();
+                const overlay = document.createElement('div');
+
+                overlay.className = 'info-overlay';
+                addStackTrace(trace, overlay);
+                document.body.appendChild(overlay);
+                            
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.remove();
+                });
+            });
+        });
+
+        document.querySelectorAll('.shortInfo input').forEach(el => {
+            const id = el.parentElement.parentElement.id;
+
+            el.value = localStorage.getItem(id) ?? '';
+            el.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+            });
+            el.addEventListener('input', (e) => {
+                localStorage.setItem(id, e.target.value);
+            });
         });
     };
 
@@ -504,6 +566,7 @@
 		
 
         tooltip.style.left = `${left}px`;
+        tooltip.style['z-index'] = '101';
         tooltip.style.top = `${top}px`;
         tooltip.classList.add('show');
     };
@@ -776,7 +839,7 @@
     };
 
     // Add stack trace to test info
-    const addStackTrace = (stackTrace) => {
+    const addStackTrace = (stackTrace, parent) => {
         const errorInfo = document.createElement('div');
 
         errorInfo.id = 'error-info';
@@ -785,7 +848,7 @@
             const errorBlock = document.createElement('div');
 
             errorBlock.classList.add('error');
-
+            errorBlock.addEventListener('click', errorOnClick);
             const errorName = document.createElement('div');
 
             errorName.classList.add('error-name');
@@ -803,7 +866,8 @@
             errorInfo.appendChild(errorBlock);
         });
 
-        document.querySelector(QUERY_TEST_INFO).insertBefore(errorInfo, document.querySelector(QUERY_TEST_INFO).firstChild);
+        if (parent) parent.appendChild(errorInfo);
+        else document.querySelector(QUERY_TEST_INFO).insertBefore(errorInfo, document.querySelector(QUERY_TEST_INFO).firstChild);
     };
 
     // Add run info to test info

@@ -235,3 +235,54 @@ color: tomato;
 #run-info span.broken {
 color: yellow;
 }
+
+.image-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+background: rgba(0,0,0,0.7);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+cursor: zoom-out;
+}
+
+.image-overlay img {
+max-width: 90%;
+max-height: 90%;
+box-shadow: 0 0 20px rgba(0,0,0,0.5);
+border: 2px solid white;
+}
+
+.info-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.7);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+}
+
+.info-overlay #error-info {
+position: unset;
+top: 7vh;
+margin: 0;
+width: auto;
+}
+
+.info-overlay .error:only-child {
+    top: 0;
+}
+
+.info-overlay .error {
+    height: auto;
+    font-size: min(3vh, 3vw);
+}
+
+.info-overlay .error-name {
+    font-size: inherit;
+}

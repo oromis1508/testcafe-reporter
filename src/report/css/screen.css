@@ -27,7 +27,7 @@ display: none;
     bottom: 2vh;
     height: 96%;
     left: 10vw;
-    z-index: 1;
+    z-index: 102;
     position: fixed;
     border-radius: 0;
 }

@@ -16,6 +16,9 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 2.1.0:
+#### Added short failed view (screenshots & trace in tests tree) & saved remarks for failed tests
+
 ### New in 2.0.7:
 #### Added keepFullCount argument (by default - 3): now old tests don't save big size data (tests logs and screenshots), keepFullCount - how much days to save (all tests data from last "keepFullCount" days will be saved, days are counted as run days, not calendar days). Example: --keepFullCount=10
 
