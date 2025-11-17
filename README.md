@@ -8,6 +8,7 @@
 This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
 <p align="center">
+    <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Excel.png" alt="Excel report" />
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Main.png" alt="Main view" />
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Chart.png" alt="Chart view" />
     <img src="https://raw.github.com/oromis1508/testcafe-reporter/master/media/Date.png" alt="Date view" />
@@ -16,6 +17,9 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 2.2.0:
+#### Added excel report (in the same path as html). To disable xlsx generating, use --disableExcel
+
 ### New in 2.1.0:
 #### Added short failed view (screenshots & trace in tests tree) & saved remarks for failed tests
 

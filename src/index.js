@@ -529,7 +529,7 @@ module.exports = function () {
                 console.log(`Duration: ${durationStr}`);
                 console.log(`Run results: ${summary}`);
                 if (this.logWarnings && warnings.length) console.log(warnings);
-                require('child_process').execSync(`npx acd-html-combine ${this.reportUtil.testResultsPath} --dest ${reportPath} --last ${this.getResultFileName()} ${this.appendLogs ? '' : '--single'}`);
+                require('child_process').execSync(`npx acd-html-combine ${this.reportUtil.testResultsPath} --dest ${reportPath} --last ${this.getResultFileName()} ${this.appendLogs ? '' : '--single'}`, { stdio: 'inherit' });
                 console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
             }
             catch (err) {

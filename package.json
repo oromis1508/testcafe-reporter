@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "v2.1.0",
+  "version": "v2.2.0",
   "description": "HTML TestCafe reporter plugin",
   "repository": "https://github.com/oromis1508/testcafe-reporter",
   "author": {
@@ -22,6 +22,7 @@
   "keywords": [
     "testcafe",
     "html",
+    "excel",
     "reporter",
     "plugin",
     "logger"
@@ -51,6 +52,7 @@
     "@devexpress/bin-v8-flags-filter": "^1.3.0",
     "chalk": "^3.0.0",
     "copy-dir": "^1.2.0",
+    "exceljs": "^4.4.0",
     "sharp": "^0.33.5"
   },
   "bin": {

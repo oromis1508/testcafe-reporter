@@ -7,8 +7,14 @@ const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
 const last = args.last;
 const single = args.single;
+const disableExcel = args.disableExcel;
 const daysToShow = args.days ?? 14;
 const keepFullLogsCount = args.keepFullCount ?? 3;
+
+let files = [];
+
+if (fs.existsSync(toCombine) && fs.lstatSync(toCombine).isDirectory()) getJsonsFromDir(toCombine);
+else files = toCombine.split(',');
 
 if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 
@@ -31,7 +37,6 @@ function getFilteredTests (fileFilterBy, fixtures) {
         let copy = {};
 
         try {
-        //eslint-disable-next-line no-undef
             copy = structuredClone(f);
         }
         catch (err) {
@@ -93,7 +98,7 @@ function processFixtures (fixtures) {
     }
 }
 
-function parseFilesAndGenerateReport (files) {
+function getFormattedJson () {
     const json = { startTime: new Date('1999/01/01').toString(), fixtures: [] };
 
     for (const file of files) {
@@ -137,9 +142,6 @@ function parseFilesAndGenerateReport (files) {
     }
     
     json.fixtures = json.fixtures.filter(f => f.tests.length);
-    console.log('Fixtures: ' + json.fixtures.length);
-    console.log('Tests: ' + json.fixtures.reduce((acc, f) => acc + f.tests.length, 0));
-
     json.fixtures = processFixtures(json.fixtures);
 
     if (typeof last === 'string') {
@@ -176,16 +178,19 @@ function parseFilesAndGenerateReport (files) {
         }
         else 
             json.fixtures = getFilteredTests(last, json.fixtures);
-        
     }
 
-    const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));
-
-    console.log(resultHtml);
-    fs.writeFileSync(resultHtml.replace(/\.html$/, '-combined.json'), JSON.stringify(json, null, 2));
+    return json;
 }
 
-const files = [];
+function parseFilesAndGenerateReport () {
+    const json = getFormattedJson();
+    const resultHtml = path.resolve(reportObj.generateReportAsHtml(json, dest));
+
+    if (!disableExcel) require('./excel-generator')(json, resultHtml.replace(/\.html$/, '.xlsx'));
+
+    fs.writeFileSync(resultHtml.replace(/\.html$/, '-combined.json'), JSON.stringify(json, null, 2));
+}
 
 function getJsonsFromDir (dir, parent) {
     dir = parent ? path.join(parent, dir) : dir;
@@ -200,10 +205,4 @@ function getJsonsFromDir (dir, parent) {
     }
 }
 
-if (fs.existsSync(toCombine) && fs.lstatSync(toCombine).isDirectory()) {
-    getJsonsFromDir(toCombine);
-    parseFilesAndGenerateReport(files);
-}
-else parseFilesAndGenerateReport(toCombine.split(','));
-
-
+parseFilesAndGenerateReport();
