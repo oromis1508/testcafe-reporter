@@ -37,6 +37,7 @@ function getFilteredTests (fileFilterBy, fixtures) {
         let copy = {};
 
         try {
+            /* eslint-disable-next-line no-undef */
             copy = structuredClone(f);
         }
         catch (err) {
