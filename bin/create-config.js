@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const configData = require('../lib/config-reader');
-const configPath = path.join(process.cwd(), configData.ConfigFileName);
+
+const projectRoot = process.env.INIT_CWD || process.cwd();
+const configPath = path.join(projectRoot, configData.ConfigFileName);
 const hasForce = process.argv.includes('--force');
 
 if (!fs.existsSync(configPath) || hasForce) {
