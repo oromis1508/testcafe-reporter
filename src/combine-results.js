@@ -22,7 +22,7 @@ if (typeof dest === 'string') mainFile.createReportPath(path.dirname(dest));
 function getFilteredTests (fileFilterBy, fixtures) {
     let filterByFixtures = [];
     
-    let filter;
+    let filter = [];
     const result = [];
 
     try {
