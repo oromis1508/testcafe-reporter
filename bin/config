@@ -5,4 +5,4 @@
 const path          = require('path');
 const v8FlagsFilter = require('@devexpress/bin-v8-flags-filter');
 
-v8FlagsFilter(path.join(__dirname, '../scripts/create-config.js'), { useShutdownMessage: true, args: ['--force']});
+v8FlagsFilter(path.join(__dirname, './create-config.js'), { useShutdownMessage: true, args: ['--force']});

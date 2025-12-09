@@ -11,20 +11,20 @@
   "files": [
     "lib",
     "report",
-    "bin",
-    "scripts"
+    "bin"
   ],
   "scripts": {
     "test": "gulp test",
     "publish-please": "publish-please",
     "prepublish": "publish-please guard",
     "publish": "publish",
-    "postinstall": "node scripts/create-config.js"
+    "postinstall": "node bin/create-config.js"
   },
   "keywords": [
     "testcafe",
     "html",
     "excel",
+    "xlsx",
     "reporter",
     "plugin",
     "logger"
