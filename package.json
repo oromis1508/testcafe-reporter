@@ -1,7 +1,7 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "v2.2.0",
-  "description": "HTML TestCafe reporter plugin",
+  "version": "v2.2.1",
+  "description": "HTML & Excel TestCafe reporter plugin",
   "repository": "https://github.com/oromis1508/testcafe-reporter",
   "author": {
     "name": "Alex Chernik",
@@ -11,13 +11,15 @@
   "files": [
     "lib",
     "report",
-    "bin"
+    "bin",
+    "scripts"
   ],
   "scripts": {
     "test": "gulp test",
     "publish-please": "publish-please",
     "prepublish": "publish-please guard",
-    "publish": "publish"
+    "publish": "publish",
+    "postinstall": "node scripts/create-config.js"
   },
   "keywords": [
     "testcafe",
@@ -57,7 +59,8 @@
   },
   "bin": {
     "acd-html-reporter": "bin/exec",
-    "acd-html-combine": "bin/combine"
+    "acd-html-combine": "bin/combine",
+    "acd-html-config": "bin/config"
   },
   "type": "commonjs"
 }

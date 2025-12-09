@@ -1,0 +1,43 @@
+{
+  "_info": "This property is ignored. All properties names, statuses names and columns names can't be changed. Only can be changed count and/or order of them. Colors are only in hex style with ARGB format",
+  "excel": {
+    "disable": false,
+    "showStatuses": [
+      "passed",
+      "failed",
+      "broken",
+      "skipped"
+    ],
+    "showColumns": [
+      "Fixture",
+      "TestName",
+      "Status",
+      "Error1",
+      "Error2",
+      "ChangedLast2",
+      "ChangedLast3",
+      "IsLastWithoutStatus"
+    ],
+    "useErrorsWrapText": false,
+    "fillColors": {
+      "passed": "FFCCFFCC",
+      "failed": {
+        "same2runs": "FFFF9999",
+        "same3runs": "FFFFCCCC",
+        "diffentResults": "FFFF6666"
+      },
+      "broken": "FFFFFF99",
+      "skipped": "FFDDDDDD",
+      "emptyStatus": "FFFFFFFF"
+    }
+  },
+  "html": {
+    "keepFullCount": 3,
+    "days": 14,
+    "reportFile": true,
+    "reportFileName": "report.html",
+    "base64screens": true
+  },
+  "appendLogs": true,
+  "logWarnings": false
+}

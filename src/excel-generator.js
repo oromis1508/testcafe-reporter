@@ -1,4 +1,9 @@
 const ExcelJS = require('exceljs');
+const configReader = require('./config-reader');
+const config = configReader.CurrentConfig.excel;
+const columnsToShow = config.showColumns.filter(c => configReader.DefaultExcelColumns.includes(c));
+const columnsToShowIndexes = configReader.DefaultExcelColumns.map(c => columnsToShow.indexOf(c));
+
 const MAX_RUNS_PER_TEST = 3;
 
 function autofitColumns (worksheet, minWidth = 10, extra = 2, maxWidth = 80) {
@@ -89,6 +94,10 @@ async function generateReport (report, outPath) {
         const runs = runsAll.slice(0, MAX_RUNS_PER_TEST);
 
         const current = runs[0];
+        const status = current.status || '';
+
+        if (!config.showStatuses.includes(status)) continue;
+
         const prev1 = runs[1];
         const prev2 = runs[2];
 
@@ -115,7 +124,7 @@ async function generateReport (report, outPath) {
         rows.push({
             fixtureName: current.fixtureName,
             testName:    current.testName,
-            status:      current.status || '',
+            status:      status,
             error1,
             error2,
             changedLast2,
@@ -130,16 +139,7 @@ async function generateReport (report, outPath) {
     const wb = new ExcelJS.Workbook();
     const sheet = wb.addWorksheet('Report');
 
-    const headerRow = sheet.addRow([
-        'Fixture',
-        'TestName',
-        'Status',
-        'Error1',
-        'Error2',
-        'ChangedLast2',
-        'ChangedLast3',
-        'IsLastWithoutStatus',
-    ]);
+    const headerRow = sheet.addRow(columnsToShow);
 
     headerRow.font = { bold: true };
     headerRow.alignment = { horizontal: 'center' };
@@ -154,19 +154,19 @@ async function generateReport (report, outPath) {
         { width: 18 },
         { width: 22 },
     ];
-    sheet.getColumn(4).alignment = { wrapText: true, vertical: 'top' };
-    sheet.getColumn(5).alignment = { wrapText: true, vertical: 'top' };
+    sheet.getColumn(4).alignment = { wrapText: config.useErrorsWrapText, vertical: 'top' };
+    sheet.getColumn(5).alignment = { wrapText: config.useErrorsWrapText, vertical: 'top' };
 
     function pickColor (info) {
         if (info.isLastWithoutStatus === 'yes') return 'FFE6CCFF';
 
         switch (info.status) {
         case 'passed':
-            return 'FFCCFFCC';
+            return config.fillColors.passed;
         case 'broken':
-            return 'FFFFFF99';
+            return config.fillColors.broken;
         case 'skipped':
-            return 'FFDDDDDD';
+            return config.fillColors.skipped;
         case 'failed': {
             const { currentRun, prev1, prev2 } = info;
             const same2 = prev1 && sameStatusAndError(currentRun, prev1);
@@ -176,17 +176,18 @@ async function generateReport (report, outPath) {
           sameStatusAndError(currentRun, prev1) &&
           sameStatusAndError(currentRun, prev2);
 
-            if (same3) return 'FFFFCCCC';
-            if (same2) return 'FFFF9999';
-            return 'FFFF6666';
+            if (same3) return config.fillColors.failed.same3runs;
+            if (same2) return config.fillColors.failed.same2runs;
+            return config.fillColors.failed.diffentResults;
         }
         default:
-            return 'FFFFFFFF';
+            return config.fillColors.emptyStatus;
         }
     }
 
     for (const info of rows) {
-        const r = sheet.addRow([
+        const row = [];
+        const rowData = [
             info.fixtureName,
             info.testName,
             info.status,
@@ -195,7 +196,15 @@ async function generateReport (report, outPath) {
             info.changedLast2,
             info.changedLast3,
             info.isLastWithoutStatus,
-        ]);
+        ];
+
+        for (let i = 0; i < columnsToShowIndexes.length; i++) {
+            const dataIndex = columnsToShowIndexes[i];
+
+            if (dataIndex !== -1) row[dataIndex] = rowData[i];
+        }
+
+        const r = sheet.addRow(row);
 
         const color = pickColor(info);
 

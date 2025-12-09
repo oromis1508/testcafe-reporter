@@ -17,6 +17,12 @@ This is the **acd-html-reporter** reporter plugin for [TestCafe](http://devexpre
 </p>
 
 ## About
+### New in 2.2.1:
+#### Added config file for the reporter. All command-line arguments can be found in the config.
+#### Command-line arguments have higher priority than config.
+#### In case of config file was renamed or doesn't exist, default parameters will be used (values are listed in default config).
+#### Config generated after install or can be replaced to default by npx acd-html-config
+
 ### New in 2.2.0:
 #### Added excel report (in the same path as html). To disable xlsx generating, use --disableExcel
 

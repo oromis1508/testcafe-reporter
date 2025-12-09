@@ -1,3 +1,4 @@
+const config = require('../lib/config-reader').CurrentConfig;
 const mainFile = require('./index')();
 const args = mainFile.getStartArgObject();
 const reportObj = require('./jsonToHtml');
@@ -7,9 +8,9 @@ const toCombine = args.odd[args.odd.length - 1];
 const dest = args.dest;
 const last = args.last;
 const single = args.single;
-const disableExcel = args.disableExcel;
-const daysToShow = args.days ?? 14;
-const keepFullLogsCount = args.keepFullCount ?? 3;
+const disableExcel = args.disableExcel ? args.disableExcel : config.excel.disable;
+const daysToShow = args.days ?? config.html.days;
+const keepFullLogsCount = args.keepFullCount ?? config.html.keepFullCount;
 
 let files = [];
 

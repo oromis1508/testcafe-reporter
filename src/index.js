@@ -5,12 +5,8 @@ module.exports = function () {
         noColors: false,
 
         chalk:        require('chalk'), 
-        testStatuses: {
-            passed:  'passed', 
-            failed:  'failed',
-            broken:  'broken',   
-            skipped: 'skipped' 
-        },
+        testStatuses: require('./config-reader').TestStatuses,
+        
         chalkStyles: {
             passed:     'green',
             failed:     'red',
@@ -302,11 +298,13 @@ module.exports = function () {
 
         parseStartArguments () {
             const args = this.getStartArgObject();
-            const reportFileArg = args.reportFile ? args.reportFile : '';
-            const base64screens = args.base64screens;
+            const configFile = require('../lib/config-reader').CurrentConfig;
+            const reportFileConfig = configFile.html.reportFile ? configFile.html.reportFileName : '';
+            const reportFileArg = args.reportFile ? args.reportFile : reportFileConfig;
+            const base64screens = args.base64screens ? args.base64screens : configFile.html.base64screens;
 
-            this.appendLogs = args.appendLogs;
-            this.logWarnings = args.logWarnings;
+            this.appendLogs = args.appendLogs ? args.appendLogs : configFile.appendLogs;
+            this.logWarnings = args.logWarnings ? args.logWarnings : configFile.logWarnings;
             if (base64screens) this.isScreensAsBase64 = true;
 
             if (reportFileArg) {
@@ -530,7 +528,7 @@ module.exports = function () {
                 console.log(`Run results: ${summary}`);
                 if (this.logWarnings && warnings.length) console.log(warnings);
                 require('child_process').execSync(`npx acd-html-combine ${this.reportUtil.testResultsPath} --dest ${reportPath} --last ${this.getResultFileName()} ${this.appendLogs ? '' : '--single'}`, { stdio: 'inherit' });
-                console.log(this.chalk[this.chalkStyles.report](`Test report generated: ${path.resolve(reportPath)}`));
+                console.log(this.chalk[this.chalkStyles.report](`Html report generated: ${path.resolve(reportPath)}`));
             }
             catch (err) {
                 console.log('reportTaskDone: ' + (err.message ? err.message : err.msg));
