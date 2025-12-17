@@ -1,8 +1,8 @@
 {
   "name": "testcafe-reporter-acd-html-reporter",
-  "version": "v2.2.2",
+  "version": "v2.2.3",
   "description": "HTML & Excel TestCafe reporter plugin",
-  "repository": "https://github.com/oromis1508/testcafe-reporter",
+  "repository": "https://github.com/alexch0110/testcafe-reporter",
   "author": {
     "name": "Alex Chernik",
     "email": "aleks.4ernik.91@gmail.com"
@@ -22,6 +22,7 @@
   },
   "keywords": [
     "testcafe",
+    "json",
     "html",
     "excel",
     "xlsx",
